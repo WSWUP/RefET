@@ -1,0 +1,23 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Distribution / packaging
+dist/
+.eggs/
+*.egg-info/
+
+# Unit test / coverage reports
+.cache
+.coverage
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# PyCharm project settings
+.idea
+
+# Miscellaneous
+notes.txt
+README.rst
