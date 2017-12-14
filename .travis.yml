@@ -7,10 +7,7 @@ python:
 
 install:
   - pip install -r requirements.txt
-  - pip install codecov coverage pandas pytest pytz
+  - pip install pandas pytest pytz
 
 script:
-  - coverage run setup.py test
-
-after_success:
-  - codecov
+  - python -m pytest

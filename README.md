@@ -1,5 +1,4 @@
 [![Build Status](https://travis-ci.org/Open-ET/RefET.svg?branch=master)](https://travis-ci.org/Open-ET/RefET)
-[![coverage](https://codecov.io/gh/Open-ET/RefET/branch/master/graph/badge.svg)](https://codecov.io/gh/Open-ET/RefET)
 [![PyPI version](https://badge.fury.io/py/RefET.svg)](https://badge.fury.io/py/RefET)
 
 # ASCE Standardized Reference Evapotranspiration (ET)
