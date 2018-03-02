@@ -60,11 +60,11 @@ h_args = {
 # daily_args = {
 #     k: v for k, v in daily.items()
 #     if k in ['tmin', 'tmax', 'ea', 'rs', 'uz', 'zw', 'doy']}
-# daily_args.update({'ref_type':'etr', 'rso_type': 'full', 'rso': None})
+# daily_args.update({'surface':'etr', 'rso_type': 'full', 'rso': None})
 # hourly_args = {
 #     k: v for k, v in daily.items()
 #     if k in ['tmean', 'ea', 'rs', 'uz', 'zw', 'doy', 'time']}
-# hourly_args.update({'ref_type':'etr'})
+# hourly_args.update({'surface':'etr'})
 
 
 ## Test full daily/hourly functions with positional inputs
@@ -72,7 +72,7 @@ def test_refet_daily_input_positions():
     etr = daily(
         d_args['tmin'], d_args['tmax'], d_args['ea'], d_args['rs'],
         d_args['uz'], s_args['zw'], s_args['elev'], s_args['lat'],
-        d_args['doy'], 'etr')
+        d_args['doy'], surface='etr')
     assert float(etr) == pytest.approx(d_args['etr'])
 
 
@@ -80,45 +80,45 @@ def test_refet_hourly_input_positions():
     etr = hourly(
         h_args['tmean'], h_args['ea'], h_args['rs'], h_args['uz'],
         s_args['zw'], s_args['elev'], s_args['lat'], s_args['lon'],
-        h_args['doy'], h_args['time'], 'etr')
+        h_args['doy'], h_args['time'], surface='etr')
     assert float(etr) == pytest.approx(h_args['etr'])
 
 
 ## Test full hdaily hourly calculations with keyword inputs
-## Test ref_type, rso_type, and rso inputs
-def test_refet_daily_ref_type_etr():
+## Test surface, rso_type, and rso inputs
+def test_refet_daily_surface_etr():
     etr = daily(
         tmin=d_args['tmin'], tmax=d_args['tmax'], ea=d_args['ea'],
         rs=d_args['rs'], uz=d_args['uz'], zw=s_args['zw'], elev=s_args['elev'],
-        lat=s_args['lat'], doy=d_args['doy'])
+        lat=s_args['lat'], doy=d_args['doy'], surface='etr')
     assert float(etr) == pytest.approx(d_args['etr'])
 
 
-def test_refet_daily_ref_type_eto():
+def test_refet_daily_surface_eto():
     eto = daily(
         tmin=d_args['tmin'], tmax=d_args['tmax'], ea=d_args['ea'],
         rs=d_args['rs'], uz=d_args['uz'], zw=s_args['zw'], elev=s_args['elev'],
-        lat=s_args['lat'], doy=d_args['doy'], ref_type='eto')
+        lat=s_args['lat'], doy=d_args['doy'], surface='eto')
     assert float(eto) == pytest.approx(d_args['eto'])
 
 
-def test_refet_daily_ref_type_exception():
+def test_refet_daily_surface_exception():
     with pytest.raises(ValueError):
         etr = daily(
             tmin=d_args['tmin'], tmax=d_args['tmax'], ea=d_args['ea'],
             rs=d_args['rs'], uz=d_args['uz'], zw=s_args['zw'],
             elev=s_args['elev'], lat=s_args['lat'], doy=d_args['doy'],
-            ref_type='nonsense')
+            surface='nonsense')
         # assert float(etr) == pytest.approx(d_args['etr'])
 
 
-def test_refet_hourly_ref_type_exception():
+def test_refet_hourly_surface_exception():
     with pytest.raises(ValueError):
         etr = hourly(
             tmean=h_args['tmean'], ea=h_args['ea'], rs=h_args['rs'],
             uz=h_args['uz'], zw=s_args['zw'], elev=s_args['elev'],
             lat=s_args['lat'], lon=s_args['lon'], doy=h_args['doy'],
-            time=h_args['time'], ref_type='nonsense')
+            time=h_args['time'], surface='nonsense')
         # assert float(etr) == pytest.approx(h_args['etr'])
 
 
@@ -126,7 +126,7 @@ def test_refet_daily_rso_type_simple():
     etr = daily(
         tmin=d_args['tmin'], tmax=d_args['tmax'], ea=d_args['ea'],
         rs=d_args['rs'], uz=d_args['uz'], zw=s_args['zw'], elev=s_args['elev'],
-        lat=s_args['lat'], doy=d_args['doy'], rso_type='simple')
+        lat=s_args['lat'], doy=d_args['doy'], rso_type='simple', surface='etr')
     assert float(etr) == pytest.approx(d_args['etr_rso_simple'])
 
 
@@ -135,7 +135,7 @@ def test_refet_daily_rso_type_array():
         tmin=d_args['tmin'], tmax=d_args['tmax'], ea=d_args['ea'],
         rs=d_args['rs'], uz=d_args['uz'], zw=s_args['zw'], elev=s_args['elev'],
         lat=s_args['lat'], doy=d_args['doy'],
-        rso_type='array', rso=d_args['rso'])
+        rso_type='array', rso=d_args['rso'], surface='etr')
     assert float(etr) == pytest.approx(d_args['etr'])
 
 
@@ -145,7 +145,7 @@ def test_refet_daily_rso_type_exception():
             tmin=d_args['tmin'], tmax=d_args['tmax'], ea=d_args['ea'],
             rs=d_args['rs'], uz=d_args['uz'], zw=s_args['zw'],
             elev=s_args['elev'], lat=s_args['lat'], doy=d_args['doy'],
-            rso_type='nonsense')
+            rso_type='nonsense', surface='etr')
         # assert float(etr) == pytest.approx(d_args['etr'])
 
 
@@ -154,7 +154,7 @@ def test_refet_daily_asce():
         tmin=d_args['tmin'], tmax=d_args['tmax'], ea=d_args['ea'],
         rs=d_args['rs'], uz=d_args['uz'], zw=s_args['zw'],
         elev=s_args['elev'], lat=s_args['lat'], doy=d_args['doy'],
-        asce_flag=True)
+        method='asce', surface='etr')
     assert float(etr) == pytest.approx(d_args['etr_asce'])
 
 
@@ -163,7 +163,7 @@ def test_refet_hourly_asce():
         tmean=h_args['tmean'], ea=h_args['ea'], rs=h_args['rs'],
         uz=h_args['uz'], zw=s_args['zw'], elev=s_args['elev'],
         lat=s_args['lat'], lon=s_args['lon'], doy=h_args['doy'],
-        time=h_args['time'], asce_flag=True)
+        time=h_args['time'], method='asce', surface='etr')
     assert float(etr) == pytest.approx(h_args['etr_asce'])
 
 
@@ -182,7 +182,7 @@ def test_refet_daily_lat_exception():
             tmin=d_args['tmin'], tmax=d_args['tmax'], ea=d_args['ea'],
             rs=d_args['rs'], uz=d_args['uz'], zw=s_args['zw'],
             elev=s_args['elev'], lat=s_args['lat'] * 180 / math.pi,
-            doy=d_args['doy'])
+            doy=d_args['doy'], surface='etr')
         # assert float(etr) == pytest.approx(d_args['etr'])
 
 
@@ -192,7 +192,7 @@ def test_refet_hourly_lat_exception():
             tmean=h_args['tmean'], ea=h_args['ea'], rs=h_args['rs'],
             uz=h_args['uz'], zw=s_args['zw'], elev=s_args['elev'],
             lat=s_args['lat'] * 180 / math.pi, lon=s_args['lon'],
-            doy=h_args['doy'], time=h_args['time'])
+            doy=h_args['doy'], time=h_args['time'], surface='etr')
         # assert float(etr) == pytest.approx(h_args['etr'])
 
 def test_refet_hourly_lon_exception():
@@ -201,7 +201,7 @@ def test_refet_hourly_lon_exception():
             tmean=h_args['tmean'], ea=h_args['ea'], rs=h_args['rs'],
             uz=h_args['uz'], zw=s_args['zw'], elev=s_args['elev'],
             lat=s_args['lat'], lon=s_args['lon'] * 180 / math.pi,
-            doy=h_args['doy'], time=h_args['time'])
+            doy=h_args['doy'], time=h_args['time'], surface='etr')
         # assert float(etr) == pytest.approx(h_args['etr'])
 
 
@@ -290,8 +290,8 @@ class DailyData():
         #     continue
 
         test_dt = dt.datetime.strptime(test_date, '%Y-%m-%d')
-        # Can the ref_type be parameterized inside pytest_generate_tests?
-        for ref_type in ['ETr', 'ETo']:
+        # Can the surface type be parameterized inside pytest_generate_tests?
+        for surface in ['ETr', 'ETo']:
             date_values = csv_df \
                 .loc[test_date, ['TMIN', 'TMAX', 'EA', 'RS', 'WIND']] \
                 .rename({
@@ -299,8 +299,8 @@ class DailyData():
                     'WIND': 'uz'}) \
                 .to_dict()
             date_values.update({
-                'ref_type': ref_type.lower(),
-                'expected': out_df.loc[test_date, ref_type],
+                'surface': surface.lower(),
+                'expected': out_df.loc[test_date, surface],
                 'doy': int(
                     dt.datetime.strptime(test_date, '%Y-%m-%d').strftime('%j')),
                 'zw': zw,
@@ -308,7 +308,7 @@ class DailyData():
                 'lat': lat * math.pi / 180,
                 'rso_type': 'full'})
             values.append(date_values)
-            ids.append('{}-{}'.format(test_date, ref_type))
+            ids.append('{}-{}'.format(test_date, surface))
 
 
 class HourlyData():
@@ -420,8 +420,8 @@ class HourlyData():
             continue
 
         test_dt = dt.datetime.strptime(test_date, '%Y-%m-%d %H:%M')
-        # Can the ref_type be parameterized inside pytest_generate_tests?
-        for ref_type in ['ETr', 'ETo']:
+        # Can the surface type be parameterized inside pytest_generate_tests?
+        for surface in ['ETr', 'ETo']:
             date_values = csv_df \
                 .loc[test_date, ['TEMP', 'EA', 'RS', 'WIND', 'DOY']] \
                 .rename({
@@ -429,8 +429,8 @@ class HourlyData():
                     'WIND': 'uz'}) \
                 .to_dict()
             date_values.update({
-                'ref_type': ref_type.lower(),
-                'expected': out_df.loc[test_date, ref_type],
+                'surface': surface.lower(),
+                'expected': out_df.loc[test_date, surface],
                 # 'doy': int(test_dt.strftime('%j')),
                 'time': test_dt.hour,
                 'zw': zw,
@@ -438,7 +438,7 @@ class HourlyData():
                 'lat': lat * math.pi / 180,
                 'lon': lon * math.pi / 180})
             values.append(date_values)
-            ids.append('{}-{}'.format(test_date, ref_type))
+            ids.append('{}-{}'.format(test_date, surface))
 
 
 @pytest.fixture(scope='module')

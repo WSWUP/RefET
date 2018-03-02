@@ -5,8 +5,8 @@ import numpy as np
 from . import calcs
 
 
-def daily(tmin, tmax, ea, rs, uz, zw, elev, lat, doy,
-          ref_type='etr', rso_type='full', rso=None, asce_flag=False):
+def daily(tmin, tmax, ea, rs, uz, zw, elev, lat, doy, surface,
+          method='refet', rso_type='full', rso=None):
     """ASCE Daily Standardized Reference Evapotranspiration (ET)
 
     Arguments
@@ -29,25 +29,22 @@ def daily(tmin, tmax, ea, rs, uz, zw, elev, lat, doy,
         Latitude [radians].
     doy : ndarray
         Day of year.
-    ref_type : {'eto', 'etr', 'grass', 'alfalfa', 'short', 'tall'}, optional
-        Specifies which reference crop surface:
-        * 'etr' -- Tall reference crop (default)
-        * 'alfalfa' -- Tall reference crop
-        * 'tall' -- Tall reference crop
-        * 'eto' -- Short reference crop
-        * 'grass' -- Short reference crop
-        * 'short' -- Short reference crop
+    surface : {'eto', 'etr', 'grass', 'alfalfa', 'short', 'tall'}
+        Specifies which reference crop surface.
+        * 'etr', 'alfalfa', 'tall' -- Tall reference crop
+        * 'eto', 'grass', 'short' -- Short reference crop
+    method : {'refet', 'asce'}, optional
+        Specifies which calculation method to use.
+        * 'refet' -- Calculations will follow RefET software (default).
+        * 'asce' -- Calculations will follow ASCE-EWRI 2005 [1] equations.
     rso_type : {'full' (default), 'simple', 'array'}, optional
-        Specifies which clear sky solar radiation (Rso) model to use:
+        Specifies which clear sky solar radiation (Rso) model to use.
         * 'full' -- Full clear sky solar formulation
         * 'simple' -- Simplified clear sky solar formulation (Eq. 19)
         * 'array' -- Read Rso values from "rso" function parameter
     rso : float or None, optional
         Clear sky solar radiation [MJ m-2 day-1].
         Only needed if rso_type is 'array'.
-    asce_flag : bool
-        if True, use equations as defined in ASCE-EWRI 2005 [1].
-        if False, use equations as defined in Ref-ET software.
 
     Returns
     -------
@@ -57,7 +54,8 @@ def daily(tmin, tmax, ea, rs, uz, zw, elev, lat, doy,
     Raises
     ------
     ValueError
-        If "ref_type" or "rso_type" are invalid.
+        If "surface" or "rso_type" are invalid.
+        If latitude values are outside the range [-pi/2, pi/2].
 
     Notes
     -----
@@ -87,17 +85,20 @@ def daily(tmin, tmax, ea, rs, uz, zw, elev, lat, doy,
     if np.any(np.fabs(lat) > (0.5 * math.pi)):
         raise ValueError('latitudes must be in radians [-pi/2, pi/2]')
 
-    if ref_type.lower() in ['eto', 'grass', 'short']:
+    if method.lower() not in ['asce', 'refet']:
+        raise ValueError('method must be "asce" or "refet"')
+
+    if surface.lower() in ['eto', 'grass', 'short']:
         # Tall reference crop parameters
         cn, cd = 900, 0.34
-    elif ref_type.lower() in ['etr', 'alfalfa', 'tall']:
+    elif surface.lower() in ['etr', 'alfalfa', 'tall']:
         # Short reference crop parameters
         cn, cd = 1600, 0.38
     else:
-        raise ValueError('ref_type must be "etr" or "eto"')
+        raise ValueError('surface must be "etr" or "eto"')
 
     # To match standardized form, psy is calculated from elevation based pair
-    pair = calcs._air_pressure(elev, asce_flag)
+    pair = calcs._air_pressure(elev, method)
     psy = 0.000665 * pair
 
     # Vapor pressure
@@ -116,7 +117,7 @@ def daily(tmin, tmax, ea, rs, uz, zw, elev, lat, doy,
     # ea = _actual_vapor_pressure_func(q, pair)
 
     # Extraterrestrial radiation
-    ra = calcs._ra_daily(lat, doy, asce_flag)
+    ra = calcs._ra_daily(lat, doy, method)
 
     # Clear sky solar radiation
     if rso_type.lower() == 'full':
@@ -143,27 +144,17 @@ def daily(tmin, tmax, ea, rs, uz, zw, elev, lat, doy,
     # Wind speed
     u2 = calcs._wind_height_adjust(uz, zw)
 
+    # Tmean units conversion factor
+    # Check RefET to see if it is using 273 or 273.15
+    if method.lower() == 'asce':
+        c2k = 273.0
+    elif method.lower() == 'refet':
+        c2k = 273.0
+        # c2k = 273.15
+
     # Daily reference ET (Eq. 1)
     etsz = (
-        (0.408 * es_slope * rn + (psy * cn * u2 * (es - ea) / (tmean + 273))) /
+        (0.408 * es_slope * rn + (psy * cn * u2 * (es - ea) / (tmean + c2k))) /
         (es_slope + psy * (cd * u2 + 1)))
-
-    # print('\n{:>10s}: {:>8.3f}'.format('tmin', float(tmin)))
-    # print('{:>10s}: {:>8.3f}'.format('tmax', float(tmax)))
-    # print('{:>10s}: {:>8.3f}'.format('tmean', float(0.5 * (tmax + tmin))))
-    # print('{:>10s}: {:>8.3f}'.format('rs', float(rs)))
-    # print('{:>10s}: {:>8.3f}'.format('lat', float(lat)))
-    # print('{:>10s}: {:>8.3f}'.format('pair', float(pair)))
-    # print('{:>10s}: {:>8.3f}'.format('ea', float(ea)))
-    # print('{:>10s}: {:>8.3f}'.format('es', float(es)))
-    # print('{:>10s}: {:>8.4f}'.format('es_slope', float(es_slope)))
-    # print('{:>10s}: {:>8.3f}'.format('ra', float(ra)))
-    # print('{:>10s}: {:>8.3f}'.format('rs', float(rs)))
-    # print('{:>10s}: {:>8.3f}'.format('rso', float(rso)))
-    # print('{:>10s}: {:>8.3f}'.format('Fcd', float(fcd)))
-    # print('{:>10s}: {:>8.3f}'.format('Rnl', float(rnl)))
-    # print('{:>10s}: {:>8.3f}'.format('Rn', float(rn)))
-    # print('{:>10s}: {:>8.3f}'.format('u2', float(u2)))
-    # print('{:>10s}: {:>8.3f}'.format('etsz', float(etsz)))
 
     return etsz

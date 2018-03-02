@@ -5,45 +5,42 @@ import numpy as np
 from . import calcs
 
 
-def hourly(tmean, ea, rs, uz, zw, elev, lat, lon, doy, time,
-           ref_type='etr', asce_flag=False):
+def hourly(tmean, ea, rs, uz, zw, elev, lat, lon, doy, time, surface,
+           method='refet'):
     """ASCE Hourly Standardized Reference Evapotranspiration (ET)
 
     .. warning:: Cloudiness fraction at night is not being computed correctly
 
     Arguments
     ---------
-    tmean : array_like
+    tmean : ndarray
         Average hourly temperature [C].
     ea : ndarray
         Actual vapor pressure [kPa].
-    rs : array_like
+    rs : ndarray
         Shortwave solar radiation [MJ m-2 hr-1].
-    uz : array_like
+    uz : ndarray
         Wind speed [m/s].
     zw : float
         Wind speed measurement/estimated height [m].
-    elev : array_like
+    elev : ndarray
         Elevation [m]
-    lat : array_like
+    lat : ndarray
         Latitude [radians]
-    lon : array_like
+    lon : ndarray
         Longitude [radians].
-    doy : array_like
+    doy : ndarray
         Day of year.
-    time : array_like
+    time : ndarray
         UTC hour at start of time period.
-    ref_type : {'eto', 'etr', 'grass', 'alfalfa', 'short', 'tall'}, optional
-        Specifies which reference crop surface.
-        * 'etr' -- Tall reference crop (default)
-        * 'alfalfa' -- Tall reference crop
-        * 'tall' -- Tall reference crop
-        * 'eto' -- Short reference crop
-        * 'grass' -- Short reference crop
-        * 'short' -- Short reference crop
-    asce_flag : bool
-        if True, use  equations as defined in ASCE-EWRI 2005 [1].
-        if False, use equations as defined in Ref-ET software.
+    surface : {'eto', 'etr', 'grass', 'alfalfa', 'short', 'tall'}
+        Specifies which reference crop surface to use.
+        * 'etr', 'alfalfa', 'tall' -- Tall reference crop
+        * 'eto', 'grass', 'short' -- Short reference crop
+    method : {'refet' (default), 'asce'}, optional
+        Specifies which calculation method to use.
+        * 'refet' -- Calculations will follow RefET software.
+        * 'asce' -- Calculations will follow ASCE-EWRI 2005 [1] equations.
 
     Returns
     -------
@@ -53,7 +50,9 @@ def hourly(tmean, ea, rs, uz, zw, elev, lat, lon, doy, time,
     Raises
     ------
     ValueError
-        If "ref_type" is invalid.
+        If "surface" or "method" is invalid.
+        If latitude values are outside the range [-pi/2, pi/2].
+        If longitude values are outside the range [-pi, pi].
 
     Notes
     -----
@@ -86,7 +85,10 @@ def hourly(tmean, ea, rs, uz, zw, elev, lat, lon, doy, time,
     elif np.any(np.fabs(lon) > math.pi):
         raise ValueError('longitudes must be in radians [-pi, pi]')
 
-    if ref_type.lower() in ['eto', 'grass', 'short']:
+    if method.lower() not in ['asce', 'refet']:
+        raise ValueError('method must be "asce" or "refet"')
+
+    if surface.lower() in ['eto', 'grass', 'short']:
         # Short reference crop parameters
         cn_day = 37.0
         cd_day = 0.24
@@ -94,7 +96,7 @@ def hourly(tmean, ea, rs, uz, zw, elev, lat, lon, doy, time,
         cn_night = 37.0
         cd_night = 0.96
         g_rn_night = 0.5
-    elif ref_type.lower() in ['etr', 'alfalfa', 'tall']:
+    elif surface.lower() in ['etr', 'alfalfa', 'tall']:
         # Tall reference crop parameters
         cn_day = 66.0
         cd_day = 0.25
@@ -103,10 +105,10 @@ def hourly(tmean, ea, rs, uz, zw, elev, lat, lon, doy, time,
         cd_night = 1.7
         g_rn_night = 0.2
     else:
-        raise ValueError('ref_type must be "etr" or "eto"')
+        raise ValueError('surface must be "etr" or "eto"')
 
     # To match standardized form, psy is calculated from elevation based pair
-    pair = calcs._air_pressure(elev, asce_flag)
+    pair = calcs._air_pressure(elev, method)
     psy = 0.000665 * pair
     es = calcs._sat_vapor_pressure(tmean)
     es_slope = 4098 * es / np.power((tmean + 237.3), 2)
@@ -117,20 +119,20 @@ def hourly(tmean, ea, rs, uz, zw, elev, lat, lon, doy, time,
     # ea = _actual_vapor_pressure_func(q, pair)
 
     # Extraterrestrial radiation
-    ra = calcs._ra_hourly(lat, lon, doy, time_mid, asce_flag)
+    ra = calcs._ra_hourly(lat, lon, doy, time_mid, method)
 
     # Simplified clear sky solar radiation
     # rso = _rso_simple(ra, elev)
 
     # Clear sky solar radiation
-    rso = calcs._rso_hourly(ra, ea, pair, doy, time_mid, lat, lon, asce_flag)
+    rso = calcs._rso_hourly(ra, ea, pair, doy, time_mid, lat, lon, method)
 
     # Cloudiness fraction
     # Intentionally not using time_mid to match Beta value in IN2 file
     # In IN2, "Beta" is computed for the start of the time period,
     #   but "SinBeta" is computed for the midpoint.
     # Beta (not SinBeta) is used for clamping fcd.
-    fcd = calcs._fcd_hourly(rs, rso, doy, time, lat, lon, asce_flag)
+    fcd = calcs._fcd_hourly(rs, rso, doy, time, lat, lon, method)
 
     # Net long-wave radiation
     rnl = calcs._rnl_hourly(tmean, ea, fcd)
@@ -157,28 +159,17 @@ def hourly(tmean, ea, rs, uz, zw, elev, lat, lon, doy, time,
     # Wind speed
     u2 = calcs._wind_height_adjust(uz, zw)
 
+    # Tmean units conversion factor
+    # Check RefET to see if it is using 273 or 273.15
+    if method.lower() == 'asce':
+        c2k = 273.0
+    elif method.lower() == 'refet':
+        c2k = 273.0
+        # c2k = 273.15
+
     # Hourly reference ET (Eq. 1)
     etsz = (
-        (0.408 * es_slope * (rn - g) + (psy * cn * u2 * (es - ea) / (tmean + 273))) /
+        (0.408 * es_slope * (rn - g) + (psy * cn * u2 * (es - ea) / (tmean + c2k))) /
         (es_slope + psy * (cd * u2 + 1)))
-
-    # print('\n{:>10s}: {:>8.3f}'.format('tmean', float(tmean)))
-    # print('{:>10s}: {:>8.3f}'.format('ea', float(ea)))
-    # print('{:>10s}: {:>8.3f}'.format('rs', float(rs) / 0.0036))
-    # print('{:>10s}: {:>8.3f}'.format('time (mid)', float(time_mid)))
-    # print('{:>10s}: {:>8.3f}'.format('lat', float(lat)))
-    # print('{:>10s}: {:>8.3f}'.format('lon', float(lon)))
-    # print('{:>10s}: {:>8.3f}'.format('pair', float(pair)))
-    # print('{:>10s}: {:>8.3f}'.format('es', float(es)))
-    # print('{:>10s}: {:>8.4f}'.format('es_slope', float(es_slope)))
-    # print('{:>10s}: {:>8.3f}'.format('ra', float(ra) / 0.0036))
-    # print('{:>10s}: {:>8.3f}'.format('rs', float(rs) / 0.0036))
-    # print('{:>10s}: {:>8.3f}'.format('rso', float(rso) / 0.0036))
-    # print('{:>10s}: {:>8.3f}'.format('Fcd', float(fcd)))
-    # print('{:>10s}: {:>8.3f}'.format('Rnl', float(rnl) / 0.0036))
-    # print('{:>10s}: {:>8.3f}'.format('Rn', float(rn) / 0.0036))
-    # print('{:>10s}: {:>8.3f}'.format('G', float(g) / 0.0036))
-    # print('{:>10s}: {:>8.3f}'.format('u2', float(u2)))
-    # print('{:>10s}: {:>8.3f}'.format('etsz', float(etsz)))
 
     return etsz

@@ -3,16 +3,17 @@ import math
 import numpy as np
 
 
-def _air_pressure(elev, asce_flag=False):
+def _air_pressure(elev, method='refet'):
     """Mean atmospheric pressure at station elevation (Eqs. 3 & 34)
 
     Parameters
     ----------
     elev : scalar or array_like of shape(M, )
         Elevation [m].
-    asce_flag : bool
-        if True, use equations as defined in ASCE-EWRI 2005.
-        if False, use equations as defined in Ref-ET software.
+    method : {'refet', 'asce'}, optional
+        Calculation method:
+        * 'refet' -- Calculations will follow RefET software (default).
+        * 'asce' -- Calculations will follow ASCE-EWRI 2005 [1] equations.
 
     Returns
     -------
@@ -31,7 +32,7 @@ def _air_pressure(elev, asce_flag=False):
     """
     pair = np.array(elev, copy=True, ndmin=1).astype(np.float64)
     pair *= -0.0065
-    if asce_flag:
+    if method == 'asce':
         pair += 293
         pair /= 293
         np.power(pair, 5.26, out=pair)
@@ -166,16 +167,17 @@ def _doy_fraction(doy):
     return doy * (2.0 * math.pi / 365)
 
 
-def _delta(doy, asce_flag=False):
+def _delta(doy, method='refet'):
     """Earth declination (Eq. 51)
 
     Parameters
     ----------
     doy : scalar or array_like of shape(M, )
         Day of year.
-    asce_flag : bool
-        if True, use equations as defined in ASCE-EWRI 2005.
-        if False, use equations as defined in Ref-ET software.
+    method : {'refet', 'asce'}, optional
+        Calculation method:
+        * 'refet' -- Calculations will follow RefET software (default).
+        * 'asce' -- Calculations will follow ASCE-EWRI 2005 [1] equations.
 
     Returns
     -------
@@ -190,7 +192,7 @@ def _delta(doy, asce_flag=False):
         0.409 * sin((2 * pi * doy / 365) - 1.39)
 
     """
-    if asce_flag:
+    if method == 'asce':
         return 0.409 * np.sin(_doy_fraction(doy) - 1.39)
     else:
         return 23.45 * (math.pi / 180) * np.sin(2 * math.pi * (doy + 284) / 365)
@@ -325,7 +327,7 @@ def _omega_sunset(lat, delta):
     return np.arccos(-np.tan(lat) * np.tan(delta))
 
 
-def _ra_daily(lat, doy, asce_flag=False):
+def _ra_daily(lat, doy, method='refet'):
     """Daily extraterrestrial radiation (Eq. 21)
 
     Parameters
@@ -334,9 +336,10 @@ def _ra_daily(lat, doy, asce_flag=False):
         latitude [radians].
     doy : scalar or array_like of shape(M, )
         Day of year.
-    asce_flag : bool
-        if True, use equations as defined in ASCE-EWRI 2005.
-        if False, use equations as defined in Ref-ET software.
+    method : {'refet', 'asce'}, optional
+        Calculation method:
+        * 'refet' -- Calculations will follow RefET software (default).
+        * 'asce' -- Calculations will follow ASCE-EWRI 2005 [1] equations.
 
     Returns
     -------
@@ -349,7 +352,7 @@ def _ra_daily(lat, doy, asce_flag=False):
     Equation in Duffie & Beckman (?) uses a solar constant of 1367 W m-2
 
     """
-    delta = _delta(doy, asce_flag)
+    delta = _delta(doy, method)
     omegas = _omega_sunset(lat, delta)
     theta = (omegas * np.sin(lat) * np.sin(delta) +
              np.cos(lat) * np.cos(delta) * np.sin(omegas))
@@ -357,14 +360,14 @@ def _ra_daily(lat, doy, asce_flag=False):
     # print('{:>10s}: {:>8.3f}'.format('omegas', float(omegas)))
     # print('{:>10s}: {:>8.3f}'.format('theta', float(theta)))
     # print('{:>10s}: {:>8.3f}'.format('dr', float(_dr(doy))))
-    if asce_flag:
+    if method == 'asce':
         ra = (24. / math.pi) * 4.92 * _dr(doy) * theta
     else:
         ra = (24. / math.pi) * (1367 * 0.0036) * _dr(doy) * theta
     return ra
 
 
-def _ra_hourly(lat, lon, doy, time_mid, asce_flag=False):
+def _ra_hourly(lat, lon, doy, time_mid, method='refet'):
     """Hourly extraterrestrial radiation (Eq. 48)
 
     Parameters
@@ -377,9 +380,10 @@ def _ra_hourly(lat, lon, doy, time_mid, asce_flag=False):
         Day of year.
     time_mid : scalar or array_like of shape(M, )
         UTC time at midpoint of period [hours].
-    asce_flag : bool
-        if True, use equations as defined in ASCE-EWRI 2005.
-        if False, use equations as defined in Ref-ET software.
+    method : {'refet', 'asce'}, optional
+        Calculation method:
+        * 'refet' -- Calculations will follow RefET software (default).
+        * 'asce' -- Calculations will follow ASCE-EWRI 2005 [1] equations.
 
     Returns
     -------
@@ -392,7 +396,7 @@ def _ra_hourly(lat, lon, doy, time_mid, asce_flag=False):
     Equation in Duffie & Beckman (?) uses a solar constant of 1367 W m-2
     """
     omega = _omega(_solar_time_rad(lon, time_mid, _seasonal_correction(doy)))
-    delta = _delta(doy, asce_flag)
+    delta = _delta(doy, method)
     omegas = _omega_sunset(lat, delta)
 
     # Solar time as start and end of period (Eqs. 53 & 54)
@@ -405,7 +409,7 @@ def _ra_hourly(lat, lon, doy, time_mid, asce_flag=False):
     theta = (
         ((omega2 - omega1) * np.sin(lat) * np.sin(delta)) +
         (np.cos(lat) * np.cos(delta) * (np.sin(omega2) - np.sin(omega1))))
-    if asce_flag:
+    if method == 'asce':
         ra = (12. / math.pi) * 4.92 * _dr(doy) * theta
     else:
         ra = (12. / math.pi) * (1367 * 0.0036) * _dr(doy) * theta
@@ -460,7 +464,7 @@ def _rso_daily(ra, ea, pair, doy, lat):
     return rso
 
 
-def _rso_hourly(ra, ea, pair, doy, time_mid, lat, lon, asce_flag=False):
+def _rso_hourly(ra, ea, pair, doy, time_mid, lat, lon, method='refet'):
     """Full hourly clear sky solar radiation formulation (Appendix D)
 
     Parameters
@@ -479,9 +483,10 @@ def _rso_hourly(ra, ea, pair, doy, time_mid, lat, lon, asce_flag=False):
         Latitude [rad].
     lon : scalar or array_like of shape(M, )
         Longitude [rad].
-    asce_flag : bool
-        if True, use equations as defined in ASCE-EWRI 2005.
-        if False, use equations as defined in Ref-ET software.
+    method : {'refet', 'asce'}, optional
+        Calculation method:
+        * 'refet' -- Calculations will follow RefET software (default).
+        * 'asce' -- Calculations will follow ASCE-EWRI 2005 [1] equations.
         Passed through to declination calculation (_delta()).
 
     Returns
@@ -494,7 +499,7 @@ def _rso_hourly(ra, ea, pair, doy, time_mid, lat, lon, asce_flag=False):
     omega = _omega(_solar_time_rad(lon, time_mid, sc))
 
     # sin of the angle of the sun above the horizon (D.6 and Eq. 62)
-    delta = _delta(doy, asce_flag)
+    delta = _delta(doy, method)
     sin_beta = (
         np.sin(lat) * np.sin(delta) +
         np.cos(lat) * np.cos(delta) * np.cos(omega))
@@ -554,7 +559,7 @@ def _fcd_daily(rs, rso):
     return 1.35 * np.clip(rs / rso, 0.3, 1.0) - 0.35
 
 
-def _fcd_hourly(rs, rso, doy, time_mid, lat, lon, asce_flag=False):
+def _fcd_hourly(rs, rso, doy, time_mid, lat, lon, method='refet'):
     """Cloudiness fraction (Eq. 45)
 
     Parameters
@@ -571,9 +576,10 @@ def _fcd_hourly(rs, rso, doy, time_mid, lat, lon, asce_flag=False):
         Latitude [rad].
     lon : scalar or array_like of shape(M, )
         Longitude [rad].
-    asce_flag : bool
-        if True, use equations as defined in ASCE-EWRI 2005.
-        if False, use equations as defined in Ref-ET software.
+    method : {'refet', 'asce'}, optional
+        Calculation method:
+        * 'refet' -- Calculations will follow RefET software (default).
+        * 'asce' -- Calculations will follow ASCE-EWRI 2005 [1] equations.
         Passed through to declination calculation (_delta()).
 
     Returns
@@ -585,7 +591,7 @@ def _fcd_hourly(rs, rso, doy, time_mid, lat, lon, asce_flag=False):
     rso = np.array(rso, copy=True, ndmin=1).astype(np.float64)
 
     sc = _seasonal_correction(doy)
-    delta = _delta(doy, asce_flag)
+    delta = _delta(doy, method)
     omega = _omega(_solar_time_rad(lon, time_mid, sc))
     beta = np.arcsin(
         np.sin(lat) * np.sin(delta) +
@@ -598,11 +604,6 @@ def _fcd_hourly(rs, rso, doy, time_mid, lat, lon, asce_flag=False):
     # DEADBEEF - Still need to get daytime value of fcd when beta > 0.3
     # Get closest value in time (array space) when beta > 0.3
     fcd[beta < 0.3] = 1
-
-    # print('{:>10s}: {}'.format('sc', float(sc)))
-    # print('{:>10s}: {}'.format('delta', float(delta)))
-    # print('{:>10s}: {}'.format('omega', float(omega)))
-    # print('{:>10s}: {}'.format('beta', float(beta)))
 
     return fcd
 
