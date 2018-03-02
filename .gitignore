@@ -18,6 +18,5 @@ dist/
 # PyCharm project settings
 .idea
 
-# Miscellaneous
+# Miscellaneous files
 notes.txt
-README.rst
