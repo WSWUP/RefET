@@ -116,10 +116,10 @@ Optional Parameters
 Variable    Type        Description [units]
 ==========  ==========  ====================================================
 method      str         | Calculation method
-                        * 'refet' -- Calculations will follow RefET software
-                        * 'asce' -- Calculations will follow ASCE-EWRI 2005 [1] equations
+                        * 'refet' -- Calculations will follow RefET software (default)
+                        * 'asce' -- Calculations will follow ASCE-EWRI 2005 equations exactly
 rso_type    str         | Clear sky solar radiation (Rso) model
-                        * 'full' -- Full clear sky solar formulation
+                        * 'full' -- Full clear sky solar formulation (default)
                         * 'simple' -- Simplified clear sky solar formulation (Eq. 19)
                         * 'array' -- Read Rso values from "rso" function parameter
 rso         float       | Clear sky solar radiation [MJ m-2 day-1]
