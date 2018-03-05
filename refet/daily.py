@@ -97,14 +97,16 @@ def daily(tmin, tmax, ea, rs, uz, zw, elev, lat, doy, surface,
     else:
         raise ValueError('surface must be "etr" or "eto"')
 
-    # To match standardized form, psy is calculated from elevation based pair
+    # To match standardized form, pair is calculated from elevation
     pair = calcs._air_pressure(elev, method)
+
     psy = 0.000665 * pair
 
-    # Vapor pressure
+    # Saturated vapor pressure
     tmean = 0.5 * (tmax + tmin)
     es_slope = (
-        4098 * calcs._sat_vapor_pressure(tmean) / (np.power((tmean + 237.3), 2)))
+        4098 * calcs._sat_vapor_pressure(tmean) /
+        (np.power((tmean + 237.3), 2)))
     es = 0.5 * (calcs._sat_vapor_pressure(tmax) + calcs._sat_vapor_pressure(tmin))
 
     # DEADBBEF - remove
@@ -113,8 +115,10 @@ def daily(tmin, tmax, ea, rs, uz, zw, elev, lat, doy, surface,
 
     # DEADBBEF - remove
     # Vapor pressure from specific humidity
-    # To match standardized form, ea is calculated from elevation based pair
     # ea = _actual_vapor_pressure_func(q, pair)
+
+    # Vapor pressure deficit
+    vpd = calcs._vpd(es, ea)
 
     # Extraterrestrial radiation
     ra = calcs._ra_daily(lat, doy, method)
@@ -154,7 +158,7 @@ def daily(tmin, tmax, ea, rs, uz, zw, elev, lat, doy, surface,
 
     # Daily reference ET (Eq. 1)
     etsz = (
-        (0.408 * es_slope * rn + (psy * cn * u2 * (es - ea) / (tmean + c2k))) /
+        (0.408 * es_slope * rn + (psy * cn * u2 * vpd / (tmean + c2k))) /
         (es_slope + psy * (cd * u2 + 1)))
 
     return etsz

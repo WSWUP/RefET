@@ -22,6 +22,7 @@ d_args = {
     'doy_frac': 3.132985550429273,
     'dr': 0.9670012223491632,
     'ea': 1.2206674169951346,
+    'es': 4.6747236227258835,
     'eto': 7.942481120179387,
     'etr': 10.571560006380153,
     'fcd': 0.8569860867772078,
@@ -117,6 +118,12 @@ def test_specific_humidity(ea=d_args['ea'], pair=s_args['pair'],
 def test_actual_vapor_pressure(q=d_args['q'], pair=s_args['pair'],
                                ea=d_args['ea']):
     assert float(calcs._actual_vapor_pressure(q, pair)) == pytest.approx(ea)
+
+
+def test_vpd(es=d_args['es'], ea=d_args['ea']):
+    assert float(calcs._vpd(es, ea)) == pytest.approx(float(es-ea))
+    # Check that negative VPD's are set to 0
+    assert float(calcs._vpd(es, es+1)) == pytest.approx(0)
 
 
 def test_precipitable_water(pair=s_args['pair'], ea=d_args['ea'],

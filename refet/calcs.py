@@ -131,6 +131,26 @@ def _specific_humidity(ea, pair):
     return q
 
 
+def _vpd(es, ea):
+    """Vapor pressure deficit
+
+    Parameters
+    ----------
+    es : scalar or array_like of shape(M, )
+        Saturated vapor pressure [kPa].
+    ea : scalar or array_like of shape(M, )
+        Actual vapor pressure [kPa].
+
+    Returns
+    -------
+    ndarray
+        Vapor pressure deficit [kPa].
+
+    """
+
+    return np.maximum(es - ea, 0)
+
+
 def _precipitable_water(pair, ea):
     """Precipitable water in the atmosphere (Eq. D.3)
 
