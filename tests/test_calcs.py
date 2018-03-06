@@ -23,6 +23,7 @@ d_args = {
     'dr': 0.9670012223491632,
     'ea': 1.2206674169951346,
     'es': 4.6747236227258835,
+    'es_slope': 0.23489129849801055,
     'eto': 7.942481120179387,
     'etr': 10.571560006380153,
     'fcd': 0.8569860867772078,
@@ -70,6 +71,7 @@ h_args = {
 # Additional arguments for testing "asce" method
 d_asce_args = {
     'delta': 0.4029517192078854,
+    'es_slope': 0.23488581814172638,
     'ra': 41.64824567735701,
 }
 h_asce_args = {
@@ -126,6 +128,20 @@ def test_vpd(es=d_args['es'], ea=d_args['ea']):
     assert float(calcs._vpd(es, es+1)) == pytest.approx(0)
 
 
+def test_es_slope_refet(tmin=d_args['tmin'], tmax=d_args['tmax'],
+                        es_slope=d_args['es_slope']):
+    assert float(calcs._es_slope(
+        0.5 * (tmin + tmax))) == pytest.approx(float(es_slope))
+    assert float(calcs._es_slope(
+        0.5 * (tmin + tmax), method='refet') == pytest.approx(float(es_slope)))
+
+
+def test_es_slope_asce(tmin=d_args['tmin'], tmax=d_args['tmax'],
+                       es_slope=d_asce_args['es_slope']):
+    assert float(calcs._es_slope(
+        0.5 * (tmin + tmax), method='asce')) == pytest.approx(float(es_slope))
+
+
 def test_precipitable_water(pair=s_args['pair'], ea=d_args['ea'],
                             w=d_args['w']):
     assert float(calcs._precipitable_water(pair, ea)) == pytest.approx(w)
@@ -135,12 +151,12 @@ def test_doy_fraction(doy=d_args['doy'], expected=d_args['doy_frac']):
     assert float(calcs._doy_fraction(doy)) == pytest.approx(expected)
 
 
-def test_delta(doy=d_args['doy'], delta=d_args['delta']):
+def test_delta_refet(doy=d_args['doy'], delta=d_args['delta']):
     assert float(calcs._delta(doy)) == pytest.approx(delta)
-
-
-def test_delta_asce(doy=d_args['doy'], delta=d_args['delta']):
     assert float(calcs._delta(doy, method='refet')) == pytest.approx(delta)
+
+
+def test_delta_asce(doy=d_args['doy'], delta=d_asce_args['delta']):
     assert float(calcs._delta(
         doy, method='asce')) == pytest.approx(d_asce_args['delta'])
 

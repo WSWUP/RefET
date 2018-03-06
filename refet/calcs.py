@@ -73,6 +73,38 @@ def _sat_vapor_pressure(temperature):
     return e
 
 
+
+def _es_slope(tmean, method='refet'):
+    """Slope of the saturation vapor pressure-temperature curve (Eq. 5)
+
+    Parameters
+    ----------
+    tmean : ndarray
+        Mean air temperature [C].
+    method : {'refet', 'asce'}, optional
+        Calculation method:
+        * 'refet' -- Calculations will follow RefET software (default).
+        * 'asce' -- Calculations will follow ASCE-EWRI 2005 [1] equations.
+
+    Returns
+    -------
+    ndarray
+
+    Notes
+    -----
+    4098 * 0.6108 * exp(17.27 * T / (T + 237.3)) / ((T + 237.3) ** 2))
+
+    """
+    if method == 'refet':
+        es_slope = (
+            4098.0 * _sat_vapor_pressure(tmean) / np.power(tmean + 237.3, 2))
+    elif method == 'asce':
+        es_slope = (
+            2503.0 * np.exp(17.27 * tmean / (tmean + 237.3)) /
+            np.power(tmean + 237.3, 2))
+    return es_slope
+
+
 def _actual_vapor_pressure(q, pair):
     """"Actual vapor pressure from specific humidity
 

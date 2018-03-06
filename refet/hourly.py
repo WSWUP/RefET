@@ -111,7 +111,7 @@ def hourly(tmean, ea, rs, uz, zw, elev, lat, lon, doy, time, surface,
     pair = calcs._air_pressure(elev, method)
     psy = 0.000665 * pair
     es = calcs._sat_vapor_pressure(tmean)
-    es_slope = 4098 * es / np.power((tmean + 237.3), 2)
+    es_slope = calcs._es_slope(tmean, method)
 
     # DEADBBEF - remove
     # Vapor pressure from specific humidity

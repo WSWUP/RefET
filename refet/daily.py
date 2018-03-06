@@ -111,11 +111,10 @@ def daily(tmin, tmax, ea, rs, uz, zw, elev, lat, doy, surface,
 
     psy = 0.000665 * pair
 
-    # Saturated vapor pressure
     tmean = 0.5 * (tmax + tmin)
-    es_slope = (
-        4098 * calcs._sat_vapor_pressure(tmean) /
-        (np.power((tmean + 237.3), 2)))
+    es_slope = calcs._es_slope(tmean, method)
+
+    # Saturated vapor pressure
     es = 0.5 * (calcs._sat_vapor_pressure(tmax) + calcs._sat_vapor_pressure(tmin))
 
     # DEADBBEF - remove
