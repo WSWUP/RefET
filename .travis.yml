@@ -5,8 +5,15 @@ python:
   - "3.5"
   - "3.6"
 
+env:
+  - NUMPY=1.14.0
+  - NUMPY=1.13.0
+  - NUMPY=1.12.0
+  - NUMPY=1.11.0
+  - NUMPY=1.10.0
+
 install:
-  - pip install -r requirements.txt
+  - pip install -q numpy==$NUMPY
   - pip install pandas pytest pytz
 
 script:
