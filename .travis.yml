@@ -6,11 +6,8 @@ python:
   - "3.6"
 
 env:
-  - NUMPY=1.14.0
-  - NUMPY=1.13.0
-  - NUMPY=1.12.0
-  - NUMPY=1.11.0
-  - NUMPY=1.10.0
+  - NUMPY=1.14
+  - NUMPY=1.13
 
 install:
   - pip install -q numpy==$NUMPY
