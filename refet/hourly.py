@@ -40,7 +40,7 @@ def hourly(tmean, ea, rs, uz, zw, elev, lat, lon, doy, time, surface,
     method : {'refet' (default), 'asce'}, optional
         Specifies which calculation method to use.
         * 'refet' -- Calculations will follow RefET software.
-        * 'asce' -- Calculations will follow ASCE-EWRI 2005 [1] equations.
+        * 'asce' -- Calculations will follow ASCE-EWRI 2005 [1] equations exactly.
 
     Returns
     -------
@@ -50,7 +50,7 @@ def hourly(tmean, ea, rs, uz, zw, elev, lat, lon, doy, time, surface,
     Raises
     ------
     ValueError
-        If "surface" or "method" is invalid.
+        If 'surface' or 'method' parameter is invalid.
         If latitude values are outside the range [-pi/2, pi/2].
         If longitude values are outside the range [-pi, pi].
 
@@ -121,11 +121,11 @@ def hourly(tmean, ea, rs, uz, zw, elev, lat, lon, doy, time, surface,
     # Extraterrestrial radiation
     ra = calcs._ra_hourly(lat, lon, doy, time_mid, method)
 
-    # Simplified clear sky solar radiation
-    # rso = _rso_simple(ra, elev)
-
     # Clear sky solar radiation
-    rso = calcs._rso_hourly(ra, ea, pair, doy, time_mid, lat, lon, method)
+    if method == 'asce':
+        rso = calcs._rso_simple(ra, elev)
+    elif method == 'refet':
+        rso = calcs._rso_hourly(ra, ea, pair, doy, time_mid, lat, lon, method)
 
     # Cloudiness fraction
     # Intentionally not using time_mid to match Beta value in IN2 file

@@ -6,7 +6,7 @@ from . import calcs
 
 
 def daily(tmin, tmax, ea, rs, uz, zw, elev, lat, doy, surface,
-          method='refet', rso_type='full', rso=None):
+          method='refet', rso_type=None, rso=None):
     """ASCE Daily Standardized Reference Evapotranspiration (ET)
 
     Arguments
@@ -36,15 +36,16 @@ def daily(tmin, tmax, ea, rs, uz, zw, elev, lat, doy, surface,
     method : {'refet', 'asce'}, optional
         Specifies which calculation method to use.
         * 'refet' -- Calculations will follow RefET software (default).
-        * 'asce' -- Calculations will follow ASCE-EWRI 2005 [1] equations.
-    rso_type : {'full' (default), 'simple', 'array'}, optional
+        * 'asce' -- Calculations will follow ASCE-EWRI 2005 [1] equations exactly.
+    rso_type : {None (default), 'full' , 'simple', 'array'}, optional
         Specifies which clear sky solar radiation (Rso) model to use.
+        * None -- Rso type will be determined from "method" parameter
         * 'full' -- Full clear sky solar formulation
-        * 'simple' -- Simplified clear sky solar formulation (Eq. 19)
+        * 'simple' -- Simplified clear sky solar formulation
         * 'array' -- Read Rso values from "rso" function parameter
-    rso : float or None, optional
-        Clear sky solar radiation [MJ m-2 day-1].
-        Only needed if rso_type is 'array'.
+    rso : array_like or None, optional
+        Clear sky solar radiation [MJ m-2 day-1] (the default is None).
+        Only used if rso_type == 'array'.
 
     Returns
     -------
@@ -54,7 +55,7 @@ def daily(tmin, tmax, ea, rs, uz, zw, elev, lat, doy, surface,
     Raises
     ------
     ValueError
-        If "surface" or "rso_type" are invalid.
+        If 'surface', 'method' or 'rso_type' parameter is invalid.
         If latitude values are outside the range [-pi/2, pi/2].
 
     Notes
@@ -97,6 +98,14 @@ def daily(tmin, tmax, ea, rs, uz, zw, elev, lat, doy, surface,
     else:
         raise ValueError('surface must be "etr" or "eto"')
 
+    if rso_type is None:
+        pass
+    elif rso_type.lower() not in ['simple', 'full', 'array']:
+        raise ValueError('rso_type must be None, "simple", "full", or "array')
+    elif rso_type.lower() in 'array':
+        # Check that rso is an array
+        pass
+
     # To match standardized form, pair is calculated from elevation
     pair = calcs._air_pressure(elev, method)
 
@@ -124,17 +133,20 @@ def daily(tmin, tmax, ea, rs, uz, zw, elev, lat, doy, surface,
     ra = calcs._ra_daily(lat, doy, method)
 
     # Clear sky solar radiation
-    if rso_type.lower() == 'full':
-        # This is the full clear sky solar formulation
-        rso = calcs._rso_daily(ra, ea, pair, doy, lat)
+    # If rso_type is not set, use the method
+    # If rso_type is set, use rso_type directly
+    if rso_type is None :
+        if method.lower() == 'asce':
+            rso = calcs._rso_simple(ra, elev)
+        elif method.lower() == 'refet':
+            rso = calcs._rso_daily(ra, ea, pair, doy, lat)
     elif rso_type.lower() == 'simple':
-        # Simplified clear sky solar formulation (Eq. 19)
         rso = calcs._rso_simple(ra, elev)
+    elif rso_type.lower() == 'full':
+        rso = calcs._rso_daily(ra, ea, pair, doy, lat)
     elif rso_type.lower() == 'array':
         # Use rso array passed to function
         pass
-    else:
-        raise ValueError('rso_type must be "simple", "full", or "array')
 
     # Cloudiness fraction
     fcd = calcs._fcd_daily(rs, rso)

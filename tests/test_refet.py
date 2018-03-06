@@ -26,7 +26,7 @@ d_args = {
     'ea': 1.2206674169951346,
     'eto': 7.942481120179387,
     'etr': 10.571560006380153,
-    'etr_asce': 10.569448035440793,
+    'etr_asce': 10.626255265649009,
     'etr_rso_simple': 10.628376031267228,
     'rs': 674.07 * 0.041868,  # Conversion from Langleys to MJ m-2
     'rso': 31.565939444861765,
@@ -44,7 +44,7 @@ h_args = {
     'es': 5.09318785259078,
     'eto': 0.6065255163817055,
     'etr': 0.7201865213918281,
-    'etr_asce': 0.7201350186869202,
+    'etr_asce': 0.7196369609713682,
     'ra': 4.30824147948541,
     'rnl': 0.22897874401150786,
     'rs': 61.16 * 0.041868,  # Conversion from Langleys to MJ m-2
@@ -67,7 +67,7 @@ h_args = {
 # hourly_args.update({'surface':'etr'})
 
 
-## Test full daily/hourly functions with positional inputs
+# Test full daily/hourly functions with positional inputs
 def test_refet_daily_input_positions():
     etr = daily(
         d_args['tmin'], d_args['tmax'], d_args['ea'], d_args['rs'],
@@ -84,8 +84,8 @@ def test_refet_hourly_input_positions():
     assert float(etr) == pytest.approx(h_args['etr'])
 
 
-## Test full hdaily hourly calculations with keyword inputs
-## Test surface, rso_type, and rso inputs
+# Test full daily & hourly calculations with keyword inputs
+# Test surface, rso_type, and rso inputs
 def test_refet_daily_surface_etr():
     etr = daily(
         tmin=d_args['tmin'], tmax=d_args['tmax'], ea=d_args['ea'],
@@ -126,7 +126,7 @@ def test_refet_daily_rso_type_simple():
     etr = daily(
         tmin=d_args['tmin'], tmax=d_args['tmax'], ea=d_args['ea'],
         rs=d_args['rs'], uz=d_args['uz'], zw=s_args['zw'], elev=s_args['elev'],
-        lat=s_args['lat'], doy=d_args['doy'], rso_type='simple', surface='etr')
+        lat=s_args['lat'], doy=d_args['doy'], surface='etr', rso_type='simple')
     assert float(etr) == pytest.approx(d_args['etr_rso_simple'])
 
 
@@ -134,8 +134,8 @@ def test_refet_daily_rso_type_array():
     etr = daily(
         tmin=d_args['tmin'], tmax=d_args['tmax'], ea=d_args['ea'],
         rs=d_args['rs'], uz=d_args['uz'], zw=s_args['zw'], elev=s_args['elev'],
-        lat=s_args['lat'], doy=d_args['doy'],
-        rso_type='array', rso=d_args['rso'], surface='etr')
+        lat=s_args['lat'], doy=d_args['doy'], surface='etr',
+        rso_type='array', rso=d_args['rso'])
     assert float(etr) == pytest.approx(d_args['etr'])
 
 
@@ -145,7 +145,7 @@ def test_refet_daily_rso_type_exception():
             tmin=d_args['tmin'], tmax=d_args['tmax'], ea=d_args['ea'],
             rs=d_args['rs'], uz=d_args['uz'], zw=s_args['zw'],
             elev=s_args['elev'], lat=s_args['lat'], doy=d_args['doy'],
-            rso_type='nonsense', surface='etr')
+            surface = 'etr', rso_type='nonsense')
         # assert float(etr) == pytest.approx(d_args['etr'])
 
 
@@ -154,7 +154,7 @@ def test_refet_daily_asce():
         tmin=d_args['tmin'], tmax=d_args['tmax'], ea=d_args['ea'],
         rs=d_args['rs'], uz=d_args['uz'], zw=s_args['zw'],
         elev=s_args['elev'], lat=s_args['lat'], doy=d_args['doy'],
-        method='asce', surface='etr')
+        surface = 'etr', method='asce')
     assert float(etr) == pytest.approx(d_args['etr_asce'])
 
 
@@ -163,7 +163,7 @@ def test_refet_hourly_asce():
         tmean=h_args['tmean'], ea=h_args['ea'], rs=h_args['rs'],
         uz=h_args['uz'], zw=s_args['zw'], elev=s_args['elev'],
         lat=s_args['lat'], lon=s_args['lon'], doy=h_args['doy'],
-        time=h_args['time'], method='asce', surface='etr')
+        time=h_args['time'], surface='etr', method='asce')
     assert float(etr) == pytest.approx(h_args['etr_asce'])
 
 
@@ -175,7 +175,7 @@ def test_refet_hourly_asce():
 #     assert True
 
 
-## Test latitude/longitude in degrees
+# Test latitude/longitude in degrees
 def test_refet_daily_lat_exception():
     with pytest.raises(ValueError):
         etr = daily(
@@ -205,7 +205,7 @@ def test_refet_hourly_lon_exception():
         # assert float(etr) == pytest.approx(h_args['etr'])
 
 
-#### Test daily/hourly functions using actual RefET input/output files
+# Test daily/hourly functions using actual RefET input/output files
 # DEADBEEF - This doesn't work if I move it to conftest.py
 class DailyData():
     """Setup daily validation data from Fallon AgriMet station"""
