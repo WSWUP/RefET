@@ -680,10 +680,9 @@ def _rnl_daily(tmax, tmin, ea, fcd):
         Daily net long-wave radiation [MJ m-2 d-1].
 
     """
-    rnl = (
+    return (
         4.901E-9 * fcd * (0.34 - 0.14 * np.sqrt(ea)) *
-        0.5 * (np.power(tmax + 273.15, 4) + np.power(tmin + 273.15, 4)))
-    return rnl
+        0.5 * (np.power(tmax + 273.16, 4) + np.power(tmin + 273.16, 4)))
 
 
 def _rnl_hourly(tmean, ea, fcd):
@@ -704,10 +703,9 @@ def _rnl_hourly(tmean, ea, fcd):
         Hourly net long-wave radiation [MJ m-2 h-1].
 
     """
-    rnl = (
+    return (
          2.042E-10 * fcd * (0.34 - 0.14 * np.sqrt(ea)) *
          np.power((tmean + 273.16), 4))
-    return rnl
 
 
 def _wind_height_adjust(uz, zw):
