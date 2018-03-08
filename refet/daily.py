@@ -117,14 +117,6 @@ def daily(tmin, tmax, ea, rs, uz, zw, elev, lat, doy, surface,
     # Saturated vapor pressure
     es = 0.5 * (calcs._sat_vapor_pressure(tmax) + calcs._sat_vapor_pressure(tmin))
 
-    # DEADBBEF - remove
-    # Vapor pressure from RHmax and RHmin
-    # ea = 0.5 * (es_tmin * rhmax + es_tmax * rhmin)
-
-    # DEADBBEF - remove
-    # Vapor pressure from specific humidity
-    # ea = _actual_vapor_pressure_func(q, pair)
-
     # Vapor pressure deficit
     vpd = calcs._vpd(es, ea)
 
@@ -159,17 +151,9 @@ def daily(tmin, tmax, ea, rs, uz, zw, elev, lat, doy, surface,
     # Wind speed
     u2 = calcs._wind_height_adjust(uz, zw)
 
-    # Tmean units conversion factor
-    # Check RefET to see if it is using 273 or 273.15
-    if method.lower() == 'asce':
-        c2k = 273.0
-    elif method.lower() == 'refet':
-        c2k = 273.0
-        # c2k = 273.15
-
     # Daily reference ET (Eq. 1)
     etsz = (
-        (0.408 * es_slope * rn + (psy * cn * u2 * vpd / (tmean + c2k))) /
+        (0.408 * es_slope * rn + (psy * cn * u2 * vpd / (tmean + 273))) /
         (es_slope + psy * (cd * u2 + 1)))
 
     return etsz

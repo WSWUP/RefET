@@ -113,11 +113,6 @@ def hourly(tmean, ea, rs, uz, zw, elev, lat, lon, doy, time, surface,
     es = calcs._sat_vapor_pressure(tmean)
     es_slope = calcs._es_slope(tmean, method)
 
-    # DEADBBEF - remove
-    # Vapor pressure from specific humidity
-    # To match standardized form, ea is calculated from elevation based pair
-    # ea = _actual_vapor_pressure_func(q, pair)
-
     # Extraterrestrial radiation
     ra = calcs._ra_hourly(lat, lon, doy, time_mid, method)
 
@@ -159,17 +154,9 @@ def hourly(tmean, ea, rs, uz, zw, elev, lat, lon, doy, time, surface,
     # Wind speed
     u2 = calcs._wind_height_adjust(uz, zw)
 
-    # Tmean units conversion factor
-    # Check RefET to see if it is using 273 or 273.15
-    if method.lower() == 'asce':
-        c2k = 273.0
-    elif method.lower() == 'refet':
-        c2k = 273.0
-        # c2k = 273.15
-
     # Hourly reference ET (Eq. 1)
     etsz = (
-        (0.408 * es_slope * (rn - g) + (psy * cn * u2 * (es - ea) / (tmean + c2k))) /
+        (0.408 * es_slope * (rn - g) + (psy * cn * u2 * (es - ea) / (tmean + 273))) /
         (es_slope + psy * (cd * u2 + 1)))
 
     return etsz
