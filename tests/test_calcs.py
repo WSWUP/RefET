@@ -267,6 +267,12 @@ def test_fcd_hourly_asce(rs=h_args['rs'], rso=h_args['rso'], doy=h_args['doy'],
         rs, rso, doy, time, lat, lon,
         method='asce')) == pytest.approx(h_asce_args['fcd'])
 
+def test_fcd_hourly_night(rs=h_args['rs'], rso=h_args['rso'], doy=h_args['doy'],
+                          time=6, lat=s_args['lat'], lon=s_args['lon'], fcd=1):
+    # For now, check that nighttime fcd values are set to 1
+    assert float(calcs._fcd_hourly(
+        rs, rso, doy, time, lat, lon)) == pytest.approx(fcd)
+
 
 # Test function when rs/rso have different shapes than lat/lon/doy/time
 # def test_fcd_hourly_broadcasting():
