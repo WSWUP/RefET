@@ -60,7 +60,7 @@ def _sat_vapor_pressure(temperature):
 
     Notes
     -----
-    0.6108 * exp(17.27 * temperature / (temperature + 237.3))
+    es = 0.6108 * exp(17.27 * temperature / (temperature + 237.3))
 
     """
     e = np.array(temperature, copy=True, ndmin=1).astype(np.float64)
@@ -122,7 +122,7 @@ def _actual_vapor_pressure(q, pair):
 
     Notes
     -----
-    q * pair / (0.622 + 0.378 * q)
+    ea = q * pair / (0.622 + 0.378 * q)
 
     """
     ea = np.array(q, copy=True, ndmin=1).astype(np.float64)
@@ -151,7 +151,7 @@ def _specific_humidity(ea, pair):
 
     Notes
     -----
-    0.622 * ea / (pair - 0.378 * ea)
+    q = 0.622 * ea / (pair - 0.378 * ea)
 
     """
     q = np.array(ea, copy=True, ndmin=1).astype(np.float64)
@@ -408,10 +408,7 @@ def _ra_daily(lat, doy, method='refet'):
     omegas = _omega_sunset(lat, delta)
     theta = (omegas * np.sin(lat) * np.sin(delta) +
              np.cos(lat) * np.cos(delta) * np.sin(omegas))
-    # print('{:>10s}: {:>8.3f}'.format('delta', float(delta)))
-    # print('{:>10s}: {:>8.3f}'.format('omegas', float(omegas)))
-    # print('{:>10s}: {:>8.3f}'.format('theta', float(theta)))
-    # print('{:>10s}: {:>8.3f}'.format('dr', float(_dr(doy))))
+
     if method == 'asce':
         ra = (24. / math.pi) * 4.92 * _dr(doy) * theta
     else:
@@ -446,6 +443,7 @@ def _ra_hourly(lat, lon, doy, time_mid, method='refet'):
     -----
     Equation in ASCE-EWRI 2005 uses a solar constant of ~1366.666... W m-2
     Equation in Duffie & Beckman (?) uses a solar constant of 1367 W m-2
+
     """
     omega = _omega(_solar_time_rad(lon, time_mid, _seasonal_correction(doy)))
     delta = _delta(doy, method)
@@ -636,12 +634,13 @@ def _fcd_hourly(rs, rso, doy, time_mid, lat, lon, method='refet'):
 
     Returns
     -------
-    ndarray
+    fcd : ndarray
 
     """
     rs = np.array(rs, copy=True, ndmin=1).astype(np.float64)
     rso = np.array(rso, copy=True, ndmin=1).astype(np.float64)
 
+    # DEADBEEF - These values are only needed for identifying low sun angles
     sc = _seasonal_correction(doy)
     delta = _delta(doy, method)
     omega = _omega(_solar_time_rad(lon, time_mid, sc))
