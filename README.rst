@@ -1,12 +1,8 @@
-.. image:: https://travis-ci.org/Open-ET/RefET.svg?branch=master
-    :target: https://travis-ci.org/Open-ET/RefET
-
-.. image:: https://badge.fury.io/py/RefET.svg
-    :target: https://badge.fury.io/py/RefET
-
 ===================================================
 ASCE Standardized Reference Evapotranspiration (ET)
 ===================================================
+
+|version| |build|
 
 NumPy functions for computing daily and hourly reference ET.
 
@@ -84,8 +80,10 @@ elev        ndarray     Elevation [m]
 lat         ndarray     Latitude [radians]
 doy         ndarray     Day of year
 surface     str         | Reference crop surface type
+
                         * 'etr', 'alfalfa', 'tall' -- Tall reference crop
                         * 'eto', 'grass', 'short' -- Short reference crop
+
 ==========  ==========  ====================================================
 
 Required Daily Parameters
@@ -116,22 +114,28 @@ Optional Parameters
 Variable    Type        Description [units]
 ==========  ==========  ====================================================
 method      str         | Calculation method
+
                         * 'refet' -- Calculations will follow RefET software (default)
-                        * 'asce' -- Calculations will follow ASCE-EWRI 2005 equations exactly
+                        * 'asce' -- Calculations will follow ASCE-EWRI 2005 equations
+
 rso_type    str         | Override default clear sky solar radiation (Rso) calculation
                         | Defaults to None if not set
+
                         * 'full' -- Full clear sky solar formulation
                         * 'simple' -- Simplified clear sky solar formulation
                         * 'array' -- Read Rso values from "rso" function parameter
+
 rso         array_like  | Clear sky solar radiation [MJ m-2 day-1]
+
                         * Only used if rso_type == 'array'
                         * Defaults to None if not set
+
 ==========  ==========  ====================================================
 
-Limitations
-===========
+Issues
+======
 
-The functions have **not** been tested for multi-dimensional arrays (i.e. time series or grids).
+The functions have **not** been tested for inputs with different shapes/sizes and the broadcasting may not work correctly.
 
 Currently the user must handle all of the file I/O and unit conversions.
 
@@ -141,6 +145,11 @@ Cloudiness Fraction (hourly)
 ----------------------------
 
 The hourly reference ET calculation is currently performed independently for each time step which causes the cloudiness fraction (fcd) calculation for very low sun angles to be incorrect.
+
+ASCE vs. RefET
+==============
+
+TODO Discuss differences between "asce" and "refet" methods.
 
 Installation
 ============
@@ -174,3 +183,10 @@ ASCE-EWRI Standardized Reference Evapotranspiration Equation (2005)
 
  * `Report <http://www.kimberly.uidaho.edu/water/asceewri/ascestzdetmain2005.pdf>`__
  * `Appendix <http://www.kimberly.uidaho.edu/water/asceewri/appendix.pdf>`__
+
+.. |build| image:: https://travis-ci.org/cgmorton/RefET.svg?branch=master
+   :alt: Build status
+   :target: https://travis-ci.org/cgmorton/RefET
+.. |version| image:: https://badge.fury.io/py/refet.svg
+   :alt: Latest version on PyPI
+   :target: https://badge.fury.io/py/refet

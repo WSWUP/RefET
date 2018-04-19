@@ -25,10 +25,16 @@ def find_version(*file_paths):
 
 version = find_version("refet", "__init__.py")
 
+# Get the long description from the README file
+here = os.path.abspath(os.path.dirname(__file__))
+with open(os.path.join(here, 'README.rst'), encoding='utf-8') as f:
+    long_description = f.read()
+
 setup(
     name='refET',
     version=version,
     description='ASCE Standardized Reference Evapotranspiration Functions',
+    long_description=long_description,
     license='Apache',
     author='Charles Morton',
     author_email='charles.g.morton@gmail.com',
