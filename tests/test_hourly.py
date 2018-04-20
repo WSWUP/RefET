@@ -119,6 +119,48 @@ def test_refet_hourly_lon_exception():
         # assert float(etr) == pytest.approx(h_args['etr_asce'])
 
 
+# Test unit conversions
+def test_refet_hourly_tmean_f():
+    etr = Hourly(
+        tmean=h_args['tmean'] * (9.0 / 5) + 32, ea=h_args['ea'],
+        rs=h_args['rs'], uz=h_args['uz'], zw=s_args['zw'], elev=s_args['elev'],
+        lat=s_args['lat'], lon=s_args['lon'], doy=h_args['doy'],
+        time=h_args['time'], input_units={'tmean': 'F'}).etr()
+    assert float(etr) == pytest.approx(h_args['etr_asce'])
+
+def test_refet_hourly_tmean_k():
+    etr = Hourly(
+        tmean=h_args['tmean'] + 273.15, ea=h_args['ea'], rs=h_args['rs'],
+        uz=h_args['uz'], zw=s_args['zw'], elev=s_args['elev'],
+        lat=s_args['lat'], lon=s_args['lon'], doy=h_args['doy'],
+        time=h_args['time'], input_units={'tmean': 'K'}).etr()
+    assert float(etr) == pytest.approx(h_args['etr_asce'])
+
+def test_refet_hourly_zw_ft():
+    etr = Hourly(
+        tmean=h_args['tmean'], ea=h_args['ea'], rs=h_args['rs'],
+        uz=h_args['uz'], zw=s_args['zw'] / 0.3048, elev=s_args['elev'],
+        lat=s_args['lat'], lon=s_args['lon'], doy=h_args['doy'],
+        time=h_args['time'], input_units={'zw': 'ft'}).etr()
+    assert float(etr) == pytest.approx(h_args['etr_asce'])
+
+def test_refet_hourly_elev_ft():
+    etr = Hourly(
+        tmean=h_args['tmean'], ea=h_args['ea'], rs=h_args['rs'],
+        uz=h_args['uz'], zw=s_args['zw'], elev=s_args['elev'] / 0.3048,
+        lat=s_args['lat'], lon=s_args['lon'], doy=h_args['doy'],
+        time=h_args['time'], input_units={'elev': 'ft'}).etr()
+    assert float(etr) == pytest.approx(h_args['etr_asce'])
+
+def test_refet_hourly_lon_deg():
+    etr = Hourly(
+        tmean=h_args['tmean'], ea=h_args['ea'], rs=h_args['rs'],
+        uz=h_args['uz'], zw=s_args['zw'], elev=s_args['elev'],
+        lat=s_args['lat'], lon=s_args['lon'] * 180 / math.pi,
+        doy=h_args['doy'], time=h_args['time'],
+        input_units={'lon': 'deg'}).etr()
+    assert float(etr) == pytest.approx(h_args['etr_asce'])
+
 # Test hourly functions using actual RefET input/output files
 # DEADBEEF - This doesn't work if I move it to conftest.py
 class HourlyData():

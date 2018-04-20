@@ -7,7 +7,7 @@ from . import calcs
 
 class Hourly():
     def __init__(self, tmean, ea, rs, uz, zw, elev, lat, lon, doy, time,
-                 method='asce', input_units={}, output_units={}):
+                 method='asce', input_units={}):
         """ASCE Hourly Standardized Reference Evapotranspiration (ET)
 
         Arguments
@@ -38,8 +38,6 @@ class Hourly():
             * 'refet' -- Calculations will follow RefET software.
         input_units : dict, optional
             Input unit types.
-        output_units : dict, optional
-            Output unit types.
 
         Returns
         -------
@@ -78,6 +76,46 @@ class Hourly():
         self.time_mid = self.time + 0.5
         self.zw = zw
         self.doy = doy
+
+        # Unit conversion
+        for variable, unit in input_units.items():
+            # Check input unit types
+            if unit == '':
+                continue
+            elif unit.lower() in [
+                    'c', 'celsius', 'm', 'meter', 'meters',
+                    'rad', 'radians', 'kpa', 'm s-1', 'm/s',
+                    'mj m-2 day-1', 'mj m-2 d-1']:
+                continue
+            elif unit.lower() not in [
+                    'k', 'kelvin', 'f', 'fahrenheit',
+                    'deg', 'degree', 'degrees',
+                    'ft', 'feet', 'mph']:
+                raise ValueError('unsupported unit conversion for {} {}'.format(
+                    variable, unit))
+
+            # Convert input values to expected units
+            if variable == 'tmean':
+                if unit.lower() in ['f', 'fahrenheit']:
+                    self.tmean -= 32
+                    self.tmean *= (5.0 / 9)
+                elif unit.lower() in ['k', 'kelvin']:
+                    self.tmean -= 273.15
+            elif variable == 'uz':
+                if unit.lower() in ['mph']:
+                    self.uz *= 0.44704
+            elif variable == 'zw':
+                if unit.lower() in ['ft', 'feet']:
+                    self.zw *= 0.3048
+            elif variable == 'elev':
+                if unit.lower() in ['ft', 'feet']:
+                    self.elev *= 0.3048
+            elif variable == 'lat':
+                if unit.lower() in ['deg', 'degree', 'degrees']:
+                    self.lat *= (math.pi / 180)
+            elif variable == 'lon':
+                if unit.lower() in ['deg', 'degree', 'degrees']:
+                    self.lon *= (math.pi / 180)
 
         # Check that latitude & longitude are in radians
         if np.any(np.fabs(self.lat) > (0.5 * math.pi)):

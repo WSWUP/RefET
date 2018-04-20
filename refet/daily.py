@@ -7,8 +7,7 @@ from . import calcs
 
 class Daily():
     def __init__(self, tmin, tmax, ea, rs, uz, zw, elev, lat, doy,
-                 method='asce', rso_type=None, rso=None,
-                 input_units={}, output_units={}):
+                 method='asce', rso_type=None, rso=None, input_units={}):
         """ASCE Daily Standardized Reference Evapotranspiration (ET)
 
         Arguments
@@ -46,8 +45,6 @@ class Daily():
             Only used if rso_type == 'array'.
         input_units : dict, optional
             Input unit types.
-        output_units : dict, optional
-            Output unit types.
 
         Returns
         -------
@@ -85,8 +82,52 @@ class Daily():
         self.zw = zw
         self.doy = doy
 
+        # Unit conversion
+        for variable, unit in input_units.items():
+            print('  {}: {}'.format(variable, unit))
+            # Check input unit types
+            if unit == '':
+                continue
+            elif unit.lower() in [
+                    'c', 'celsius', 'm', 'meter', 'meters',
+                    'rad', 'radian', 'radians', 'kpa', 'm s-1', 'm/s',
+                    'mj m-2 day-1', 'mj m-2 d-1']:
+                continue
+            elif unit.lower() not in [
+                    'k', 'kelvin', 'f', 'fahrenheit',
+                    'deg', 'degree', 'degrees',
+                    'ft', 'feet', 'mph']:
+                raise ValueError('unsupported unit conversion for {} {}'.format(
+                    variable, unit))
+
+            # Convert input values to expected units
+            if variable == 'tmax':
+                if unit.lower() in ['f', 'fahrenheit']:
+                    self.tmax -= 32
+                    self.tmax *= (5.0 / 9)
+                elif unit.lower() in ['k', 'kelvin']:
+                    self.tmax -= 273.15
+            elif variable == 'tmin':
+                if unit.lower() in ['f', 'fahrenheit']:
+                    self.tmin -= 32
+                    self.tmin *= (5.0 / 9)
+                elif unit.lower() in ['k', 'kelvin']:
+                    self.tmin -= 273.15
+            elif variable == 'uz':
+                if unit.lower() in ['mph']:
+                    self.uz *= 0.44704
+            elif variable == 'zw':
+                if unit.lower() in ['ft', 'feet']:
+                    self.zw *= 0.3048
+            elif variable == 'elev':
+                if unit.lower() in ['ft', 'feet']:
+                    self.elev *= 0.3048
+            elif variable == 'lat':
+                if unit.lower() in ['deg', 'degree', 'degrees']:
+                    self.lat *= (math.pi / 180)
+
         # Check that latitudes are in radians (after applying unit conversion)
-        if np.any(np.fabs(lat) > (0.5 * math.pi)):
+        if np.any(np.fabs(self.lat) > (0.5 * math.pi)):
             raise ValueError('latitudes must be in radians [-pi/2, pi/2]')
 
         if method.lower() not in ['asce', 'refet']:

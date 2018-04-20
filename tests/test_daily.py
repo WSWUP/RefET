@@ -131,6 +131,49 @@ def test_refet_daily_lat_exception():
         # assert float(etr) == pytest.approx(d_args['etr'])
 
 
+# Test unit conversions
+def test_refet_daily_tmin_f():
+    etr = Daily(
+        tmin=d_args['tmin'] * (9.0 / 5) + 32, tmax=d_args['tmax'],
+        ea=d_args['ea'], rs=d_args['rs'], uz=d_args['uz'], zw=s_args['zw'],
+        elev=s_args['elev'], lat=s_args['lat'], doy=d_args['doy'],
+        input_units={'tmin': 'F'}).etr()
+    assert float(etr) == pytest.approx(d_args['etr_asce'])
+
+def test_refet_daily_tmax_k():
+    print(d_args['tmin'])
+    etr = Daily(
+        tmin=d_args['tmin'], tmax=d_args['tmax'] + 273.15,
+        ea=d_args['ea'], rs=d_args['rs'], uz=d_args['uz'], zw=s_args['zw'],
+        elev=s_args['elev'], lat=s_args['lat'], doy=d_args['doy'],
+        input_units={'tmax': 'K'}).etr()
+    assert float(etr) == pytest.approx(d_args['etr_asce'])
+
+def test_refet_daily_zw_ft():
+    etr = Daily(
+        tmin=d_args['tmin'], tmax=d_args['tmax'], ea=d_args['ea'],
+        rs=d_args['rs'], uz=d_args['uz'], zw=s_args['zw'] / 0.3048,
+        elev=s_args['elev'], lat=s_args['lat'], doy=d_args['doy'],
+        input_units={'zw': 'ft'}).etr()
+    assert float(etr) == pytest.approx(d_args['etr_asce'])
+
+def test_refet_daily_elev_ft():
+    etr = Daily(
+        tmin=d_args['tmin'], tmax=d_args['tmax'], ea=d_args['ea'],
+        rs=d_args['rs'], uz=d_args['uz'], zw=s_args['zw'],
+        elev=s_args['elev'] / 0.3048, lat=s_args['lat'], doy=d_args['doy'],
+        input_units={'elev': 'ft'}).etr()
+    assert float(etr) == pytest.approx(d_args['etr_asce'])
+
+def test_refet_daily_lat_def():
+    etr = Daily(
+        tmin=d_args['tmin'], tmax=d_args['tmax'], ea=d_args['ea'],
+        rs=d_args['rs'], uz=d_args['uz'], zw=s_args['zw'], elev=s_args['elev'],
+        lat=s_args['lat'] * 180 / math.pi, doy=d_args['doy'],
+        input_units={'lat': 'deg'}).etr()
+    assert float(etr) == pytest.approx(d_args['etr_asce'])
+
+
 # Test daily functions using actual RefET input/output files
 # DEADBEEF - This doesn't work if I move it to conftest.py
 class DailyData():

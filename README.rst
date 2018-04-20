@@ -106,27 +106,30 @@ time      ndarray     UTC hour at start of time period
 Optional Parameters
 -------------------
 
-========  ==========  ====================================================
-Variable  Type        Description [units]
-========  ==========  ====================================================
-method    str         | Calculation method
+===========  ==========  ====================================================
+Variable     Type        Description [units]
+===========  ==========  ====================================================
+method       str         | Calculation method
 
-                      * 'asce' -- Calculations will follow ASCE-EWRI 2005 (default)
-                      * 'refet' -- Calculations will follow RefET software
+                         * 'asce' -- Calculations will follow ASCE-EWRI 2005 (default)
+                         * 'refet' -- Calculations will follow RefET software
 
-rso_type  str         | Override default clear sky solar radiation (Rso) calculation
-                      | Defaults to None if not set
+rso_type     str         | Override default clear sky solar radiation (Rso) calculation
+                         | Defaults to None if not set
 
-                      * 'full' -- Full clear sky solar formulation
-                      * 'simple' -- Simplified clear sky solar formulation
-                      * 'array' -- Read Rso values from "rso" function parameter
+                         * 'full' -- Full clear sky solar formulation
+                         * 'simple' -- Simplified clear sky solar formulation
+                         * 'array' -- Read Rso values from "rso" function parameter
 
-rso       array_like  | Clear sky solar radiation [MJ m-2 day-1]
+rso          array_like  | Clear sky solar radiation [MJ m-2 day-1]
 
-                      * Only used if rso_type == 'array'
-                      * Defaults to None if not set
+                         * Only used if rso_type == 'array'
+                         * Defaults to None if not set
 
-========  ==========  ====================================================
+input_units  dict        | Override default input unit types
+                         | Input values will be converted to default unit types
+
+===========  ==========  ====================================================
 
 Issues
 ======
