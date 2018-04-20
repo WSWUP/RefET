@@ -25,8 +25,8 @@ h_args = {
     'doy': 182,
     'ea': 1.1990099614301906,
     'es': 5.09318785259078,
-    'eto': 0.6065255163817055,
-    'etr': 0.7201865213918281,
+    'eto_refet': 0.6065255163817055,
+    'etr_refet': 0.7201865213918281,
     'etr_asce': 0.7196369609713682,
     'ra': 4.30824147948541,
     'rnl': 0.22897874401150786,
@@ -51,8 +51,8 @@ def test_refet_hourly_input_positions():
     etr = hourly(
         h_args['tmean'], h_args['ea'], h_args['rs'], h_args['uz'],
         s_args['zw'], s_args['elev'], s_args['lat'], s_args['lon'],
-        h_args['doy'], h_args['time'], surface='etr')
-    assert float(etr) == pytest.approx(h_args['etr'])
+        h_args['doy'], h_args['time'], 'etr', 'asce')
+    assert float(etr) == pytest.approx(h_args['etr_asce'])
 
 
 # Test full hourly calculations with keyword inputs
@@ -63,17 +63,33 @@ def test_refet_hourly_surface_exception():
             tmean=h_args['tmean'], ea=h_args['ea'], rs=h_args['rs'],
             uz=h_args['uz'], zw=s_args['zw'], elev=s_args['elev'],
             lat=s_args['lat'], lon=s_args['lon'], doy=h_args['doy'],
-            time=h_args['time'], surface='nonsense')
-        # assert float(etr) == pytest.approx(h_args['etr'])
+            time=h_args['time'], surface='nonsense', method='asce')
+        # assert float(etr) == pytest.approx(h_args['etr_asce'])
 
 
-def test_refet_hourly_asce():
+def test_refet_hourly_default_method():
     etr = hourly(
         tmean=h_args['tmean'], ea=h_args['ea'], rs=h_args['rs'],
         uz=h_args['uz'], zw=s_args['zw'], elev=s_args['elev'],
         lat=s_args['lat'], lon=s_args['lon'], doy=h_args['doy'],
         time=h_args['time'], surface='etr', method='asce')
     assert float(etr) == pytest.approx(h_args['etr_asce'])
+
+def test_refet_hourly_asce_method():
+    etr = hourly(
+        tmean=h_args['tmean'], ea=h_args['ea'], rs=h_args['rs'],
+        uz=h_args['uz'], zw=s_args['zw'], elev=s_args['elev'],
+        lat=s_args['lat'], lon=s_args['lon'], doy=h_args['doy'],
+        time=h_args['time'], surface='etr', method='asce')
+    assert float(etr) == pytest.approx(h_args['etr_asce'])
+
+def test_refet_hourly_refet_method():
+    etr = hourly(
+        tmean=h_args['tmean'], ea=h_args['ea'], rs=h_args['rs'],
+        uz=h_args['uz'], zw=s_args['zw'], elev=s_args['elev'],
+        lat=s_args['lat'], lon=s_args['lon'], doy=h_args['doy'],
+        time=h_args['time'], surface='etr', method='refet')
+    assert float(etr) == pytest.approx(h_args['etr_refet'])
 
 
 def test_refet_hourly_lat_exception():
@@ -83,7 +99,7 @@ def test_refet_hourly_lat_exception():
             uz=h_args['uz'], zw=s_args['zw'], elev=s_args['elev'],
             lat=s_args['lat'] * 180 / math.pi, lon=s_args['lon'],
             doy=h_args['doy'], time=h_args['time'], surface='etr')
-        # assert float(etr) == pytest.approx(h_args['etr'])
+        # assert float(etr) == pytest.approx(h_args['etr_asce'])
 
 def test_refet_hourly_lon_exception():
     with pytest.raises(ValueError):
@@ -92,7 +108,7 @@ def test_refet_hourly_lon_exception():
             uz=h_args['uz'], zw=s_args['zw'], elev=s_args['elev'],
             lat=s_args['lat'], lon=s_args['lon'] * 180 / math.pi,
             doy=h_args['doy'], time=h_args['time'], surface='etr')
-        # assert float(etr) == pytest.approx(h_args['etr'])
+        # assert float(etr) == pytest.approx(h_args['etr_asce'])
 
 
 # Test hourly functions using actual RefET input/output files

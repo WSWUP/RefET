@@ -32,7 +32,7 @@ The raw input data is available `here <https://www.usbr.gov/pn-bin/daily.pl?stat
 
     etr = refet.daily(
         tmin=tmin_c, tmax=tmax_c, ea=ea, rs=rs, uz=uz, zw=3, elev=1208.5,
-        lat=lat_radians, doy=182, surface='alfalfa')
+        lat=lat_radians, doy=182, surface='alfalfa', method='asce')
 
     print('ETr: {:.2f} mm'.format(float(etr)))
 
@@ -58,7 +58,8 @@ The raw input data is available `here <https://www.usbr.gov/pn-bin/instant.pl?st
 
     etr = refet.hourly(
         tmean=tmean_c, ea=ea, rs=rs, uz=uz, zw=3, elev=1208.5,
-        lat=lat_radians, lon=lon_radians, doy=182, time=18, surface='alfalfa')
+        lat=lat_radians, lon=lon_radians, doy=182, time=18,
+        surface='alfalfa', method='asce')
 
     print('ETr: {:.2f} mm'.format(float(etr)))
 
@@ -67,70 +68,70 @@ Input Parameters
 ================
 
 Required Parameters (hourly & daily)
------------------------------------
+------------------------------------
 
-==========  ==========  ====================================================
-Variable    Type        Description [units]
-==========  ==========  ====================================================
-ea          ndarray     Actual vapor pressure [kPa]
-rs          ndarray     Incoming shortwave solar radiation [MJ m-2 day-1]
-uz          ndarray     Wind speed [m/s]
-zw          float       Wind speed height [m]
-elev        ndarray     Elevation [m]
-lat         ndarray     Latitude [radians]
-doy         ndarray     Day of year
-surface     str         | Reference crop surface type
+========  ==========  ====================================================
+Variable  Type        Description [units]
+========  ==========  ====================================================
+ea        ndarray     Actual vapor pressure [kPa]
+rs        ndarray     Incoming shortwave solar radiation [MJ m-2 day-1]
+uz        ndarray     Wind speed [m/s]
+zw        float       Wind speed height [m]
+elev      ndarray     Elevation [m]
+lat       ndarray     Latitude [radians]
+doy       ndarray     Day of year
+surface   str         | Reference crop surface type
 
-                        * 'etr', 'alfalfa', 'tall' -- Tall reference crop
-                        * 'eto', 'grass', 'short' -- Short reference crop
+                      * 'etr', 'alfalfa', 'tall' -- Tall reference crop
+                      * 'eto', 'grass', 'short' -- Short reference crop
 
-==========  ==========  ====================================================
+========  ==========  ====================================================
 
 Required Daily Parameters
 -------------------------
 
-==========  ==========  ====================================================
-Variable    Type        Description [units]
-==========  ==========  ====================================================
-tmin        ndarray     Minimum daily temperature [C]
-tmax        ndarray     Maximum daily temperature [C]
-==========  ==========  ====================================================
+========  ==========  ====================================================
+Variable  Type        Description [units]
+========  ==========  ====================================================
+tmin      ndarray     Minimum daily temperature [C]
+tmax      ndarray     Maximum daily temperature [C]
+========  ==========  ====================================================
 
 Required Hourly Parameters
 --------------------------
 
-==========  ==========  ====================================================
-Variable    Type        Description [units]
-==========  ==========  ====================================================
-tmean       ndarray     Average hourly temperature [C]
-lon         ndarray     Longitude [radians]
-time        ndarray     UTC hour at start of time period
-==========  ==========  ====================================================
+========  ==========  ====================================================
+Variable  Type        Description [units]
+========  ==========  ====================================================
+tmean     ndarray     Average hourly temperature [C]
+lon       ndarray     Longitude [radians]
+time      ndarray     UTC hour at start of time period
+========  ==========  ====================================================
 
 Optional Parameters
 -------------------
 
-==========  ==========  ====================================================
-Variable    Type        Description [units]
-==========  ==========  ====================================================
-method      str         | Calculation method
+========  ==========  ====================================================
+Variable  Type        Description [units]
+========  ==========  ====================================================
+method    str         | Calculation method
 
-                        * 'refet' -- Calculations will follow RefET software (default)
-                        * 'asce' -- Calculations will follow ASCE-EWRI 2005 equations
+                      * 'asce' -- Calculations will follow ASCE-EWRI 2005 (default)
+                      * 'refet' -- Calculations will follow RefET software
 
-rso_type    str         | Override default clear sky solar radiation (Rso) calculation
-                        | Defaults to None if not set
+rso_type  str         | Override default clear sky solar radiation (Rso) calculation
+                      | Defaults to None if not set
 
-                        * 'full' -- Full clear sky solar formulation
-                        * 'simple' -- Simplified clear sky solar formulation
-                        * 'array' -- Read Rso values from "rso" function parameter
+                      * 'full' -- Full clear sky solar formulation
+                      * 'simple' -- Simplified clear sky solar formulation
+                      * 'array' -- Read Rso values from "rso" function parameter
 
-rso         array_like  | Clear sky solar radiation [MJ m-2 day-1]
+rso       array_like  | Clear sky solar radiation [MJ m-2 day-1]
 
-                        * Only used if rso_type == 'array'
-                        * Defaults to None if not set
+                      * Only used if rso_type == 'array'
+                      * Defaults to None if not set
 
-==========  ==========  ====================================================
+========  ==========  ====================================================
 
 Issues
 ======

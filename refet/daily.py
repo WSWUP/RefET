@@ -6,7 +6,8 @@ from . import calcs
 
 
 def daily(tmin, tmax, ea, rs, uz, zw, elev, lat, doy, surface,
-          method='refet', rso_type=None, rso=None):
+          method='asce', rso_type=None, rso=None,
+          input_units={}, output_units={}):
     """ASCE Daily Standardized Reference Evapotranspiration (ET)
 
     Arguments
@@ -33,10 +34,10 @@ def daily(tmin, tmax, ea, rs, uz, zw, elev, lat, doy, surface,
         Specifies which reference crop surface.
         * 'etr', 'alfalfa', 'tall' -- Tall reference crop
         * 'eto', 'grass', 'short' -- Short reference crop
-    method : {'refet', 'asce'}, optional
+    method : {'asce' (default), 'refet'}, optional
         Specifies which calculation method to use.
-        * 'refet' -- Calculations will follow RefET software (default).
-        * 'asce' -- Calculations will follow ASCE-EWRI 2005 [1] equations exactly.
+        * 'asce' -- Calculations will follow ASCE-EWRI 2005 [1] equations.
+        * 'refet' -- Calculations will follow RefET software.
     rso_type : {None (default), 'full' , 'simple', 'array'}, optional
         Specifies which clear sky solar radiation (Rso) model to use.
         * None -- Rso type will be determined from "method" parameter
@@ -46,6 +47,10 @@ def daily(tmin, tmax, ea, rs, uz, zw, elev, lat, doy, surface,
     rso : array_like or None, optional
         Clear sky solar radiation [MJ m-2 day-1] (the default is None).
         Only used if rso_type == 'array'.
+    input_units : dict, optional
+        Input unit types.
+    output_units : dict, optional
+        Output unit types.
 
     Returns
     -------

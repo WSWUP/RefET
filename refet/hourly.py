@@ -6,7 +6,7 @@ from . import calcs
 
 
 def hourly(tmean, ea, rs, uz, zw, elev, lat, lon, doy, time, surface,
-           method='refet'):
+           method='asce', input_units={}, output_units={}):
     """ASCE Hourly Standardized Reference Evapotranspiration (ET)
 
     .. warning:: Cloudiness fraction at night is not being computed correctly
@@ -37,10 +37,14 @@ def hourly(tmean, ea, rs, uz, zw, elev, lat, lon, doy, time, surface,
         Specifies which reference crop surface to use.
         * 'etr', 'alfalfa', 'tall' -- Tall reference crop
         * 'eto', 'grass', 'short' -- Short reference crop
-    method : {'refet' (default), 'asce'}, optional
+    method : {'asce' (default), 'refet'}, optional
         Specifies which calculation method to use.
+        * 'asce' -- Calculations will follow ASCE-EWRI 2005 [1] equations.
         * 'refet' -- Calculations will follow RefET software.
-        * 'asce' -- Calculations will follow ASCE-EWRI 2005 [1] equations exactly.
+    input_units : dict, optional
+        Input unit types.
+    output_units : dict, optional
+        Output unit types.
 
     Returns
     -------

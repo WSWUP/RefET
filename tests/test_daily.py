@@ -23,9 +23,9 @@ s_args = {
 d_args = {
     'doy': 182,
     'ea': 1.2206674169951346,
-    'eto': 7.9422320475712835,
-    'etr': 10.571314344056955,
+    'eto_refet': 7.9422320475712835,
     'etr_asce': 10.626087665395694,
+    'etr_refet': 10.571314344056955,
     'etr_rso_simple': 10.628137858930051,
     'rs': 674.07 * 0.041868,  # Conversion from Langleys to MJ m-2
     'rso': 31.565939444861765,
@@ -49,8 +49,8 @@ def test_refet_daily_input_positions():
     etr = daily(
         d_args['tmin'], d_args['tmax'], d_args['ea'], d_args['rs'],
         d_args['uz'], s_args['zw'], s_args['elev'], s_args['lat'],
-        d_args['doy'], surface='etr')
-    assert float(etr) == pytest.approx(d_args['etr'])
+        d_args['doy'], 'etr', 'asce')
+    assert float(etr) == pytest.approx(d_args['etr_asce'])
 
 
 # Test full daily calculations with keyword inputs
@@ -59,16 +59,16 @@ def test_refet_daily_surface_etr():
     etr = daily(
         tmin=d_args['tmin'], tmax=d_args['tmax'], ea=d_args['ea'],
         rs=d_args['rs'], uz=d_args['uz'], zw=s_args['zw'], elev=s_args['elev'],
-        lat=s_args['lat'], doy=d_args['doy'], surface='etr')
-    assert float(etr) == pytest.approx(d_args['etr'])
+        lat=s_args['lat'], doy=d_args['doy'], surface='etr', method='asce')
+    assert float(etr) == pytest.approx(d_args['etr_asce'])
 
 
 def test_refet_daily_surface_eto():
     eto = daily(
         tmin=d_args['tmin'], tmax=d_args['tmax'], ea=d_args['ea'],
         rs=d_args['rs'], uz=d_args['uz'], zw=s_args['zw'], elev=s_args['elev'],
-        lat=s_args['lat'], doy=d_args['doy'], surface='eto')
-    assert float(eto) == pytest.approx(d_args['eto'])
+        lat=s_args['lat'], doy=d_args['doy'], surface='eto', method='refet')
+    assert float(eto) == pytest.approx(d_args['eto_refet'])
 
 
 def test_refet_daily_surface_exception():
@@ -77,15 +77,16 @@ def test_refet_daily_surface_exception():
             tmin=d_args['tmin'], tmax=d_args['tmax'], ea=d_args['ea'],
             rs=d_args['rs'], uz=d_args['uz'], zw=s_args['zw'],
             elev=s_args['elev'], lat=s_args['lat'], doy=d_args['doy'],
-            surface='nonsense')
-        # assert float(etr) == pytest.approx(d_args['etr'])
+            surface='nonsense', method='asce')
+        # assert float(etr) == pytest.approx(d_args['etr_asce'])
 
 
 def test_refet_daily_rso_type_simple():
     etr = daily(
         tmin=d_args['tmin'], tmax=d_args['tmax'], ea=d_args['ea'],
         rs=d_args['rs'], uz=d_args['uz'], zw=s_args['zw'], elev=s_args['elev'],
-        lat=s_args['lat'], doy=d_args['doy'], surface='etr', rso_type='simple')
+        lat=s_args['lat'], doy=d_args['doy'], surface='etr', method='refet',
+        rso_type='simple')
     assert float(etr) == pytest.approx(d_args['etr_rso_simple'])
 
 
@@ -93,9 +94,9 @@ def test_refet_daily_rso_type_array():
     etr = daily(
         tmin=d_args['tmin'], tmax=d_args['tmax'], ea=d_args['ea'],
         rs=d_args['rs'], uz=d_args['uz'], zw=s_args['zw'], elev=s_args['elev'],
-        lat=s_args['lat'], doy=d_args['doy'], surface='etr',
+        lat=s_args['lat'], doy=d_args['doy'], surface='etr', method='refet',
         rso_type='array', rso=d_args['rso'])
-    assert float(etr) == pytest.approx(d_args['etr'])
+    assert float(etr) == pytest.approx(d_args['etr_refet'])
 
 
 def test_refet_daily_rso_type_exception():
@@ -104,17 +105,32 @@ def test_refet_daily_rso_type_exception():
             tmin=d_args['tmin'], tmax=d_args['tmax'], ea=d_args['ea'],
             rs=d_args['rs'], uz=d_args['uz'], zw=s_args['zw'],
             elev=s_args['elev'], lat=s_args['lat'], doy=d_args['doy'],
-            surface = 'etr', rso_type='nonsense')
+            surface='etr', method='refet', rso_type='nonsense')
         # assert float(etr) == pytest.approx(d_args['etr'])
 
-
-def test_refet_daily_asce():
+def test_refet_daily_default_method():
     etr = daily(
         tmin=d_args['tmin'], tmax=d_args['tmax'], ea=d_args['ea'],
         rs=d_args['rs'], uz=d_args['uz'], zw=s_args['zw'],
         elev=s_args['elev'], lat=s_args['lat'], doy=d_args['doy'],
-        surface = 'etr', method='asce')
+        surface='etr')
     assert float(etr) == pytest.approx(d_args['etr_asce'])
+
+def test_refet_daily_asce_method():
+    etr = daily(
+        tmin=d_args['tmin'], tmax=d_args['tmax'], ea=d_args['ea'],
+        rs=d_args['rs'], uz=d_args['uz'], zw=s_args['zw'],
+        elev=s_args['elev'], lat=s_args['lat'], doy=d_args['doy'],
+        surface='etr', method='asce')
+    assert float(etr) == pytest.approx(d_args['etr_asce'])
+
+def test_refet_daily_refet_method():
+    etr = daily(
+        tmin=d_args['tmin'], tmax=d_args['tmax'], ea=d_args['ea'],
+        rs=d_args['rs'], uz=d_args['uz'], zw=s_args['zw'],
+        elev=s_args['elev'], lat=s_args['lat'], doy=d_args['doy'],
+        surface='etr', method='refet')
+    assert float(etr) == pytest.approx(d_args['etr_refet'])
 
 
 # Need to test other input structures (i.e. 1d and 2d arrays)
