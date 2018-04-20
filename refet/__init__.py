@@ -1,4 +1,4 @@
-from .daily import daily
-from .hourly import hourly
+from .daily import Daily
+from .hourly import Hourly
 
-__version__ = "0.2.4"
+__version__ = "0.3.0"

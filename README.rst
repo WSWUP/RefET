@@ -9,8 +9,8 @@ NumPy functions for computing daily and hourly reference ET.
 Usage
 =====
 
-Daily
------
+Daily Example
+-------------
 
 The following demonstrates how to compute a single daily ETr value using weather data for 2015-07-01 from the `Fallon, NV AgriMet station <https://www.usbr.gov/pn/agrimet/agrimetmap/falnda.html>`__.
 The necessary unit conversions are shown on the input values.
@@ -30,14 +30,14 @@ The raw input data is available `here <https://www.usbr.gov/pn-bin/daily.pl?stat
     uz = 4.80 * 0.44704                                        # mpg -> m s-1
     lat_radians = (39.4575 * math.pi / 180)                    # degrees -> radians
 
-    etr = refet.daily(
+    etr = refet.Daily(
         tmin=tmin_c, tmax=tmax_c, ea=ea, rs=rs, uz=uz, zw=3, elev=1208.5,
-        lat=lat_radians, doy=182, surface='alfalfa', method='asce')
+        lat=lat_radians, doy=182, method='asce').etr()
 
     print('ETr: {:.2f} mm'.format(float(etr)))
 
-Hourly
-------
+Hourly Example
+--------------
 
 The following demonstrates how to compute a single hourly ETr value using weather data for 18:00 UTC (11:00 AM PDT) on 2015-07-01 from the `Fallon, NV AgriMet station <https://www.usbr.gov/pn/agrimet/agrimetmap/falnda.html>`__.
 The necessary unit conversions are shown on the input values.
@@ -56,10 +56,10 @@ The raw input data is available `here <https://www.usbr.gov/pn-bin/instant.pl?st
     lat_radians = (39.4575 * math.pi / 180)      # degrees -> radians
     lon_radians = (-118.77388 * math.pi / 180)   # degrees -> radians
 
-    etr = refet.hourly(
+    etr = refet.Hourly(
         tmean=tmean_c, ea=ea, rs=rs, uz=uz, zw=3, elev=1208.5,
         lat=lat_radians, lon=lon_radians, doy=182, time=18,
-        surface='alfalfa', method='asce')
+        method='asce').etr()
 
     print('ETr: {:.2f} mm'.format(float(etr)))
 
@@ -80,11 +80,6 @@ zw        float       Wind speed height [m]
 elev      ndarray     Elevation [m]
 lat       ndarray     Latitude [radians]
 doy       ndarray     Day of year
-surface   str         | Reference crop surface type
-
-                      * 'etr', 'alfalfa', 'tall' -- Tall reference crop
-                      * 'eto', 'grass', 'short' -- Short reference crop
-
 ========  ==========  ====================================================
 
 Required Daily Parameters
@@ -185,9 +180,9 @@ ASCE-EWRI Standardized Reference Evapotranspiration Equation (2005)
  * `Report <http://www.kimberly.uidaho.edu/water/asceewri/ascestzdetmain2005.pdf>`__
  * `Appendix <http://www.kimberly.uidaho.edu/water/asceewri/appendix.pdf>`__
 
-.. |build| image:: https://travis-ci.org/cgmorton/RefET.svg?branch=master
+.. |build| image:: https://travis-ci.org/Open-ET/RefET.svg?branch=master
    :alt: Build status
-   :target: https://travis-ci.org/cgmorton/RefET
+   :target: https://travis-ci.org/Open-ET/RefET
 .. |version| image:: https://badge.fury.io/py/refet.svg
    :alt: Latest version on PyPI
    :target: https://badge.fury.io/py/refet
