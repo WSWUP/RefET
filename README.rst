@@ -186,6 +186,6 @@ ASCE-EWRI Standardized Reference Evapotranspiration Equation (2005)
 .. |build| image:: https://travis-ci.org/Open-ET/RefET.svg?branch=master
    :alt: Build status
    :target: https://travis-ci.org/Open-ET/RefET
-.. |version| image:: https://badge.fury.io/py/refet.svg
+.. |version| image:: https://badge.fury.io/py/RefET.svg
    :alt: Latest version on PyPI
-   :target: https://badge.fury.io/py/refet
+   :target: https://badge.fury.io/py/RefET
