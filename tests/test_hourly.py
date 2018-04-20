@@ -75,6 +75,7 @@ def test_refet_hourly_default_method():
         time=h_args['time'], surface='etr', method='asce')
     assert float(etr) == pytest.approx(h_args['etr_asce'])
 
+
 def test_refet_hourly_asce_method():
     etr = hourly(
         tmean=h_args['tmean'], ea=h_args['ea'], rs=h_args['rs'],
@@ -82,6 +83,7 @@ def test_refet_hourly_asce_method():
         lat=s_args['lat'], lon=s_args['lon'], doy=h_args['doy'],
         time=h_args['time'], surface='etr', method='asce')
     assert float(etr) == pytest.approx(h_args['etr_asce'])
+
 
 def test_refet_hourly_refet_method():
     etr = hourly(
@@ -238,7 +240,9 @@ class HourlyData():
                 'zw': zw,
                 'elev': elev,
                 'lat': lat * math.pi / 180,
-                'lon': lon * math.pi / 180})
+                'lon': lon * math.pi / 180,
+                'method': 'refet'
+            })
             values.append(date_values)
             ids.append('{}-{}'.format(test_date, surface))
 

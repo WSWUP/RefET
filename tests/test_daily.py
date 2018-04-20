@@ -108,6 +108,7 @@ def test_refet_daily_rso_type_exception():
             surface='etr', method='refet', rso_type='nonsense')
         # assert float(etr) == pytest.approx(d_args['etr'])
 
+
 def test_refet_daily_default_method():
     etr = daily(
         tmin=d_args['tmin'], tmax=d_args['tmax'], ea=d_args['ea'],
@@ -116,6 +117,7 @@ def test_refet_daily_default_method():
         surface='etr')
     assert float(etr) == pytest.approx(d_args['etr_asce'])
 
+
 def test_refet_daily_asce_method():
     etr = daily(
         tmin=d_args['tmin'], tmax=d_args['tmax'], ea=d_args['ea'],
@@ -123,6 +125,7 @@ def test_refet_daily_asce_method():
         elev=s_args['elev'], lat=s_args['lat'], doy=d_args['doy'],
         surface='etr', method='asce')
     assert float(etr) == pytest.approx(d_args['etr_asce'])
+
 
 def test_refet_daily_refet_method():
     etr = daily(
@@ -253,7 +256,9 @@ class DailyData():
                 'zw': zw,
                 'elev': elev,
                 'lat': lat * math.pi / 180,
-                'rso_type': 'full'})
+                'rso_type': 'full',
+                'method': 'refet'
+            })
             values.append(date_values)
             ids.append('{}-{}'.format(test_date, surface))
 
