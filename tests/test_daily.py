@@ -134,6 +134,16 @@ def test_refet_daily_tmax_k():
         input_units={'tmax': 'K'}).etr()
     assert float(etr) == pytest.approx(d_args['etr_asce'])
 
+
+def test_refet_daily_ea_pa():
+    etr = Daily(
+        tmin=d_args['tmin'], tmax=d_args['tmax'], ea=d_args['ea'] * 1000,
+        rs=d_args['rs'], uz=d_args['uz'], zw=s_args['zw'],
+        elev=s_args['elev'], lat=s_args['lat'], doy=d_args['doy'],
+        input_units={'ea': 'Pa'}).etr()
+    assert float(etr) == pytest.approx(d_args['etr_asce'])
+
+
 def test_refet_daily_rs_langleys():
     etr = Daily(
         tmin=d_args['tmin'], tmax=d_args['tmax'], ea=d_args['ea'],

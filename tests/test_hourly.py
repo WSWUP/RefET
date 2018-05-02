@@ -112,6 +112,14 @@ def test_refet_hourly_tmean_k():
         time=h_args['time'], input_units={'tmean': 'K'}).etr()
     assert float(etr) == pytest.approx(h_args['etr_asce'])
 
+def test_refet_hourly_ea_pa():
+    etr = Hourly(
+        tmean=h_args['tmean'], ea=h_args['ea'] * 1000, rs=h_args['rs'],
+        uz=h_args['uz'], zw=s_args['zw'], elev=s_args['elev'],
+        lat=s_args['lat'], lon=s_args['lon'], doy=h_args['doy'],
+        time=h_args['time'], input_units={'ea': 'Pa'}).etr()
+    assert float(etr) == pytest.approx(h_args['etr_asce'])
+
 def test_refet_hourly_rs_langleys():
     etr = Hourly(
         tmean=h_args['tmean'], ea=h_args['ea'], rs=h_args['rs'] / 0.041868,

@@ -97,6 +97,7 @@ class Daily():
                 continue
             elif unit.lower() not in [
                     'k', 'kelvin', 'f', 'fahrenheit',
+                    'pa',
                     'langleys', 'w m-2', 'w/m2',
                     'mph',
                     'ft', 'feet',
@@ -117,6 +118,9 @@ class Daily():
                     self.tmin *= (5.0 / 9)
                 elif unit.lower() in ['k', 'kelvin']:
                     self.tmin -= 273.15
+            elif variable == 'ea':
+                if unit.lower() in ['pa']:
+                    self.ea /= 1000.0
             elif variable == 'rs':
                 if unit.lower() in ['langleys']:
                     self.rs *= 0.041868
