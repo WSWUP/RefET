@@ -32,7 +32,7 @@ class Daily():
             Day of year.
         method : {'asce' (default), 'refet'}, optional
             Specifies which calculation method to use.
-            * 'asce' -- Calculations will follow ASCE-EWRI 2005 [1] equations.
+            * 'asce' -- Calculations will follow ASCE-EWRI 2005 [1]_ equations.
             * 'refet' -- Calculations will follow RefET software.
         rso_type : {None (default), 'full' , 'simple', 'array'}, optional
             Specifies which clear sky solar radiation (Rso) model to use.
@@ -55,15 +55,19 @@ class Daily():
         -----
         cn: 900 for ETo, 1600 for ETr
         cd: 0.34 for ETo, 0.38 for ETr
-        Divide solar radiation values by 0.0864 to convert MJ m-2 day-1 to W m-2
+
+        The Langleys to MJ m-2 conversion factor is the value used in the RefET
+        program, although there are other factors that could be applied:
+        https://www.aps.org/policy/reports/popa-reports/energy/units.cfm
 
         References
         ----------
-        .. [1] ASCE-EWRI (2005). The ASCE standardized reference evapotranspiration
-            equation. ASCE-EWRI Standardization of Reference Evapotranspiration
-            Task Committee Rep., ASCE Reston, Va.
-            http://www.kimberly.uidaho.edu/water/asceewri/ascestzdetmain2005.pdf
-            http://www.kimberly.uidaho.edu/water/asceewri/appendix.pdf
+        .. [1] ASCE-EWRI (2005). The ASCE standardized reference
+           evapotranspiration equation. ASCE-EWRI Standardization of Reference
+           Evapotranspiration Task Committee Rep., ASCE Reston, Va.
+           http://www.kimberly.uidaho.edu/water/asceewri/ascestzdetmain2005.pdf
+           http://www.kimberly.uidaho.edu/water/asceewri/appendix.pdf
+
         """
 
         # Convert all inputs to NumPy arrays
@@ -116,7 +120,6 @@ class Daily():
             elif variable == 'rs':
                 if unit.lower() in ['langleys']:
                     self.rs *= 0.041868
-                    # self.rs *= 0.04184
                 elif unit.lower() in ['w m-2', 'w/m2']:
                     self.rs *= 0.0864
             elif variable == 'uz':

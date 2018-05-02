@@ -34,7 +34,7 @@ class Hourly():
             UTC hour at start of time period.
         method : {'asce' (default), 'refet'}, optional
             Specifies which calculation method to use.
-            * 'asce' -- Calculations will follow ASCE-EWRI 2005 [1] equations.
+            * 'asce' -- Calculations will follow ASCE-EWRI 2005 [1]_ equations.
             * 'refet' -- Calculations will follow RefET software.
         input_units : dict, optional
             Input unit types.
@@ -46,15 +46,18 @@ class Hourly():
 
         Notes
         -----
-        Divide solar radiation values by 0.0036 to convert MJ m-2 hr-1 to W m-2
+        The Langleys to MJ m-2 conversion factor is the value used in the RefET
+        program, although there are other factors that could be applied:
+        https://www.aps.org/policy/reports/popa-reports/energy/units.cfm
 
         References
         ----------
-        .. [1] ASCE-EWRI (2005). The ASCE standardized reference evapotranspiration
-            equation. ASCE-EWRI Standardization of Reference Evapotranspiration
-            Task Committee Rep., ASCE Reston, Va.
-            http://www.kimberly.uidaho.edu/water/asceewri/ascestzdetmain2005.pdf
-            http://www.kimberly.uidaho.edu/water/asceewri/appendix.pdf
+        .. [1] ASCE-EWRI (2005). The ASCE standardized reference
+           evapotranspiration equation. ASCE-EWRI Standardization of Reference
+           Evapotranspiration Task Committee Rep., ASCE Reston, Va.
+           http://www.kimberly.uidaho.edu/water/asceewri/ascestzdetmain2005.pdf
+           http://www.kimberly.uidaho.edu/water/asceewri/appendix.pdf
+
         """
 
         # Convert all inputs to NumPy arrays
@@ -103,7 +106,6 @@ class Hourly():
             elif variable == 'rs':
                 if unit.lower() in ['langleys']:
                     self.rs *= 0.041868
-                    # self.rs *= 0.04184
                 elif unit.lower() in ['w m-2', 'w/m2']:
                     self.rs *= 0.0036
             elif variable == 'uz':
