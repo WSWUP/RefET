@@ -14,8 +14,8 @@ import refet.units as units
 # Fallon AgriMet site parameters
 s_args = {
     'elev': 1208.5,
-    'lat': units._deg2rad(39.4575),
-    'lon': units._deg2rad(-118.77388),
+    'lat': 39.4575,
+    'lon': -118.77388,
     'zw': 3.0,
 }
 
@@ -120,17 +120,6 @@ def test_refet_daily_refet_method():
 #     assert True
 
 
-# Test latitude/longitude in degrees
-def test_refet_daily_lat_exception():
-    with pytest.raises(ValueError):
-        etr = Daily(
-            tmin=d_args['tmin'], tmax=d_args['tmax'], ea=d_args['ea'],
-            rs=d_args['rs'], uz=d_args['uz'], zw=s_args['zw'],
-            elev=s_args['elev'], lat=s_args['lat'] * 180 / math.pi,
-            doy=d_args['doy']).etr()
-        # assert float(etr) == pytest.approx(d_args['etr'])
-
-
 # Test unit conversions
 def test_refet_daily_tmin_f():
     etr = Daily(
@@ -169,8 +158,8 @@ def test_refet_daily_lat_def():
     etr = Daily(
         tmin=d_args['tmin'], tmax=d_args['tmax'], ea=d_args['ea'],
         rs=d_args['rs'], uz=d_args['uz'], zw=s_args['zw'], elev=s_args['elev'],
-        lat=s_args['lat'] * 180 / math.pi, doy=d_args['doy'],
-        input_units={'lat': 'deg'}).etr()
+        lat=s_args['lat'] * math.pi / 180, doy=d_args['doy'],
+        input_units={'lat': 'rad'}).etr()
     assert float(etr) == pytest.approx(d_args['etr_asce'])
 
 
@@ -274,7 +263,7 @@ class DailyData():
                     dt.datetime.strptime(test_date, '%Y-%m-%d').strftime('%j')),
                 'zw': zw,
                 'elev': elev,
-                'lat': lat * math.pi / 180,
+                'lat': lat,
                 'rso_type': 'full',
                 'method': 'refet'
             })

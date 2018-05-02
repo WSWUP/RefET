@@ -69,7 +69,7 @@ rs        ndarray     Incoming shortwave solar radiation [MJ m-2 day-1]
 uz        ndarray     Wind speed [m/s]
 zw        float       Wind speed height [m]
 elev      ndarray     Elevation [m]
-lat       ndarray     Latitude [radians]
+lat       ndarray     Latitude [degrees]
 doy       ndarray     Day of year
 ========  ==========  ====================================================
 
@@ -90,7 +90,7 @@ Required Hourly Parameters
 Variable  Type        Description [default units]
 ========  ==========  ====================================================
 tmean     ndarray     Average hourly temperature [C]
-lon       ndarray     Longitude [radians]
+lon       ndarray     Longitude [degrees]
 time      ndarray     UTC hour at start of time period
 ========  ==========  ====================================================
 
@@ -130,11 +130,6 @@ The functions have **not** been tested for inputs with different shapes/sizes an
 Currently the user must handle all of the file I/O and unit conversions.
 
 The user must handle all QA/QC of the input data and no missing data will be filled.
-
-Latitude/Longitude Units
-------------------------
-
-The default latitude/longitude units are radians, not degrees (this is different than the Earth Engine RefET module).
 
 Cloudiness Fraction (hourly)
 ----------------------------

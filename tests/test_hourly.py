@@ -15,8 +15,8 @@ import refet.units as units
 # Fallon AgriMet site parameters
 s_args = {
     'elev': 1208.5,
-    'lat': units._deg2rad(39.4575),
-    'lon': units._deg2rad(-118.77388),
+    'lat': 39.4575,
+    'lon': -118.77388,
     'zw': 3.0,
 }
 
@@ -100,25 +100,6 @@ def test_refet_hourly_refet_method_eto():
     assert float(etr) == pytest.approx(h_args['eto_refet'])
 
 
-def test_refet_hourly_lat_exception():
-    with pytest.raises(ValueError):
-        etr = Hourly(
-            tmean=h_args['tmean'], ea=h_args['ea'], rs=h_args['rs'],
-            uz=h_args['uz'], zw=s_args['zw'], elev=s_args['elev'],
-            lat=s_args['lat'] * 180 / math.pi, lon=s_args['lon'],
-            doy=h_args['doy'], time=h_args['time']).etr()
-        # assert float(etr) == pytest.approx(h_args['etr_asce'])
-
-def test_refet_hourly_lon_exception():
-    with pytest.raises(ValueError):
-        etr = Hourly(
-            tmean=h_args['tmean'], ea=h_args['ea'], rs=h_args['rs'],
-            uz=h_args['uz'], zw=s_args['zw'], elev=s_args['elev'],
-            lat=s_args['lat'], lon=s_args['lon'] * 180 / math.pi,
-            doy=h_args['doy'], time=h_args['time']).etr()
-        # assert float(etr) == pytest.approx(h_args['etr_asce'])
-
-
 # Test unit conversions
 def test_refet_hourly_tmean_f():
     etr = Hourly(
@@ -156,9 +137,9 @@ def test_refet_hourly_lon_deg():
     etr = Hourly(
         tmean=h_args['tmean'], ea=h_args['ea'], rs=h_args['rs'],
         uz=h_args['uz'], zw=s_args['zw'], elev=s_args['elev'],
-        lat=s_args['lat'], lon=s_args['lon'] * 180 / math.pi,
+        lat=s_args['lat'], lon=s_args['lon'] * math.pi / 180,
         doy=h_args['doy'], time=h_args['time'],
-        input_units={'lon': 'deg'}).etr()
+        input_units={'lon': 'rad'}).etr()
     assert float(etr) == pytest.approx(h_args['etr_asce'])
 
 # Test hourly functions using actual RefET input/output files
@@ -287,8 +268,8 @@ class HourlyData():
                 'time': test_dt.hour,
                 'zw': zw,
                 'elev': elev,
-                'lat': lat * math.pi / 180,
-                'lon': lon * math.pi / 180,
+                'lat': lat,
+                'lon': lon,
                 'method': 'refet'
             })
             values.append(date_values)

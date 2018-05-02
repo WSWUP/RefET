@@ -27,7 +27,7 @@ class Daily():
         elev : ndarray
             Elevation [m].
         lat : ndarray
-            Latitude [radians].
+            Latitude [degrees].
         doy : ndarray
             Day of year.
         method : {'asce' (default), 'refet'}, optional
@@ -51,11 +51,6 @@ class Daily():
         etsz : ndarray
             Standardized reference ET [mm].
 
-        Raises
-        ------
-        ValueError
-            If latitude values are outside the range [-pi/2, pi/2].
-
         Notes
         -----
         cn: 900 for ETo, 1600 for ETr
@@ -78,7 +73,7 @@ class Daily():
         self.rs = np.array(rs, copy=True, ndmin=1)
         self.uz = np.array(uz, copy=True, ndmin=1)
         self.elev = np.array(elev, copy=True, ndmin=1)
-        self.lat = np.array(lat, copy=True, ndmin=1)
+        self.lat = np.array(lat, copy=True, ndmin=1) * (math.pi / 180)
         self.zw = zw
         self.doy = doy
 
@@ -90,12 +85,12 @@ class Daily():
                 continue
             elif unit.lower() in [
                     'c', 'celsius', 'm', 'meter', 'meters',
-                    'rad', 'radian', 'radians', 'kpa', 'm s-1', 'm/s',
+                    'deg', 'degree', 'degrees', 'kpa', 'm s-1', 'm/s',
                     'mj m-2 day-1', 'mj m-2 d-1']:
                 continue
             elif unit.lower() not in [
                     'k', 'kelvin', 'f', 'fahrenheit',
-                    'deg', 'degree', 'degrees',
+                    'rad', 'radian', 'radians',
                     'ft', 'feet', 'mph']:
                 raise ValueError('unsupported unit conversion for {} {}'.format(
                     variable, unit))
@@ -123,12 +118,8 @@ class Daily():
                 if unit.lower() in ['ft', 'feet']:
                     self.elev *= 0.3048
             elif variable == 'lat':
-                if unit.lower() in ['deg', 'degree', 'degrees']:
-                    self.lat *= (math.pi / 180)
-
-        # Check that latitudes are in radians (after applying unit conversion)
-        if np.any(np.fabs(self.lat) > (0.5 * math.pi)):
-            raise ValueError('latitudes must be in radians [-pi/2, pi/2]')
+                if unit.lower() in ['rad', 'radian', 'radians']:
+                    self.lat *= (180.0 / math.pi)
 
         if method.lower() not in ['asce', 'refet']:
             raise ValueError('method must be "asce" or "refet"')

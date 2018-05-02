@@ -25,9 +25,9 @@ class Hourly():
         elev : ndarray
             Elevation [m]
         lat : ndarray
-            Latitude [radians]
+            Latitude [degrees]
         lon : ndarray
-            Longitude [radians].
+            Longitude [degrees].
         doy : ndarray
             Day of year.
         time : ndarray
@@ -43,12 +43,6 @@ class Hourly():
         -------
         etsz : ndarray
             Standardized reference ET [mm].
-
-        Raises
-        ------
-        ValueError
-            If latitude values are outside the range [-pi/2, pi/2].
-            If longitude values are outside the range [-pi, pi].
 
         Notes
         -----
@@ -69,8 +63,8 @@ class Hourly():
         self.rs = np.array(rs, copy=True, ndmin=1)
         self.uz = np.array(uz, copy=True, ndmin=1)
         self.elev = np.array(elev, copy=True, ndmin=1)
-        self.lat = np.array(lat, copy=True, ndmin=1)
-        self.lon = np.array(lon, copy=True, ndmin=1)
+        self.lat = np.array(lat, copy=True, ndmin=1) * (math.pi / 180)
+        self.lon = np.array(lon, copy=True, ndmin=1) * (math.pi / 180)
         self.doy = np.array(doy, copy=True, ndmin=1)
         self.time = np.array(time, copy=True, ndmin=1)
         self.time_mid = self.time + 0.5
@@ -84,12 +78,12 @@ class Hourly():
                 continue
             elif unit.lower() in [
                     'c', 'celsius', 'm', 'meter', 'meters',
-                    'rad', 'radians', 'kpa', 'm s-1', 'm/s',
+                    'deg', 'degree', 'degrees', 'kpa', 'm s-1', 'm/s',
                     'mj m-2 day-1', 'mj m-2 d-1']:
                 continue
             elif unit.lower() not in [
                     'k', 'kelvin', 'f', 'fahrenheit',
-                    'deg', 'degree', 'degrees',
+                    'rad', 'radian', 'radians',
                     'ft', 'feet', 'mph']:
                 raise ValueError('unsupported unit conversion for {} {}'.format(
                     variable, unit))
@@ -111,17 +105,11 @@ class Hourly():
                 if unit.lower() in ['ft', 'feet']:
                     self.elev *= 0.3048
             elif variable == 'lat':
-                if unit.lower() in ['deg', 'degree', 'degrees']:
-                    self.lat *= (math.pi / 180)
+                if unit.lower() in ['rad', 'radian', 'radians']:
+                    self.lat *= (180.0 / math.pi)
             elif variable == 'lon':
-                if unit.lower() in ['deg', 'degree', 'degrees']:
-                    self.lon *= (math.pi / 180)
-
-        # Check that latitude & longitude are in radians
-        if np.any(np.fabs(self.lat) > (0.5 * math.pi)):
-            raise ValueError('latitudes must be in radians [-pi/2, pi/2]')
-        elif np.any(np.fabs(self.lon) > math.pi):
-            raise ValueError('longitudes must be in radians [-pi, pi]')
+                if unit.lower() in ['rad', 'radian', 'radians']:
+                    self.lon *= (180.0 / math.pi)
 
         if method.lower() not in ['asce', 'refet']:
             raise ValueError('method must be "asce" or "refet"')
