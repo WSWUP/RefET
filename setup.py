@@ -31,15 +31,15 @@ with open(os.path.join(here, 'README.rst')) as f:
     long_description = f.read()
 
 setup(
-    name='refET',
+    name='refet',
     version=version,
     description='ASCE Standardized Reference Evapotranspiration Functions',
     long_description=long_description,
     license='Apache',
     author='Charles Morton',
     author_email='charles.g.morton@gmail.com',
-    url='https://github.com/Open-ET/RefET',
-    download_url='https://github.com/Open-ET/RefET/archive/v{}.tar.gz'.format(version),
+    url='https://github.com/DRI-WSWUP/RefET',
+    download_url='https://github.com/DRI-WSWUP/RefET/archive/v{}.tar.gz'.format(version),
     install_requires=['numpy'],
     setup_requires=['pytest-runner'],
     tests_require=['pytest', 'pandas', 'pytz'],

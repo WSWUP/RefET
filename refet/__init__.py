@@ -1,4 +1,4 @@
 from .daily import Daily
 from .hourly import Hourly
 
-__version__ = "0.3.2"
+__version__ = "0.3.3"

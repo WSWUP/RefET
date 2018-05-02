@@ -22,17 +22,14 @@ The raw input data is available `here <https://www.usbr.gov/pn-bin/daily.pl?stat
     import refet
 
     # Unit conversions
-    tmin_c = (66.65 - 32) * (5.0 / 9)                          # F -> C
-    tmax_c = (102.80 - 32) * (5.0 / 9)                         # F -> C
     tdew_c = (57.26 - 32) * (5.0 / 9)                          # F -> C
     ea = 0.6108 * math.exp(17.27 * tdew_c / (tdew_c + 237.3))  # kPa
-    rs = (674.07 * 0.041868)                                   # Langleys -> MJ m-2 d-1
-    uz = 4.80 * 0.44704                                        # mpg -> m s-1
-    lat_radians = (39.4575 * math.pi / 180)                    # degrees -> radians
+    rs = 674.07 * 0.041868                                     # Langleys -> MJ m-2 d-1
 
     etr = refet.Daily(
-        tmin=tmin_c, tmax=tmax_c, ea=ea, rs=rs, uz=uz, zw=3, elev=1208.5,
-        lat=lat_radians, doy=182, method='asce').etr()
+        tmin=66.65, tmax=102.80, ea=ea, rs=rs, uz=uz, zw=3, elev=1208.5,
+        lat=39.4575, doy=182, method='asce',
+        input_units={'tmin': 'F', 'tmax': 'F', 'uz': 'mph', 'lat': 'deg'}).etr()
 
     print('ETr: {:.2f} mm'.format(float(etr)))
 
@@ -45,21 +42,15 @@ The raw input data is available `here <https://www.usbr.gov/pn-bin/instant.pl?st
 
 .. code-block:: console
 
-    import math
     import refet
 
     # Unit conversions
-    tmean_c = (91.80 - 32) * (5.0 / 9)           # F -> C
-    ea = 1.20                                    # kPa
-    rs = (61.16 * 0.041868)                      # Langleys -> MJ m-2 h-1
-    uz = 3.33 * 0.44704                          # mph -> m s-1
-    lat_radians = (39.4575 * math.pi / 180)      # degrees -> radians
-    lon_radians = (-118.77388 * math.pi / 180)   # degrees -> radians
+    rs = 61.16 * 0.041868                      # Langleys -> MJ m-2 h-1
 
     etr = refet.Hourly(
-        tmean=tmean_c, ea=ea, rs=rs, uz=uz, zw=3, elev=1208.5,
-        lat=lat_radians, lon=lon_radians, doy=182, time=18,
-        method='asce').etr()
+        tmean=91.80, ea=1.20 , rs=rs, uz=3.33, zw=3, elev=1208.5,
+        lat=39.4575, lon=-118.77388, doy=182, time=18, method='asce',
+        input_units={'tmean': 'F', 'uz': 'mph', 'lat': 'deg'}).etr()
 
     print('ETr: {:.2f} mm'.format(float(etr)))
 
@@ -71,7 +62,7 @@ Required Parameters (hourly & daily)
 ------------------------------------
 
 ========  ==========  ====================================================
-Variable  Type        Description [units]
+Variable  Type        Description [default units]
 ========  ==========  ====================================================
 ea        ndarray     Actual vapor pressure [kPa]
 rs        ndarray     Incoming shortwave solar radiation [MJ m-2 day-1]
@@ -86,7 +77,7 @@ Required Daily Parameters
 -------------------------
 
 ========  ==========  ====================================================
-Variable  Type        Description [units]
+Variable  Type        Description [default units]
 ========  ==========  ====================================================
 tmin      ndarray     Minimum daily temperature [C]
 tmax      ndarray     Maximum daily temperature [C]
@@ -96,7 +87,7 @@ Required Hourly Parameters
 --------------------------
 
 ========  ==========  ====================================================
-Variable  Type        Description [units]
+Variable  Type        Description [default units]
 ========  ==========  ====================================================
 tmean     ndarray     Average hourly temperature [C]
 lon       ndarray     Longitude [radians]
@@ -107,7 +98,7 @@ Optional Parameters
 -------------------
 
 ===========  ==========  ====================================================
-Variable     Type        Description [units]
+Variable     Type        Description [default units]
 ===========  ==========  ====================================================
 method       str         | Calculation method
 
@@ -139,6 +130,11 @@ The functions have **not** been tested for inputs with different shapes/sizes an
 Currently the user must handle all of the file I/O and unit conversions.
 
 The user must handle all QA/QC of the input data and no missing data will be filled.
+
+Latitude/Longitude Units
+------------------------
+
+The default latitude/longitude units are radians, not degrees (this is different than the Earth Engine RefET module).
 
 Cloudiness Fraction (hourly)
 ----------------------------
@@ -185,7 +181,7 @@ ASCE-EWRI Standardized Reference Evapotranspiration Equation (2005)
 
 .. |build| image:: https://travis-ci.org/Open-ET/RefET.svg?branch=master
    :alt: Build status
-   :target: https://travis-ci.org/Open-ET/RefET
+   :target: https://travis-ci.org/DRI-WSWUP/RefET
 .. |version| image:: https://badge.fury.io/py/RefET.svg
    :alt: Latest version on PyPI
    :target: https://badge.fury.io/py/RefET
