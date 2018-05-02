@@ -23,13 +23,13 @@ d_args = {
     'etr_asce': 10.626087665395694,
     'etr_refet': 10.571314344056955,
     'etr_rso_simple': 10.628137858930051,
-    'rs': 674.07 * 0.041868,  # Conversion from Langleys to MJ m-2
+    'rs': 674.07 * 0.041868,  # Convert Rs from Langleys to MJ m-2
     'rso': 31.565939444861765,
     'tdew': units._f2c(49.84),
     'tmin': units._f2c(66.65),
     'tmax': units._f2c(102.80),
     # 'tmean': f2c(84.725),
-    'uz': 4.80 * 0.44704,  # Conversion from mph to m s-1
+    'uz': 4.80 * 0.44704,  # Conversion wind speed from mph to m s-1
     'u2': 1.976111757722194,
 }
 
@@ -132,6 +132,22 @@ def test_refet_daily_tmax_k():
         ea=d_args['ea'], rs=d_args['rs'], uz=d_args['uz'], zw=s_args['zw'],
         elev=s_args['elev'], lat=s_args['lat'], doy=d_args['doy'],
         input_units={'tmax': 'K'}).etr()
+    assert float(etr) == pytest.approx(d_args['etr_asce'])
+
+def test_refet_daily_rs_langleys():
+    etr = Daily(
+        tmin=d_args['tmin'], tmax=d_args['tmax'], ea=d_args['ea'],
+        rs=d_args['rs'] / 0.041868, uz=d_args['uz'], zw=s_args['zw'],
+        elev=s_args['elev'], lat=s_args['lat'], doy=d_args['doy'],
+        input_units={'rs': 'Langleys'}).etr()
+    assert float(etr) == pytest.approx(d_args['etr_asce'])
+
+def test_refet_daily_rs_wm2():
+    etr = Daily(
+        tmin=d_args['tmin'], tmax=d_args['tmax'], ea=d_args['ea'],
+        rs=d_args['rs'] / 0.0864, uz=d_args['uz'], zw=s_args['zw'],
+        elev=s_args['elev'], lat=s_args['lat'], doy=d_args['doy'],
+        input_units={'rs': 'W m-2'}).etr()
     assert float(etr) == pytest.approx(d_args['etr_asce'])
 
 def test_refet_daily_zw_ft():

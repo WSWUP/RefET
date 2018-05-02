@@ -26,12 +26,12 @@ h_args = {
     'etr_asce': 0.7196369609713682,
     'ra': 4.30824147948541,
     'rnl': 0.22897874401150786,
-    'rs': 61.16 * 0.041868,  # Conversion from Langleys to MJ m-2
+    'rs': 61.16 * 0.041868,  # Convert Rs from Langleys to MJ m-2
     'tdew': units._f2c(49.36),
     'time': 18.0,
     'time_mid': 18.5,
     'tmean': units._f2c(91.80),
-    'uz': 3.33 * 0.44704,  # Conversion from mph to m s-1
+    'uz': 3.33 * 0.44704,  # Conversion wind speed from mph to m s-1
     'u2': 1.3709275319197722,
 }
 
@@ -110,6 +110,22 @@ def test_refet_hourly_tmean_k():
         uz=h_args['uz'], zw=s_args['zw'], elev=s_args['elev'],
         lat=s_args['lat'], lon=s_args['lon'], doy=h_args['doy'],
         time=h_args['time'], input_units={'tmean': 'K'}).etr()
+    assert float(etr) == pytest.approx(h_args['etr_asce'])
+
+def test_refet_hourly_rs_langleys():
+    etr = Hourly(
+        tmean=h_args['tmean'], ea=h_args['ea'], rs=h_args['rs'] / 0.041868,
+        uz=h_args['uz'], zw=s_args['zw'], elev=s_args['elev'],
+        lat=s_args['lat'], lon=s_args['lon'], doy=h_args['doy'],
+        time=h_args['time'], input_units={'rs': 'Langleys'}).etr()
+    assert float(etr) == pytest.approx(h_args['etr_asce'])
+
+def test_refet_hourly_rs_wm2():
+    etr = Hourly(
+        tmean=h_args['tmean'], ea=h_args['ea'], rs=h_args['rs'] / 0.0036,
+        uz=h_args['uz'], zw=s_args['zw'], elev=s_args['elev'],
+        lat=s_args['lat'], lon=s_args['lon'], doy=h_args['doy'],
+        time=h_args['time'], input_units={'rs': 'W m-2'}).etr()
     assert float(etr) == pytest.approx(h_args['etr_asce'])
 
 def test_refet_hourly_zw_ft():

@@ -77,14 +77,19 @@ class Hourly():
             if unit == '':
                 continue
             elif unit.lower() in [
-                    'c', 'celsius', 'm', 'meter', 'meters',
-                    'deg', 'degree', 'degrees', 'kpa', 'm s-1', 'm/s',
-                    'mj m-2 day-1', 'mj m-2 d-1']:
+                    'c', 'celsius',
+                    'mj m-2 hour-1', 'mj m-2 h-1',
+                    'kpa',
+                    'm s-1', 'm/s',
+                    'm', 'meter', 'meters',
+                    'deg', 'degree', 'degrees']:
                 continue
             elif unit.lower() not in [
                     'k', 'kelvin', 'f', 'fahrenheit',
-                    'rad', 'radian', 'radians',
-                    'ft', 'feet', 'mph']:
+                    'langleys', 'w m-2', 'w/m2',
+                    'mph',
+                    'ft', 'feet',
+                    'rad', 'radian', 'radians']:
                 raise ValueError('unsupported unit conversion for {} {}'.format(
                     variable, unit))
 
@@ -95,6 +100,12 @@ class Hourly():
                     self.tmean *= (5.0 / 9)
                 elif unit.lower() in ['k', 'kelvin']:
                     self.tmean -= 273.15
+            elif variable == 'rs':
+                if unit.lower() in ['langleys']:
+                    self.rs *= 0.041868
+                    # self.rs *= 0.04184
+                elif unit.lower() in ['w m-2', 'w/m2']:
+                    self.rs *= 0.0036
             elif variable == 'uz':
                 if unit.lower() in ['mph']:
                     self.uz *= 0.44704

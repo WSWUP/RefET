@@ -21,15 +21,17 @@ The raw input data is available `here <https://www.usbr.gov/pn-bin/daily.pl?stat
     import math
     import refet
 
-    # Unit conversions
-    tdew_c = (57.26 - 32) * (5.0 / 9)                          # F -> C
+    # Compute actual vapor pressure from Tdew
+    tdew_c = (49.84 - 32) * (5.0 / 9)                          # F -> C
     ea = 0.6108 * math.exp(17.27 * tdew_c / (tdew_c + 237.3))  # kPa
-    rs = 674.07 * 0.041868                                     # Langleys -> MJ m-2 d-1
+    # ea = refet.calcs._saturated_vapor_pressure(tdew_c)
 
     etr = refet.Daily(
-        tmin=66.65, tmax=102.80, ea=ea, rs=rs, uz=uz, zw=3, elev=1208.5,
+        tmin=66.65, tmax=102.80, ea=ea, rs=674.07, uz=4.80, zw=3, elev=1208.5,
         lat=39.4575, doy=182, method='asce',
-        input_units={'tmin': 'F', 'tmax': 'F', 'uz': 'mph', 'lat': 'deg'}).etr()
+        input_units={'tmin': 'F', 'tmax': 'F', 'rs': 'Langleys', 'uz': 'mph',
+                     'lat': 'deg'}
+        ).etr()
 
     print('ETr: {:.2f} mm'.format(float(etr)))
 
@@ -44,13 +46,11 @@ The raw input data is available `here <https://www.usbr.gov/pn-bin/instant.pl?st
 
     import refet
 
-    # Unit conversions
-    rs = 61.16 * 0.041868                      # Langleys -> MJ m-2 h-1
-
     etr = refet.Hourly(
-        tmean=91.80, ea=1.20 , rs=rs, uz=3.33, zw=3, elev=1208.5,
+        tmean=91.80, ea=1.20 , rs=61.16, uz=3.33, zw=3, elev=1208.5,
         lat=39.4575, lon=-118.77388, doy=182, time=18, method='asce',
-        input_units={'tmean': 'F', 'uz': 'mph', 'lat': 'deg'}).etr()
+        input_units={'tmean': 'F', 'rs': 'Langleys', 'uz': 'mph', 'lat': 'deg'}
+        ).etr()
 
     print('ETr: {:.2f} mm'.format(float(etr)))
 
