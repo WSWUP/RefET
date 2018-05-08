@@ -174,7 +174,7 @@ ASCE-EWRI Standardized Reference Evapotranspiration Equation (2005)
  * `Report <http://www.kimberly.uidaho.edu/water/asceewri/ascestzdetmain2005.pdf>`__
  * `Appendix <http://www.kimberly.uidaho.edu/water/asceewri/appendix.pdf>`__
 
-.. |build| image:: https://travis-ci.org/Open-ET/RefET.svg?branch=master
+.. |build| image:: https://travis-ci.org/DRI-WSWUP/RefET.svg?branch=master
    :alt: Build status
    :target: https://travis-ci.org/DRI-WSWUP/RefET
 .. |version| image:: https://badge.fury.io/py/RefET.svg
