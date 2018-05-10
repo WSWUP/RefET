@@ -66,7 +66,7 @@ Variable  Type        Description [default units]
 ========  ==========  ====================================================
 ea        ndarray     Actual vapor pressure [kPa]
 rs        ndarray     Incoming shortwave solar radiation [MJ m-2 day-1]
-uz        ndarray     Wind speed [m/s]
+uz        ndarray     Wind speed [m s-1]
 zw        float       Wind speed height [m]
 elev      ndarray     Elevation [m]
 lat       ndarray     Latitude [degrees]

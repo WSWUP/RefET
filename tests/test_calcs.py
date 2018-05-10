@@ -340,3 +340,7 @@ def test_wind_height_adjust(uz, zw, u2):
 def test_wind_height_adjust_2m(uz=2.5, zw=2.0, u2=2.5):
     assert float(calcs._wind_height_adjust(
         uz, zw)) == pytest.approx(u2, abs=0.001)
+
+
+# def test_etsz(etr):
+#     assert float(calcs._etsz()) == pytest.approx(etr, abs=0.001)

@@ -21,7 +21,7 @@ class Daily():
         rs : ndarray
             Incoming shortwave solar radiation [MJ m-2 day-1].
         uz : ndarray
-            Wind speed [m/s].
+            Wind speed [m s-1].
         zw : float
             Wind speed height [m].
         elev : ndarray
@@ -153,6 +153,7 @@ class Daily():
         # To match standardized form, pair is calculated from elevation
         self.pair = calcs._air_pressure(self.elev, method)
 
+        # Psychrometric constant (Eq. 4)
         self.psy = 0.000665 * self.pair
 
         self.tmean = 0.5 * (self.tmax + self.tmin)
@@ -196,20 +197,49 @@ class Daily():
         # Net radiation
         self.rn = calcs._rn_daily(self.rs, self.rnl)
 
+        # Soil heat flux
+        self.g = 0
+
         # Wind speed
         self.u2 = calcs._wind_height_adjust(self.uz, self.zw)
+
+    def etsz(self, surface):
+        """Standardized reference ET
+
+        Parameters
+        ----------
+        surface : {'alfalfa', 'etr', 'tall', 'grass', 'eto', 'short'}
+            Reference surface type.
+
+        Returns
+        -------
+        ndarray
+
+        """
+        if surface.lower() in ['alfalfa', 'etr', 'tall']:
+            return self.etr()
+        elif surface.lower() in ['grass', 'eto', 'short']:
+            return self.eto()
+        else:
+            raise ValueError('unsupported surface type: {}'.format(surface))
 
     def eto(self):
         """Grass reference surface"""
         self.cn = 900
         self.cd = 0.34
         return self._etsz()
+        # return calcs._etsz(
+        #     rn=self.rn, g=self.g, tmean=self.tmean, u2=self.u2, vpd=self.vpd,
+        #     es_slope=self.es_slope, psy=self.psy, cn=self.cn, cd=self.cd)
 
     def etr(self):
         """Alfalfa reference surface"""
         self.cn = 1600
         self.cd = 0.38
         return self._etsz()
+        # return calcs._etsz(
+        #     rn=self.rn, g=self.g, tmean=self.tmean, u2=self.u2, vpd=self.vpd,
+        #     es_slope=self.es_slope, psy=self.psy, cn=self.cn, cd=self.cd)
 
     def _etsz(self):
         """Daily reference ET (Eq. 1)"""

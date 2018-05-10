@@ -53,6 +53,7 @@ def test_refet_hourly_default_method_etr():
         time=h_args['time']).etr()
     assert float(etr) == pytest.approx(h_args['etr_asce'])
 
+
 def test_refet_hourly_asce_method_etr():
     etr = Hourly(
         tmean=h_args['tmean'], ea=h_args['ea'], rs=h_args['rs'],
@@ -60,6 +61,7 @@ def test_refet_hourly_asce_method_etr():
         lat=s_args['lat'], lon=s_args['lon'], doy=h_args['doy'],
         time=h_args['time'], method='asce').etr()
     assert float(etr) == pytest.approx(h_args['etr_asce'])
+
 
 def test_refet_hourly_refet_method_etr():
     etr = Hourly(
@@ -78,21 +80,35 @@ def test_refet_hourly_default_method_eto():
         time=h_args['time']).eto()
     assert float(etr) == pytest.approx(h_args['eto_asce'])
 
-def test_refet_hourly_asce_method_eto():
-    etr = Hourly(
-        tmean=h_args['tmean'], ea=h_args['ea'], rs=h_args['rs'],
-        uz=h_args['uz'], zw=s_args['zw'], elev=s_args['elev'],
-        lat=s_args['lat'], lon=s_args['lon'], doy=h_args['doy'],
-        time=h_args['time'], method='asce').eto()
-    assert float(etr) == pytest.approx(h_args['eto_asce'])
 
-def test_refet_hourly_refet_method_eto():
-    etr = Hourly(
+@pytest.mark.parametrize(
+    'method, expected',
+    [['asce', h_args['eto_asce']],
+     ['refet', h_args['eto_refet']]])
+def test_refet_hourly_asce_method_eto(method, expected):
+    eto = Hourly(
         tmean=h_args['tmean'], ea=h_args['ea'], rs=h_args['rs'],
         uz=h_args['uz'], zw=s_args['zw'], elev=s_args['elev'],
         lat=s_args['lat'], lon=s_args['lon'], doy=h_args['doy'],
-        time=h_args['time'], method='refet').eto()
-    assert float(etr) == pytest.approx(h_args['eto_refet'])
+        time=h_args['time'], method=method).eto()
+    assert float(eto) == pytest.approx(expected)
+
+
+@pytest.mark.parametrize(
+    'surface, expected',
+    [['etr', h_args['etr_refet']],
+     ['alfalfa', h_args['etr_refet']],
+     ['tall', h_args['etr_refet']],
+     ['eto', h_args['eto_refet']],
+     ['grass', h_args['eto_refet']],
+     ['short', h_args['eto_refet']]])
+def test_refet_daily_etsz(surface, expected):
+    etsz = Hourly(
+        tmean=h_args['tmean'], ea=h_args['ea'], rs=h_args['rs'],
+        uz=h_args['uz'], zw=s_args['zw'], elev=s_args['elev'],
+        lat=s_args['lat'], lon=s_args['lon'], doy=h_args['doy'],
+        time=h_args['time'], method='refet').etsz(surface)
+    assert float(etsz) == pytest.approx(expected)
 
 
 # Test unit conversions
@@ -104,6 +120,7 @@ def test_refet_hourly_tmean_f():
         time=h_args['time'], input_units={'tmean': 'F'}).etr()
     assert float(etr) == pytest.approx(h_args['etr_asce'])
 
+
 def test_refet_hourly_tmean_k():
     etr = Hourly(
         tmean=h_args['tmean'] + 273.15, ea=h_args['ea'], rs=h_args['rs'],
@@ -111,6 +128,7 @@ def test_refet_hourly_tmean_k():
         lat=s_args['lat'], lon=s_args['lon'], doy=h_args['doy'],
         time=h_args['time'], input_units={'tmean': 'K'}).etr()
     assert float(etr) == pytest.approx(h_args['etr_asce'])
+
 
 def test_refet_hourly_ea_pa():
     etr = Hourly(
@@ -120,6 +138,7 @@ def test_refet_hourly_ea_pa():
         time=h_args['time'], input_units={'ea': 'Pa'}).etr()
     assert float(etr) == pytest.approx(h_args['etr_asce'])
 
+
 def test_refet_hourly_rs_langleys():
     etr = Hourly(
         tmean=h_args['tmean'], ea=h_args['ea'], rs=h_args['rs'] / 0.041868,
@@ -127,6 +146,7 @@ def test_refet_hourly_rs_langleys():
         lat=s_args['lat'], lon=s_args['lon'], doy=h_args['doy'],
         time=h_args['time'], input_units={'rs': 'Langleys'}).etr()
     assert float(etr) == pytest.approx(h_args['etr_asce'])
+
 
 def test_refet_hourly_rs_wm2():
     etr = Hourly(
@@ -136,6 +156,7 @@ def test_refet_hourly_rs_wm2():
         time=h_args['time'], input_units={'rs': 'W m-2'}).etr()
     assert float(etr) == pytest.approx(h_args['etr_asce'])
 
+
 def test_refet_hourly_zw_ft():
     etr = Hourly(
         tmean=h_args['tmean'], ea=h_args['ea'], rs=h_args['rs'],
@@ -144,6 +165,7 @@ def test_refet_hourly_zw_ft():
         time=h_args['time'], input_units={'zw': 'ft'}).etr()
     assert float(etr) == pytest.approx(h_args['etr_asce'])
 
+
 def test_refet_hourly_elev_ft():
     etr = Hourly(
         tmean=h_args['tmean'], ea=h_args['ea'], rs=h_args['rs'],
@@ -151,6 +173,7 @@ def test_refet_hourly_elev_ft():
         lat=s_args['lat'], lon=s_args['lon'], doy=h_args['doy'],
         time=h_args['time'], input_units={'elev': 'ft'}).etr()
     assert float(etr) == pytest.approx(h_args['etr_asce'])
+
 
 def test_refet_hourly_lon_deg():
     etr = Hourly(

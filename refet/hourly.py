@@ -19,7 +19,7 @@ class Hourly():
         rs : ndarray
             Shortwave solar radiation [MJ m-2 hr-1].
         uz : ndarray
-            Wind speed [m/s].
+            Wind speed [m s-1].
         zw : float
             Wind speed measurement/estimated height [m].
         elev : ndarray
@@ -133,7 +133,10 @@ class Hourly():
 
         # To match standardized form, psy is calculated from elevation based pair
         self.pair = calcs._air_pressure(self.elev, method)
+
+        # Psychrometric constant (Eq. 35)
         self.psy = 0.000665 * self.pair
+
         self.es = calcs._sat_vapor_pressure(self.tmean)
         self.es_slope = calcs._es_slope(self.tmean, method)
 
@@ -173,12 +176,25 @@ class Hourly():
         # Wind speed
         self.u2 = calcs._wind_height_adjust(self.uz, self.zw)
 
-    def _etsz(self):
-        """Hourly reference ET (Eq. 1)"""
-        return (
-            (0.408 * self.es_slope * (self.rn - self.g) +
-             (self.psy * self.cn * self.u2 * self.vpd / (self.tmean + 273))) /
-            (self.es_slope + self.psy * (self.cd * self.u2 + 1)))
+    def etsz(self, surface):
+        """Standardized reference ET
+
+        Parameters
+        ----------
+        surface : {'alfalfa', 'etr', 'tall', 'grass', 'eto', 'short'}
+            Reference surface type.
+
+        Returns
+        -------
+        ndarray
+
+        """
+        if surface.lower() in ['alfalfa', 'etr', 'tall']:
+            return self.etr()
+        elif surface.lower() in ['grass', 'eto', 'short']:
+            return self.eto()
+        else:
+            raise ValueError('unsupported surface type: {}'.format(surface))
 
     def eto(self):
         """Short (grass) reference surface"""
@@ -195,6 +211,9 @@ class Hourly():
         self.g = self.rn * self.g_rn
 
         return self._etsz()
+        # return calcs._etsz(
+        #     rn=self.rn, g=self.g, tmean=self.tmean, u2=self.u2, vpd=self.vpd,
+        #     es_slope=self.es_slope, psy=self.psy, cn=self.cn, cd=self.cd)
 
     def etr(self):
         """Tall (alfalfa) reference surface"""
@@ -211,3 +230,13 @@ class Hourly():
         self.g = self.rn * self.g_rn
 
         return self._etsz()
+        # return calcs._etsz(
+        #     rn=self.rn, g=self.g, tmean=self.tmean, u2=self.u2, vpd=self.vpd,
+        #     es_slope=self.es_slope, psy=self.psy, cn=self.cn, cd=self.cd)
+
+    def _etsz(self):
+        """Hourly reference ET (Eq. 1)"""
+        return (
+            (0.408 * self.es_slope * (self.rn - self.g) +
+             (self.psy * self.cn * self.u2 * self.vpd / (self.tmean + 273))) /
+            (self.es_slope + self.psy * (self.cd * self.u2 + 1)))

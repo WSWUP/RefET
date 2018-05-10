@@ -88,7 +88,8 @@ def _es_slope(tmean, method='asce'):
 
     Returns
     -------
-    ndarray
+    es_slope : ndarray
+        Slope [kPa C-1].
 
     Notes
     -----
@@ -751,14 +752,48 @@ def _wind_height_adjust(uz, zw):
     Parameters
     ----------
     uz : scalar or array_like of shape(M, )
-        Wind speed at measurement height [m/s].
+        Wind speed at measurement height [m s-1].
     zw : scalar or array_like of shape(M, )
         Wind measurement height [m].
 
     Returns
     -------
     ndarray
-        Wind speed at 2 m height [m/s].
+        Wind speed at 2 m height [m s-1].
 
     """
     return uz * 4.87 / np.log(67.8 * zw - 5.42)
+
+
+# def _etsz(rn, g, tmean, u2, vpd, es_slope, psy, cn, cd):
+#     """Standardized Reference ET [mm] (Eq. 1)
+#
+#     Parameters
+#     ----------
+#     rn : scalar or array_like of shape(M, )
+#         Net radiation [MJ m-2 d-1 or MJ m-2 h-1].
+#     g : scalar or array_like of shape(M, )
+#         Ground heat flux [MJ m-2 d-1 or MJ m-2 h-1].
+#     tmean : scalar or array_like of shape(M, )
+#         Mean air temperature [C]
+#     u2 : scalar or array_like of shape(M, )
+#         Wind speed at 2 m height [m s-1]
+#     vpd : scalar or array_like of shape(M, )
+#         Vapor pressure deficit [kPa].
+#     es_slope : scalar or array_like of shape(M, )
+#         Slope of the saturation vapor pressure-temperature curve [kPa C-1].
+#     psy : scalar or array_like of shape(M, )
+#         Psychrometric constant [kPa C-1].
+#     cn : scalar or array_like of shape(M, )
+#         Numerator constant.
+#     cd : scalar or array_like of shape(M, )
+#         Denominator constant.
+#
+#     Returns
+#     -------
+#     ndarray
+#
+#     """
+#     return (
+#         (0.408 * es_slope * (rn - g) + (psy * cn * u2 * vpd / (tmean + 273))) /
+#         (es_slope + psy * (cd * u2 + 1)))
