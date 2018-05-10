@@ -193,8 +193,8 @@ class Daily():
         # Net long-wave radiation
         self.rnl = calcs._rnl_daily(self.tmax, self.tmin, self.ea, self.fcd)
 
-        # Net radiation (Eqs. 15 and 16)
-        self.rn = 0.77 * self.rs - self.rnl
+        # Net radiation
+        self.rn = calcs._rn_daily(self.rs, self.rnl)
 
         # Wind speed
         self.u2 = calcs._wind_height_adjust(self.uz, self.zw)

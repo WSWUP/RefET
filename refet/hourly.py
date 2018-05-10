@@ -164,8 +164,8 @@ class Hourly():
         # Net long-wave radiation
         self.rnl = calcs._rnl_hourly(self.tmean, self.ea, self.fcd)
 
-        # Net radiation (Eqs. 42 and 43)
-        self.rn =  0.77 * self.rs - self.rnl
+        # Net radiation
+        self.rn = calcs._rn_hourly(self.rs, self.rnl)
 
         # Soil heat flux (Eqs. 65 and 66)
         # self.g = self.rn * g_rn

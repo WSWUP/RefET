@@ -30,6 +30,7 @@ d_args = {
     'omega_s': 1.9298904620748385,
     'q': 0.008691370735727117,
     'ra': 41.67610845067083,
+    'rn': 15.174377350374275,
     'rnl': 6.556533974825727,
     'rs': 674.07 * 0.041868,  # Conversion from Langleys to MJ m-2
     'rso': 31.565939444861765,
@@ -54,6 +55,7 @@ h_args = {
     # 'omega': -0.3866777826605525,  # Computed from time_mid
     'omega': -0.5175774765601271,  # Computed from time to match IN2
     'ra': 4.30824147948541,
+    'rn': 1.7427193535884922,
     'rnl': 0.22897874401150786,
     'rs': 61.16 * 0.041868,  # Conversion from Langleys to MJ m-2
     'rso': 3.350936122776373,
@@ -317,6 +319,14 @@ def test_rnl_daily(tmin=d_args['tmin'], tmax=d_args['tmax'], ea=d_args['ea'],
 def test_rnl_hourly(tmean=h_args['tmean'], ea=h_args['ea'],
                     fcd=h_args['fcd'], rnl=h_args['rnl']):
     assert float(calcs._rnl_hourly(tmean, ea, fcd)) == pytest.approx(rnl)
+
+
+def test_rn_daily(rs=d_args['rs'], rnl=d_args['rnl'], rn=d_args['rn']):
+    assert float(calcs._rn_daily(rs, rnl)) == pytest.approx(rn)
+
+
+def test_rn_hourly(rs=h_args['rs'], rnl=h_args['rnl'], rn=h_args['rn']):
+    assert float(calcs._rn_hourly(rs, rnl)) == pytest.approx(rn)
 
 
 @pytest.mark.parametrize(
