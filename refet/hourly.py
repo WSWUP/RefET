@@ -10,6 +10,8 @@ class Hourly():
                  method='asce', input_units={}):
         """ASCE Hourly Standardized Reference Evapotranspiration (ET)
 
+        .. warning:: Cloudiness fraction at night is not being computed per [1]_
+
         Arguments
         ---------
         tmean : ndarray

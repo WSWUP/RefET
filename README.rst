@@ -134,12 +134,14 @@ The user must handle all QA/QC of the input data and no missing data will be fil
 Cloudiness Fraction (hourly)
 ----------------------------
 
-The hourly reference ET calculation is currently performed independently for each time step which causes the cloudiness fraction (fcd) calculation for very low sun angles to be incorrect.
+The cloudiness fraction (fcd) is computed as the ratio of the measured solar radiation (Rs) to the theoretical clear sky solar radiation (Rso).  This ratio cannot be computed directly at night since Rso is 0.  ASCE-EWRI 2005 suggests computing a representative nighttime fcd based on the fcd at sunset and/or sunrise.
+
+In the RefET module fcd is hard coded to 1 for all time steps with very low sun angles since the hourly reference ET is computed independently for each time step.
 
 ASCE vs. RefET
 ==============
 
-TODO Discuss differences between "asce" and "refet" methods.
+TODO: Discuss the differences between "asce" and "refet" methods.
 
 Installation
 ============

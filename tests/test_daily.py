@@ -18,7 +18,8 @@ s_args = {
 # Daily test parameters for 2015-07-01
 d_args = {
     'doy': 182,
-    'ea': 1.2206674169951346,
+    'ea_refet': 1.2206674169951346,
+    # 'ea_asce': 1.2205053588697359,
     'eto_refet': 7.9422320475712835,
     'etr_asce': 10.626087665395694,
     'etr_refet': 10.571314344056955,
@@ -45,14 +46,14 @@ def test_refet_daily_input_positions():
 # Test full daily calculations with keyword inputs
 def test_refet_daily_etr():
     etr = Daily(
-        tmin=d_args['tmin'], tmax=d_args['tmax'], ea=d_args['ea'],
+        tmin=d_args['tmin'], tmax=d_args['tmax'], ea=d_args['ea_refet'],
         rs=d_args['rs'], uz=d_args['uz'], zw=s_args['zw'], elev=s_args['elev'],
         lat=s_args['lat'], doy=d_args['doy'], method='asce').etr()
     assert float(etr) == pytest.approx(d_args['etr_asce'])
 
 def test_refet_daily_eto():
     eto = Daily(
-        tmin=d_args['tmin'], tmax=d_args['tmax'], ea=d_args['ea'],
+        tmin=d_args['tmin'], tmax=d_args['tmax'], ea=d_args['ea_refet'],
         rs=d_args['rs'], uz=d_args['uz'], zw=s_args['zw'], elev=s_args['elev'],
         lat=s_args['lat'], doy=d_args['doy'], method='refet').eto()
     assert float(eto) == pytest.approx(d_args['eto_refet'])
