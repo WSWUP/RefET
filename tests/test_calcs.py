@@ -54,6 +54,7 @@ h_args = {
     'fcd': 0.6816142001345745,
     # 'omega': -0.3866777826605525,  # Computed from time_mid
     'omega': -0.5175774765601271,  # Computed from time to match IN2
+    'q': 0.008536365803069757,
     'ra': 4.30824147948541,
     'rn': 1.7427193535884922,
     'rnl': 0.22897874401150786,
@@ -116,8 +117,11 @@ def test_sat_vapor_pressure(tdew, ea):
     assert float(calcs._sat_vapor_pressure(tdew)) == pytest.approx(ea)
 
 
-def test_specific_humidity(ea=d_args['ea'], pair=s_args['pair'],
-                           q=d_args['q']):
+@pytest.mark.parametrize(
+    'ea, pair, q',
+    [[d_args['ea'], s_args['pair'], d_args['q']],
+     [h_args['ea'], s_args['pair'], h_args['q']]])
+def test_specific_humidity_daily(ea, pair, q):
     assert float(calcs._specific_humidity(ea, pair)) == pytest.approx(q)
 
 
