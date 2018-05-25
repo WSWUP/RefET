@@ -91,7 +91,7 @@ class Hourly():
                 continue
             elif unit.lower() not in [
                     'k', 'kelvin', 'f', 'fahrenheit',
-                    'pa',
+                    'pa','rh','relative humidity',
                     'langleys', 'w m-2', 'w/m2',
                     'mph',
                     'ft', 'feet',
@@ -109,6 +109,11 @@ class Hourly():
             elif variable == 'ea':
                 if unit.lower() in ['pa']:
                     self.ea /= 1000.0
+				elif unit.lower() in ['rh','relative humidity']:
+					if self.ea.max() > 1.0: # check for percentage format
+						self.ea /= 100
+					# use Teten's formula
+					self.ea = self.ea * (0.61078 ** (17.27 * self.tmean / (self.tmean + 237.3)))
             elif variable == 'rs':
                 if unit.lower() in ['langleys']:
                     self.rs *= 0.041868
