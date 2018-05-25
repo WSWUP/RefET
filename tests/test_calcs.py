@@ -21,18 +21,21 @@ d_args = {
     'delta_asce': 0.4029517192078854,
     'doy_frac': 3.132985550429273,
     'dr': 0.9670012223491632,
-    'ea': 1.2206674169951346,
+    'ea': 1.2206674169951346,           # Computed from Tdew
     'es': 4.6747236227258835,
     'es_slope': 0.23489129849801055,
-    'eto': 7.942481120179387,
-    'etr': 10.571560006380153,
+    'es_slope_asce': 0.23488581814172638,
+    # 'eto': 7.942481120179387,
+    # 'etr': 10.571560006380153,
     'fcd': 0.8569860867772078,
     'omega_s': 1.9298904620748385,
-    'q': 0.008691370735727117,
+    'q': 0.008691370735727117,          # Computed from Ea from Tdew
+    'q_asce': 0.008692530868140688,     # Computed from Ea from Tdew
     'ra': 41.67610845067083,
+    'ra_asce': 41.64824567735701,
     'rn': 15.174377350374275,
     'rnl': 6.556533974825727,
-    'rs': 674.07 * 0.041868,  # Conversion from Langleys to MJ m-2
+    'rs': 674.07 * 0.041868,            # Conversion from Langleys to MJ m-2
     'rso': 31.565939444861765,
     'rso_simple': 32.26439287925584,
     'sc': -0.05874166519510547,
@@ -41,25 +44,29 @@ d_args = {
     'tmax': units._f2c(102.80),
     # 'tmean': f2c(84.725),
     'w': 17.107650595384076,
-    'uz': 4.80 * 0.44704,  # Conversion from mph to m s-1
+    'uz': 4.80 * 0.44704,               # Conversion from mph to m s-1
     'u2': 1.976111757722194,
 }
 # Hourly test parameters for 2015-07-01 18:00 UTC (11:00 AM PDT)
 h_args = {
     'doy': 182,
-    'ea': 1.1990099614301906,
+    'ea': 1.1990099614301906,           # Computed from Tdew
     'es': 5.09318785259078,
-    'eto': 0.6065255163817055,
-    'etr': 0.7201865213918281,
+    # 'eto': 0.6065255163817055,
+    # 'etr': 0.7201865213918281,
     'fcd': 0.6816142001345745,
-    # 'omega': -0.3866777826605525,  # Computed from time_mid
-    'omega': -0.5175774765601271,  # Computed from time to match IN2
-    'q': 0.008536365803069757,
+    'fcd_asce': 0.6816142001345745,
+    # 'omega': -0.3866777826605525,     # Computed from time_mid
+    'omega': -0.5175774765601271,       # Computed from time to match IN2
+    'q': 0.008536365803069757,          # Computed from Ea from Tdew
+    'q_asce': 0.00853750513849305,      # Computed from Ea from Tdew
     'ra': 4.30824147948541,
+    'ra_asce': 4.30635461533285,
     'rn': 1.7427193535884922,
     'rnl': 0.22897874401150786,
-    'rs': 61.16 * 0.041868,  # Conversion from Langleys to MJ m-2
+    'rs': 61.16 * 0.041868,             # Conversion from Langleys to MJ m-2
     'rso': 3.350936122776373,
+    'rso_asce': 3.350851392549374,
     'rso_simple': 3.33531130617322,
     # 'solar_time': -1.4770003318617722,  # Computed from time_mid
     'solar_time': -1.9770003318617722,  # Computed from time to match IN2
@@ -67,22 +74,9 @@ h_args = {
     'time': 18.0,
     'time_mid': 18.5,
     'tmean': units._f2c(91.80),
-    'uz': 3.33 * 0.44704,  # Conversion from mph to m s-1
+    'uz': 3.33 * 0.44704,               # Conversion from mph to m s-1
     'u2': 1.3709275319197722,
 }
-
-# Additional arguments for testing "asce" method
-d_asce_args = {
-    'delta': 0.4029517192078854,
-    'es_slope': 0.23488581814172638,
-    'ra': 41.64824567735701,
-}
-h_asce_args = {
-    'ra': 4.30635461533285,
-    'rso': 3.350851392549374,
-    'fcd': 0.6816142001345745,
-}
-
 
 # # Playing around with passing a dictionary of function keyword arguments
 # daily_args = {
@@ -120,7 +114,9 @@ def test_sat_vapor_pressure(tdew, ea):
 @pytest.mark.parametrize(
     'ea, pair, q',
     [[d_args['ea'], s_args['pair'], d_args['q']],
-     [h_args['ea'], s_args['pair'], h_args['q']]])
+     [d_args['ea'], s_args['pair_asce'], d_args['q_asce']],
+     [h_args['ea'], s_args['pair'], h_args['q']],
+     [h_args['ea'], s_args['pair_asce'], h_args['q_asce']]])
 def test_specific_humidity_daily(ea, pair, q):
     assert float(calcs._specific_humidity(ea, pair)) == pytest.approx(q)
 
@@ -137,12 +133,12 @@ def test_vpd(es=d_args['es'], ea=d_args['ea']):
 
 
 def test_es_slope_default(tmin=d_args['tmin'], tmax=d_args['tmax'],
-                          es_slope=d_asce_args['es_slope']):
+                          es_slope=d_args['es_slope_asce']):
     assert float(calcs._es_slope(
         0.5 * (tmin + tmax))) == pytest.approx(es_slope)
 
 def test_es_slope_asce(tmin=d_args['tmin'], tmax=d_args['tmax'],
-                       es_slope=d_asce_args['es_slope']):
+                       es_slope=d_args['es_slope_asce']):
     assert float(calcs._es_slope(
         0.5 * (tmin + tmax), method='asce')) == pytest.approx(es_slope)
 
@@ -161,10 +157,10 @@ def test_doy_fraction(doy=d_args['doy'], expected=d_args['doy_frac']):
     assert float(calcs._doy_fraction(doy)) == pytest.approx(expected)
 
 
-def test_delta_default(doy=d_args['doy'], delta=d_asce_args['delta']):
+def test_delta_default(doy=d_args['doy'], delta=d_args['delta_asce']):
     assert float(calcs._delta(doy)) == pytest.approx(delta)
 
-def test_delta_asce(doy=d_args['doy'], delta=d_asce_args['delta']):
+def test_delta_asce(doy=d_args['doy'], delta=d_args['delta_asce']):
     assert float(calcs._delta(doy, method='asce')) == pytest.approx(delta)
 
 def test_delta_refet(doy=d_args['doy'], delta=d_args['delta']):
@@ -207,11 +203,11 @@ def test_omega_sunset(lat=s_args['lat'], delta=d_args['delta'],
 
 
 def test_ra_daily_default(lat=s_args['lat'], doy=d_args['doy'],
-                          ra=d_asce_args['ra']):
+                          ra=d_args['ra_asce']):
     assert float(calcs._ra_daily(lat, doy)) == pytest.approx(ra)
 
 def test_ra_daily_asce(lat=s_args['lat'], doy=d_args['doy'],
-                       ra=d_asce_args['ra']):
+                       ra=d_args['ra_asce']):
     assert float(calcs._ra_daily(
         lat, doy, method='asce')) == pytest.approx(ra)
 
@@ -222,13 +218,13 @@ def test_ra_daily_refet(lat=s_args['lat'], doy=d_args['doy'], ra=d_args['ra']):
 
 def test_ra_hourly_default(lat=s_args['lat'], lon=s_args['lon'],
                            doy=h_args['doy'], time=h_args['time_mid'],
-                           ra=h_asce_args['ra']):
+                           ra=h_args['ra_asce']):
     assert float(calcs._ra_hourly(
         lat, lon, doy, time)) == pytest.approx(ra)
 
 def test_ra_hourly_asce(lat=s_args['lat'], lon=s_args['lon'],
                         doy=h_args['doy'], time=h_args['time_mid'],
-                        ra=h_asce_args['ra']):
+                        ra=h_args['ra_asce']):
     assert float(calcs._ra_hourly(
         lat, lon, doy, time, method='asce')) == pytest.approx(ra)
 
@@ -248,14 +244,14 @@ def test_rso_daily(ra=d_args['ra'], ea=d_args['ea'], pair=s_args['pair'],
 def test_rso_hourly_default(ra=h_args['ra'], ea=h_args['ea'], pair=s_args['pair'],
                             doy=h_args['doy'], time=h_args['time_mid'],
                             lat=s_args['lat'], lon=s_args['lon'],
-                            rso=h_asce_args['rso']):
+                            rso=h_args['rso_asce']):
     assert float(calcs._rso_hourly(
         ra, ea, pair, doy, time, lat, lon)) == pytest.approx(rso)
 
 def test_rso_hourly_asce(ra=h_args['ra'], ea=h_args['ea'], pair=s_args['pair'],
                          doy=h_args['doy'], time=h_args['time_mid'],
                          lat=s_args['lat'], lon=s_args['lon'],
-                         rso=h_asce_args['rso']):
+                         rso=h_args['rso_asce']):
     assert float(calcs._rso_hourly(
         ra, ea, pair, doy, time, lat, lon,
         method='asce')) == pytest.approx(rso)
@@ -284,14 +280,14 @@ def test_fcd_daily(rs=d_args['rs'], rso=d_args['rso'], fcd=d_args['fcd']):
 def test_fcd_hourly_default(rs=h_args['rs'], rso=h_args['rso'],
                             doy=h_args['doy'], time=h_args['time_mid'],
                             lat=s_args['lat'], lon=s_args['lon'],
-                            fcd=h_asce_args['fcd']):
+                            fcd=h_args['fcd_asce']):
     assert float(calcs._fcd_hourly(
         rs, rso, doy, time, lat, lon)) == pytest.approx(fcd)
 
 def test_fcd_hourly_asce(rs=h_args['rs'], rso=h_args['rso'],
                          doy=h_args['doy'], time=h_args['time_mid'],
                          lat=s_args['lat'], lon=s_args['lon'],
-                         fcd=h_asce_args['fcd']):
+                         fcd=h_args['fcd_asce']):
     assert float(calcs._fcd_hourly(
         rs, rso, doy, time, lat, lon, method='asce')) == pytest.approx(fcd)
 
