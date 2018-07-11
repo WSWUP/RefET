@@ -68,8 +68,8 @@ class Hourly():
         self.rs = np.array(rs, copy=True, ndmin=1)
         self.uz = np.array(uz, copy=True, ndmin=1)
         self.elev = np.array(elev, copy=True, ndmin=1)
-        self.lat = np.array(lat, copy=True, ndmin=1) * (math.pi / 180)
-        self.lon = np.array(lon, copy=True, ndmin=1) * (math.pi / 180)
+        self.lat = np.array(lat, copy=True, ndmin=1)
+        self.lon = np.array(lon, copy=True, ndmin=1)
         self.doy = np.array(doy, copy=True, ndmin=1)
         self.time = np.array(time, copy=True, ndmin=1)
         self.time_mid = self.time + 0.5
@@ -125,13 +125,23 @@ class Hourly():
                     self.elev *= 0.3048
             elif variable == 'lat':
                 if unit.lower() in ['rad', 'radian', 'radians']:
+                    # This is a little backwards but convert to degrees so that
+                    # it can be converted to radians below.  This is done so
+                    # that not setting the value will default to degrees.
                     self.lat *= (180.0 / math.pi)
             elif variable == 'lon':
                 if unit.lower() in ['rad', 'radian', 'radians']:
+                    # This is a little backwards but convert to degrees so that
+                    # it can be converted to radians below.  This is done so
+                    # that not setting the value will default to degrees.
                     self.lon *= (180.0 / math.pi)
 
         if method.lower() not in ['asce', 'refet']:
             raise ValueError('method must be "asce" or "refet"')
+
+        # Convert latitude/longitude since calcs functions are expecting radians
+        self.lat *= (math.pi / 180.0)
+        self.lon *= (math.pi / 180.0)
 
         # To match standardized form, psy is calculated from elevation based pair
         self.pair = calcs._air_pressure(self.elev, method)

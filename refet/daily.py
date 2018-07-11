@@ -77,13 +77,14 @@ class Daily():
         self.rs = np.array(rs, copy=True, ndmin=1)
         self.uz = np.array(uz, copy=True, ndmin=1)
         self.elev = np.array(elev, copy=True, ndmin=1)
-        self.lat = np.array(lat, copy=True, ndmin=1) * (math.pi / 180)
+        self.lat = np.array(lat, copy=True, ndmin=1)
         self.zw = zw
         self.doy = doy
 
         # Unit conversion
         for variable, unit in input_units.items():
-            print('  {}: {}'.format(variable, unit))
+            # print('  {}: {}'.format(variable, unit))
+
             # Check input unit types
             if unit == '':
                 continue
@@ -137,6 +138,9 @@ class Daily():
                     self.elev *= 0.3048
             elif variable == 'lat':
                 if unit.lower() in ['rad', 'radian', 'radians']:
+                    # This is a little backwards but convert to degrees so that
+                    # it can be converted to radians below.  This is done so
+                    # that not setting the value will default to degrees.
                     self.lat *= (180.0 / math.pi)
 
         if method.lower() not in ['asce', 'refet']:
@@ -149,6 +153,9 @@ class Daily():
         elif rso_type.lower() in 'array':
             # Check that rso is an array
             pass
+
+        # Convert latitude since calcs functions are expecting radians
+        self.lat *= (math.pi / 180.0)
 
         # To match standardized form, pair is calculated from elevation
         self.pair = calcs._air_pressure(self.elev, method)

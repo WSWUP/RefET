@@ -198,7 +198,16 @@ def test_refet_daily_elev_ft():
     assert float(etr) == pytest.approx(d_args['etr_asce'])
 
 
-def test_refet_daily_lat_def():
+def test_refet_daily_lat_deg():
+    etr = Daily(
+        tmin=d_args['tmin'], tmax=d_args['tmax'], ea=d_args['ea'],
+        rs=d_args['rs'], uz=d_args['uz'], zw=s_args['zw'], elev=s_args['elev'],
+        lat=s_args['lat'], doy=d_args['doy'],
+        input_units={'lat': 'deg'}).etr()
+    assert float(etr) == pytest.approx(d_args['etr_asce'])
+
+
+def test_refet_daily_lat_rad():
     etr = Daily(
         tmin=d_args['tmin'], tmax=d_args['tmax'], ea=d_args['ea'],
         rs=d_args['rs'], uz=d_args['uz'], zw=s_args['zw'], elev=s_args['elev'],

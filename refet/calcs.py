@@ -506,11 +506,6 @@ def _rso_daily(ra, ea, pair, doy, lat):
     # Transmissivity index for diffuse radiation (Eq. D.4)
     kd = np.minimum(-0.36 * kb + 0.35, 0.82 * kb + 0.18)
 
-    # print('{:>10s}: {:>8.3f}'.format('sin_beta_24', float(sin_beta_24)))
-    # print('{:>10s}: {:>8.3f}'.format('w', float(w)))
-    # print('{:>10s}: {:>8.3f}'.format('kb', float(kb)))
-    # print('{:>10s}: {:>8.3f}'.format('kd', float(kd)))
-
     rso = ra * (kb + kd)
     return rso
 

@@ -180,6 +180,16 @@ def test_refet_hourly_lon_deg():
     etr = Hourly(
         tmean=h_args['tmean'], ea=h_args['ea'], rs=h_args['rs'],
         uz=h_args['uz'], zw=s_args['zw'], elev=s_args['elev'],
+        lat=s_args['lat'], lon=s_args['lon'],
+        doy=h_args['doy'], time=h_args['time'],
+        input_units={'lon': 'deg'}).etr()
+    assert float(etr) == pytest.approx(h_args['etr_asce'])
+
+
+def test_refet_hourly_lon_rad():
+    etr = Hourly(
+        tmean=h_args['tmean'], ea=h_args['ea'], rs=h_args['rs'],
+        uz=h_args['uz'], zw=s_args['zw'], elev=s_args['elev'],
         lat=s_args['lat'], lon=s_args['lon'] * math.pi / 180,
         doy=h_args['doy'], time=h_args['time'],
         input_units={'lon': 'rad'}).etr()
