@@ -6,13 +6,8 @@ python:
   - "3.6"
   - "3.7"
 
-env:
-  - NUMPY=1.14
-  - NUMPY=1.13
-
 install:
-  - pip install -q numpy==$NUMPY
-  - pip install pandas pytest pytz
+  - pip install numpy pandas pytest pytz
 
 script:
   - python -m pytest
