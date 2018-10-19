@@ -40,7 +40,7 @@ def test_refet_daily_input_positions():
     etr = Daily(
         d_args['tmin'], d_args['tmax'], d_args['ea'], d_args['rs'],
         d_args['uz'], s_args['zw'], s_args['elev'], s_args['lat'],
-        d_args['doy'], 'asce').etr()
+        d_args['doy'], 'asce').etr
     assert float(etr) == pytest.approx(d_args['etr_asce'])
 
 
@@ -49,14 +49,14 @@ def test_refet_daily_etr():
     etr = Daily(
         tmin=d_args['tmin'], tmax=d_args['tmax'], ea=d_args['ea'],
         rs=d_args['rs'], uz=d_args['uz'], zw=s_args['zw'], elev=s_args['elev'],
-        lat=s_args['lat'], doy=d_args['doy'], method='asce').etr()
+        lat=s_args['lat'], doy=d_args['doy'], method='asce').etr
     assert float(etr) == pytest.approx(d_args['etr_asce'])
 
 def test_refet_daily_eto():
     eto = Daily(
         tmin=d_args['tmin'], tmax=d_args['tmax'], ea=d_args['ea'],
         rs=d_args['rs'], uz=d_args['uz'], zw=s_args['zw'], elev=s_args['elev'],
-        lat=s_args['lat'], doy=d_args['doy'], method='refet').eto()
+        lat=s_args['lat'], doy=d_args['doy'], method='refet').eto
     assert float(eto) == pytest.approx(d_args['eto_refet'])
 
 
@@ -66,7 +66,7 @@ def test_refet_daily_rso_type_simple():
         tmin=d_args['tmin'], tmax=d_args['tmax'], ea=d_args['ea'],
         rs=d_args['rs'], uz=d_args['uz'], zw=s_args['zw'], elev=s_args['elev'],
         lat=s_args['lat'], doy=d_args['doy'], method='refet',
-        rso_type='simple').etr()
+        rso_type='simple').etr
     assert float(etr) == pytest.approx(d_args['etr_rso_simple'])
 
 
@@ -75,7 +75,7 @@ def test_refet_daily_rso_type_array():
         tmin=d_args['tmin'], tmax=d_args['tmax'], ea=d_args['ea'],
         rs=d_args['rs'], uz=d_args['uz'], zw=s_args['zw'], elev=s_args['elev'],
         lat=s_args['lat'], doy=d_args['doy'], method='refet',
-        rso_type='array', rso=d_args['rso']).etr()
+        rso_type='array', rso=d_args['rso']).etr
     assert float(etr) == pytest.approx(d_args['etr_refet'])
 
 
@@ -85,7 +85,7 @@ def test_refet_daily_rso_type_exception():
             tmin=d_args['tmin'], tmax=d_args['tmax'], ea=d_args['ea'],
             rs=d_args['rs'], uz=d_args['uz'], zw=s_args['zw'],
             elev=s_args['elev'], lat=s_args['lat'], doy=d_args['doy'],
-            method='refet', rso_type='nonsense').etr()
+            method='refet', rso_type='nonsense').etr
         # assert float(etr) == pytest.approx(d_args['etr'])
 
 
@@ -93,7 +93,7 @@ def test_refet_daily_default_method():
     etr = Daily(
         tmin=d_args['tmin'], tmax=d_args['tmax'], ea=d_args['ea'],
         rs=d_args['rs'], uz=d_args['uz'], zw=s_args['zw'],
-        elev=s_args['elev'], lat=s_args['lat'], doy=d_args['doy']).etr()
+        elev=s_args['elev'], lat=s_args['lat'], doy=d_args['doy']).etr
     assert float(etr) == pytest.approx(d_args['etr_asce'])
 
 
@@ -106,7 +106,7 @@ def test_refet_daily_method(method, expected):
         tmin=d_args['tmin'], tmax=d_args['tmax'], ea=d_args['ea'],
         rs=d_args['rs'], uz=d_args['uz'], zw=s_args['zw'],
         elev=s_args['elev'], lat=s_args['lat'], doy=d_args['doy'],
-        method=method).etr()
+        method=method).etr
     assert float(etr) == pytest.approx(expected)
 
 
@@ -140,7 +140,7 @@ def test_refet_daily_tmin_f():
         tmin=d_args['tmin'] * (9.0 / 5) + 32, tmax=d_args['tmax'],
         ea=d_args['ea'], rs=d_args['rs'], uz=d_args['uz'], zw=s_args['zw'],
         elev=s_args['elev'], lat=s_args['lat'], doy=d_args['doy'],
-        input_units={'tmin': 'F'}).etr()
+        input_units={'tmin': 'F'}).etr
     assert float(etr) == pytest.approx(d_args['etr_asce'])
 
 def test_refet_daily_tmax_k():
@@ -149,7 +149,7 @@ def test_refet_daily_tmax_k():
         tmin=d_args['tmin'], tmax=d_args['tmax'] + 273.15,
         ea=d_args['ea'], rs=d_args['rs'], uz=d_args['uz'], zw=s_args['zw'],
         elev=s_args['elev'], lat=s_args['lat'], doy=d_args['doy'],
-        input_units={'tmax': 'K'}).etr()
+        input_units={'tmax': 'K'}).etr
     assert float(etr) == pytest.approx(d_args['etr_asce'])
 
 
@@ -158,7 +158,7 @@ def test_refet_daily_ea_pa():
         tmin=d_args['tmin'], tmax=d_args['tmax'], ea=d_args['ea'] * 1000,
         rs=d_args['rs'], uz=d_args['uz'], zw=s_args['zw'],
         elev=s_args['elev'], lat=s_args['lat'], doy=d_args['doy'],
-        input_units={'ea': 'Pa'}).etr()
+        input_units={'ea': 'Pa'}).etr
     assert float(etr) == pytest.approx(d_args['etr_asce'])
 
 
@@ -167,7 +167,7 @@ def test_refet_daily_rs_langleys():
         tmin=d_args['tmin'], tmax=d_args['tmax'], ea=d_args['ea'],
         rs=d_args['rs'] / 0.041868, uz=d_args['uz'], zw=s_args['zw'],
         elev=s_args['elev'], lat=s_args['lat'], doy=d_args['doy'],
-        input_units={'rs': 'Langleys'}).etr()
+        input_units={'rs': 'Langleys'}).etr
     assert float(etr) == pytest.approx(d_args['etr_asce'])
 
 
@@ -176,7 +176,7 @@ def test_refet_daily_rs_wm2():
         tmin=d_args['tmin'], tmax=d_args['tmax'], ea=d_args['ea'],
         rs=d_args['rs'] / 0.0864, uz=d_args['uz'], zw=s_args['zw'],
         elev=s_args['elev'], lat=s_args['lat'], doy=d_args['doy'],
-        input_units={'rs': 'W m-2'}).etr()
+        input_units={'rs': 'W m-2'}).etr
     assert float(etr) == pytest.approx(d_args['etr_asce'])
 
 
@@ -185,7 +185,7 @@ def test_refet_daily_zw_ft():
         tmin=d_args['tmin'], tmax=d_args['tmax'], ea=d_args['ea'],
         rs=d_args['rs'], uz=d_args['uz'], zw=s_args['zw'] / 0.3048,
         elev=s_args['elev'], lat=s_args['lat'], doy=d_args['doy'],
-        input_units={'zw': 'ft'}).etr()
+        input_units={'zw': 'ft'}).etr
     assert float(etr) == pytest.approx(d_args['etr_asce'])
 
 
@@ -194,7 +194,7 @@ def test_refet_daily_elev_ft():
         tmin=d_args['tmin'], tmax=d_args['tmax'], ea=d_args['ea'],
         rs=d_args['rs'], uz=d_args['uz'], zw=s_args['zw'],
         elev=s_args['elev'] / 0.3048, lat=s_args['lat'], doy=d_args['doy'],
-        input_units={'elev': 'ft'}).etr()
+        input_units={'elev': 'ft'}).etr
     assert float(etr) == pytest.approx(d_args['etr_asce'])
 
 
@@ -203,7 +203,7 @@ def test_refet_daily_lat_deg():
         tmin=d_args['tmin'], tmax=d_args['tmax'], ea=d_args['ea'],
         rs=d_args['rs'], uz=d_args['uz'], zw=s_args['zw'], elev=s_args['elev'],
         lat=s_args['lat'], doy=d_args['doy'],
-        input_units={'lat': 'deg'}).etr()
+        input_units={'lat': 'deg'}).etr
     assert float(etr) == pytest.approx(d_args['etr_asce'])
 
 
@@ -212,5 +212,5 @@ def test_refet_daily_lat_rad():
         tmin=d_args['tmin'], tmax=d_args['tmax'], ea=d_args['ea'],
         rs=d_args['rs'], uz=d_args['uz'], zw=s_args['zw'], elev=s_args['elev'],
         lat=s_args['lat'] * math.pi / 180, doy=d_args['doy'],
-        input_units={'lat': 'rad'}).etr()
+        input_units={'lat': 'rad'}).etr
     assert float(etr) == pytest.approx(d_args['etr_asce'])

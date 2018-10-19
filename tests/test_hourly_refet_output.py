@@ -169,6 +169,6 @@ def test_refet_hourly_func_values(hourly_params):
     # print('ETr: {}'.format(expected))
 
     if surface.lower() == 'etr':
-        assert float(Hourly(**inputs).etr()) == pytest.approx(expected, abs=0.01)
+        assert float(Hourly(**inputs).etr) == pytest.approx(expected, abs=0.01)
     elif surface.lower() == 'eto':
-        assert float(Hourly(**inputs).eto()) == pytest.approx(expected, abs=0.01)
+        assert float(Hourly(**inputs).eto) == pytest.approx(expected, abs=0.01)

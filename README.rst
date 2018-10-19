@@ -31,7 +31,7 @@ The raw input data is available `here <https://www.usbr.gov/pn-bin/daily.pl?stat
         lat=39.4575, doy=182, method='asce',
         input_units={'tmin': 'F', 'tmax': 'F', 'rs': 'Langleys', 'uz': 'mph',
                      'lat': 'deg'}
-        ).etr()
+        ).etr
 
     print('ETr: {:.2f} mm'.format(float(etr)))
 
@@ -50,7 +50,7 @@ The raw input data is available `here <https://www.usbr.gov/pn-bin/instant.pl?st
         tmean=91.80, ea=1.20 , rs=61.16, uz=3.33, zw=3, elev=1208.5,
         lat=39.4575, lon=-118.77388, doy=182, time=18, method='asce',
         input_units={'tmean': 'F', 'rs': 'Langleys', 'uz': 'mph', 'lat': 'deg'}
-        ).etr()
+        ).etr
 
     print('ETr: {:.2f} mm'.format(float(etr)))
 

@@ -5,6 +5,18 @@ import numpy as np
 from . import calcs
 
 
+def lazy_property(fn):
+    """Decorator that makes a property lazy-evaluated"""
+    attr_name = '_lazy_' + fn.__name__
+
+    @property
+    def _lazy_property(self):
+        if not hasattr(self, attr_name):
+            setattr(self, attr_name, fn(self))
+        return getattr(self, attr_name)
+    return _lazy_property
+
+
 class Daily():
     def __init__(self, tmin, tmax, ea, rs, uz, zw, elev, lat, doy,
                  method='asce', rso_type=None, rso=None, input_units={}):
@@ -224,12 +236,13 @@ class Daily():
 
         """
         if surface.lower() in ['alfalfa', 'etr', 'tall']:
-            return self.etr()
+            return self.etr
         elif surface.lower() in ['grass', 'eto', 'short']:
-            return self.eto()
+            return self.eto
         else:
             raise ValueError('unsupported surface type: {}'.format(surface))
 
+    @lazy_property
     def eto(self):
         """Grass reference surface"""
         self.cn = 900
@@ -239,6 +252,7 @@ class Daily():
         #     rn=self.rn, g=self.g, tmean=self.tmean, u2=self.u2, vpd=self.vpd,
         #     es_slope=self.es_slope, psy=self.psy, cn=self.cn, cd=self.cd)
 
+    @lazy_property
     def etr(self):
         """Alfalfa reference surface"""
         self.cn = 1600

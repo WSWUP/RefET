@@ -146,6 +146,6 @@ def test_refet_daily_values(daily_params):
     diff = 0.05 if expected >= 10.0 else 0.008
 
     if surface.lower() == 'etr':
-        assert float(Daily(**inputs).etr()) == pytest.approx(expected, abs=diff)
+        assert float(Daily(**inputs).etr) == pytest.approx(expected, abs=diff)
     elif surface.lower() == 'eto':
-        assert float(Daily(**inputs).eto()) == pytest.approx(expected, abs=diff)
+        assert float(Daily(**inputs).eto) == pytest.approx(expected, abs=diff)
