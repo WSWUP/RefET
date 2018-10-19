@@ -18,5 +18,8 @@ dist/
 # PyCharm project settings
 .idea
 
+# PyTest
+.pytest_cache
+
 # Miscellaneous files
 notes.txt
