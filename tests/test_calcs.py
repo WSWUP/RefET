@@ -1,5 +1,6 @@
 import math
 
+import numpy as np
 import pytest
 
 import refet.calcs as calcs
@@ -204,11 +205,13 @@ def test_omega_sunset(lat=s_args['lat'], delta=d_args['delta'],
     assert float(calcs._omega_sunset(lat, delta)) == pytest.approx(omega_s)
 
 
-def test_omega_sunset_high_lat(lat=70*(math.pi/180), delta=d_args['delta']):
+def test_omega_sunset_high_lat():
     # Test that omega sunset is limited to [0, pi]
     # This occurs for angles > ~65 degrees in the summer and ~75 in the winter
-    assert float(calcs._omega_sunset(lat, delta)) == pytest.approx(math.pi)
-    assert float(calcs._omega_sunset(-lat, delta)) == pytest.approx(0)
+    lat = 70 * (math.pi / 180)
+    assert float(calcs._omega_sunset(lat, calcs._delta(182))) == pytest.approx(math.pi)
+    assert float(calcs._omega_sunset(-lat, calcs._delta(182))) == pytest.approx(0)
+    assert float(calcs._omega_sunset(lat, calcs._delta(1))) == pytest.approx(0)
 
 
 def test_ra_daily_default(lat=s_args['lat'], doy=d_args['doy'],
@@ -223,6 +226,11 @@ def test_ra_daily_asce(lat=s_args['lat'], doy=d_args['doy'],
 def test_ra_daily_refet(lat=s_args['lat'], doy=d_args['doy'], ra=d_args['ra']):
     assert float(calcs._ra_daily(
         lat, doy, method='refet')) == pytest.approx(ra)
+
+def test_ra_daily_zero():
+    # Ra can go to zero for winter DOY and/or high latitudes
+    assert float(calcs._ra_daily(68 * (math.pi / 180), 1)) == 0
+    assert float(calcs._ra_daily(80 * (math.pi / 180), 55)) == 0
 
 
 def test_ra_hourly_default(lat=s_args['lat'], lon=s_args['lon'],
@@ -248,6 +256,13 @@ def test_rso_daily(ra=d_args['ra'], ea=d_args['ea'], pair=s_args['pair'],
                    doy=d_args['doy'], lat=s_args['lat'], rso=d_args['rso']):
     assert float(calcs._rso_daily(
         ra, ea, pair, doy, lat)) == pytest.approx(rso)
+
+
+def test_rso_daily_ra_zero(ea=d_args['ea'], pair=s_args['pair']):
+    # Rso can go to zero for winter DOY and/or high latitudes when Ra is zero
+    rso = calcs._rso_daily(calcs._ra_daily(80 * math.pi / 180, 1), ea, pair, 1,
+                           80 * math.pi / 180)
+    assert float(rso) == 0
 
 
 def test_rso_hourly_default(ra=h_args['ra'], ea=h_args['ea'], pair=s_args['pair'],
@@ -284,6 +299,12 @@ def test_rso_simple(ra, elev, rso):
 
 def test_fcd_daily(rs=d_args['rs'], rso=d_args['rso'], fcd=d_args['fcd']):
     assert float(calcs._fcd_daily(rs, rso)) == pytest.approx(fcd)
+
+
+def test_fcd_daily_rso_zero():
+    # Check that fcd returns 1 when Rso is zero
+    assert float(calcs._fcd_daily(1, 0)) == pytest.approx(1.0)
+    assert float(calcs._fcd_daily(0, 0)) == pytest.approx(1.0)
 
 
 def test_fcd_hourly_default(rs=h_args['rs'], rso=h_args['rso'],

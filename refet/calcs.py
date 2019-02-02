@@ -600,8 +600,23 @@ def _fcd_daily(rs, rso):
     -------
     ndarray
 
+    Notes
+    -----
+    fcd will be set to 1 when Rso is 0
+
     """
-    return 1.35 * np.clip(rs / rso, 0.3, 1.0) - 0.35
+    rs = np.array(rs, copy=True, ndmin=1).astype(np.float64)
+    rso = np.array(rso, copy=True, ndmin=1).astype(np.float64)
+
+    # As of NumPy 1.7+, ufuncs can take a "where" parameter
+    fcd = np.divide(rs, rso, out=np.ones_like(rs), where=rso != 0)
+    return 1.35 * np.clip(fcd, 0.3, 1.0) - 0.35
+    # return 1.35 * np.clip(rs / rso, 0.3, 1.0) - 0.35
+
+    # # DEADBEEF
+    # fcd = np.ones(rso.shape)
+    # fcd[rso > 0] = 1.35 * np.clip(rs[rso > 0] / rso[rso > 0], 0.3, 1) - 0.35
+    # return fcd
 
 
 def _fcd_hourly(rs, rso, doy, time_mid, lat, lon, method='asce'):
@@ -629,7 +644,11 @@ def _fcd_hourly(rs, rso, doy, time_mid, lat, lon, method='asce'):
 
     Returns
     -------
-    fcd : ndarray
+    ndarray
+
+    Notes
+    -----
+    fcd will be set to 1 when Rso is 0
 
     """
     rs = np.array(rs, copy=True, ndmin=1).astype(np.float64)
@@ -643,10 +662,14 @@ def _fcd_hourly(rs, rso, doy, time_mid, lat, lon, method='asce'):
         np.sin(lat) * np.sin(delta) +
         np.cos(lat) * np.cos(delta) * np.cos(omega))
 
-    fcd = np.ones(rso.shape)
-    fcd[rso > 0] = 1.35 * np.clip(rs[rso > 0] / rso[rso > 0], 0.3, 1) - 0.35
+    # As of NumPy 1.7+, ufuncs can take a "where" parameter
+    fcd = np.divide(rs, rso, out=np.ones_like(rs), where=rso != 0)
+    fcd = 1.35 * np.clip(fcd, 0.3, 1.0) - 0.35
+    # DEADBEEF
+    # fcd = np.ones(rso.shape)
+    # fcd[rso > 0] = 1.35 * np.clip(rs[rso > 0] / rso[rso > 0], 0.3, 1) - 0.35
 
-    # For now just set fcd to 1 for low sun angles
+    # For now set fcd to 1 for low sun angles also
     # DEADBEEF - Still need to get daytime value of fcd when beta > 0.3
     # Get closest value in time (array space) when beta > 0.3
     fcd[beta < 0.3] = 1
