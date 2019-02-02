@@ -1,3 +1,5 @@
+import math
+
 import pytest
 
 import refet.calcs as calcs
@@ -200,6 +202,13 @@ def test_wrap(x, x_min, x_max, expected):
 def test_omega_sunset(lat=s_args['lat'], delta=d_args['delta'],
                       omega_s=d_args['omega_s']):
     assert float(calcs._omega_sunset(lat, delta)) == pytest.approx(omega_s)
+
+
+def test_omega_sunset_high_lat(lat=70*(math.pi/180), delta=d_args['delta']):
+    # Test that omega sunset is limited to [0, pi]
+    # This occurs for angles > ~65 degrees in the summer and ~75 in the winter
+    assert float(calcs._omega_sunset(lat, delta)) == pytest.approx(math.pi)
+    assert float(calcs._omega_sunset(-lat, delta)) == pytest.approx(0)
 
 
 def test_ra_daily_default(lat=s_args['lat'], doy=d_args['doy'],

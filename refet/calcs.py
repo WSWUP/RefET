@@ -377,7 +377,7 @@ def _omega_sunset(lat, delta):
         Sunset hour angle [radians].
 
     """
-    return np.arccos(-np.tan(lat) * np.tan(delta))
+    return np.arccos(np.clip(-np.tan(lat) * np.tan(delta), -1, 1))
 
 
 def _ra_daily(lat, doy, method='asce'):
