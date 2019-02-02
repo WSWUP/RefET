@@ -73,7 +73,6 @@ def _sat_vapor_pressure(temperature):
     return e
 
 
-
 def _es_slope(tmean, method='asce'):
     """Slope of the saturation vapor pressure-temperature curve (Eq. 5)
 
