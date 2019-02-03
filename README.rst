@@ -179,6 +179,6 @@ ASCE-EWRI Standardized Reference Evapotranspiration Equation (2005)
 .. |build| image:: https://travis-ci.org/DRI-WSWUP/RefET.svg?branch=master
    :alt: Build status
    :target: https://travis-ci.org/DRI-WSWUP/RefET
-.. |version| image:: https://badge.fury.io/py/RefET.svg
+.. |version| image:: https://badge.fury.io/py/refet.svg
    :alt: Latest version on PyPI
-   :target: https://badge.fury.io/py/RefET
+   :target: https://badge.fury.io/py/refet
