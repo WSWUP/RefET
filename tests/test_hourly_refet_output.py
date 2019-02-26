@@ -145,19 +145,12 @@ class HourlyData():
             ids.append('{}-{}'.format(test_date, surface))
 
 
-@pytest.fixture(scope='module')
-def hourly_data():
-    _hourly = HourlyData()
-    return _hourly
-
-
 def pytest_generate_tests(metafunc):
-    # Read in inputs for each daily timestep
-    # Set dictionary keys to input variable names
-    hourly = hourly_data()
-
-    if 'hourly_params' in metafunc.fixturenames:
-        metafunc.parametrize('hourly_params', hourly.values, ids=hourly.ids)
+    if 'hourly_params' not in metafunc.fixturenames:
+        return
+    hourly = HourlyData()
+    metafunc.parametrize('hourly_params', hourly.values, ids=hourly.ids,
+                         scope='module')
 
 
 def test_refet_hourly_func_values(hourly_params):

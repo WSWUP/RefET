@@ -42,7 +42,7 @@ setup(
     download_url='https://github.com/WSWUP/RefET/archive/v{}.tar.gz'.format(version),
     install_requires=['numpy'],
     setup_requires=['pytest-runner'],
-    tests_require=['pytest', 'pandas', 'pytz'],
+    tests_require=['pandas', 'pytest', 'pytest-cov', 'pytz'],
     packages=['refet'],
     keywords='RefET Evapotranspiration',
     classifiers = [

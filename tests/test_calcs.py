@@ -392,5 +392,4 @@ def test_wind_height_adjust_2m(uz=2.5, zw=2.0, u2=2.5):
 def test_etsz(rn, g, tmean, u2, es, ea, es_slope, pair, cn, cd, etsz):
     output = calcs._etsz(rn, g, tmean, u2, es - ea, es_slope, 0.000665 * pair,
                          cn, cd)
-    print(h_args)
     assert float(output) == pytest.approx(etsz, abs=0.001)
