@@ -144,7 +144,6 @@ def test_refet_daily_tmin_f():
     assert float(etr) == pytest.approx(d_args['etr_asce'])
 
 def test_refet_daily_tmax_k():
-    print(d_args['tmin'])
     etr = Daily(
         tmin=d_args['tmin'], tmax=d_args['tmax'] + 273.15,
         ea=d_args['ea'], rs=d_args['rs'], uz=d_args['uz'], zw=s_args['zw'],

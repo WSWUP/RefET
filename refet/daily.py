@@ -234,23 +234,14 @@ class Daily():
         """Grass reference surface"""
         self.cn = 900
         self.cd = 0.34
-        return self._etsz()
-        # return calcs._etsz(
-        #     rn=self.rn, g=self.g, tmean=self.tmean, u2=self.u2, vpd=self.vpd,
-        #     es_slope=self.es_slope, psy=self.psy, cn=self.cn, cd=self.cd)
+        return calcs._etsz(
+            rn=self.rn, g=self.g, tmean=self.tmean, u2=self.u2, vpd=self.vpd,
+            es_slope=self.es_slope, psy=self.psy, cn=self.cn, cd=self.cd)
 
     def etr(self):
         """Alfalfa reference surface"""
         self.cn = 1600
         self.cd = 0.38
-        return self._etsz()
-        # return calcs._etsz(
-        #     rn=self.rn, g=self.g, tmean=self.tmean, u2=self.u2, vpd=self.vpd,
-        #     es_slope=self.es_slope, psy=self.psy, cn=self.cn, cd=self.cd)
-
-    def _etsz(self):
-        """Daily reference ET (Eq. 1)"""
-        return (
-            (0.408 * self.es_slope * self.rn +
-             (self.psy * self.cn * self.u2 * self.vpd / (self.tmean + 273))) /
-            (self.es_slope + self.psy * (self.cd * self.u2 + 1)))
+        return calcs._etsz(
+            rn=self.rn, g=self.g, tmean=self.tmean, u2=self.u2, vpd=self.vpd,
+            es_slope=self.es_slope, psy=self.psy, cn=self.cn, cd=self.cd)

@@ -28,8 +28,8 @@ d_args = {
     'es': 4.6747236227258835,
     'es_slope': 0.23489129849801055,
     'es_slope_asce': 0.23488581814172638,
-    # 'eto': 7.942481120179387,
-    # 'etr': 10.571560006380153,
+    'eto': 7.942481120179387,
+    'etr': 10.571560006380153,
     'fcd': 0.8569860867772078,
     'omega_s': 1.9298904620748385,
     'q': 0.008691370735727117,          # Computed from Ea from Tdew
@@ -55,8 +55,10 @@ h_args = {
     'doy': 182,
     'ea': 1.1990099614301906,           # Computed from Tdew
     'es': 5.09318785259078,
-    # 'eto': 0.6065255163817055,
-    # 'etr': 0.7201865213918281,
+    'es_slope': 0.2852040944519568,
+    'es_slope_asce': 0.28519744022482574,
+    'eto': 0.6065255163817055,
+    'etr': 0.7201865213918281,
     'fcd': 0.6816142001345745,
     'fcd_asce': 0.6816142001345745,
     # 'omega': -0.3866777826605525,     # Computed from time_mid
@@ -372,5 +374,23 @@ def test_wind_height_adjust_2m(uz=2.5, zw=2.0, u2=2.5):
         uz, zw)) == pytest.approx(u2, abs=0.001)
 
 
-# def test_etsz(etr):
-#     assert float(calcs._etsz()) == pytest.approx(etr, abs=0.001)
+@pytest.mark.parametrize(
+    'rn, g, tmean, u2, es, ea, es_slope, pair, cn, cd, etsz',
+    [[d_args['rn'], 0, 0.5 * (d_args['tmin'] + d_args['tmax']), d_args['u2'],
+      d_args['es'], d_args['ea'], d_args['es_slope'], s_args['pair'],
+      900, 0.34, d_args['eto']],
+     [d_args['rn'], 0, 0.5 * (d_args['tmin'] + d_args['tmax']), d_args['u2'],
+      d_args['es'], d_args['ea'], d_args['es_slope'], s_args['pair'],
+      1600, 0.38, d_args['etr']],
+     [h_args['rn'], 0.1 * h_args['rn'], h_args['tmean'], h_args['u2'],
+      h_args['es'], h_args['ea'], h_args['es_slope'], s_args['pair'],
+      37.0, 0.24, h_args['eto']],
+     [h_args['rn'], 0.04 * h_args['rn'], h_args['tmean'], h_args['u2'],
+      h_args['es'], h_args['ea'], h_args['es_slope'], s_args['pair'],
+      66.0, 0.25, h_args['etr']],
+     ])
+def test_etsz(rn, g, tmean, u2, es, ea, es_slope, pair, cn, cd, etsz):
+    output = calcs._etsz(rn, g, tmean, u2, es - ea, es_slope, 0.000665 * pair,
+                         cn, cd)
+    print(h_args)
+    assert float(output) == pytest.approx(etsz, abs=0.001)
