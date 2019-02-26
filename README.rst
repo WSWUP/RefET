@@ -175,7 +175,7 @@ References
 
 .. [ASCE2005]
  | ASCE-EWRI (2005). The ASCE standardized reference evapotranspiration equation.
- | `https://doi.org/10.1061/9780784408056 <https://doi.org/10.1061/9780784408056>`__
+ | `https://ascelibrary.org/doi/book/10.1061/9780784408056 <https://ascelibrary.org/doi/book/10.1061/9780784408056>`__
 
 .. |build| image:: https://travis-ci.org/WSWUP/RefET.svg?branch=master
    :alt: Build status
