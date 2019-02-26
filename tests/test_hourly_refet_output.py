@@ -52,7 +52,7 @@ class HourlyData():
     # in2_start = [i for i, x in enumerate(in2_data)
     #              if x.startswith(' Mo Da Year ')][0]
     # # Read in the IN2 file using pandas
-    # in2_df = pd.read_table(
+    # in2_df = pd.read_csv(
     #     in2_path, delim_whitespace=True, skiprows=in2_start, header=[0, 1, 2])
     # # Flatten multi-row header
     # in2_df.columns = [
@@ -77,7 +77,7 @@ class HourlyData():
     out_start = [
         i for i, x in enumerate(out_data) if x.startswith(' Mo Day Yr')][0]
     # Read in the OUT file using pandas (skip header and units)
-    out_df = pd.read_table(
+    out_df = pd.read_csv(
         out_path, delim_whitespace=True, index_col=False,
         skiprows=list(range(out_start)) + [out_start + 1])
     out_df.rename(
