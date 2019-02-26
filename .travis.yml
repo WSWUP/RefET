@@ -6,7 +6,12 @@ python:
   - "3.6"
 
 install:
-  - pip install numpy pandas pytest pytz
+  - pip install -r requirements.txt
+  - pip install -r requirements_test.txt
+  - pip install --upgrade pytest
 
 script:
-  - python -m pytest
+  - python -m pytest --cov=refet
+
+after_success:
+  - codecov
