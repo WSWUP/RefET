@@ -21,5 +21,10 @@ dist/
 # PyTest
 .pytest_cache
 
+# Coverage
+.codecov.yml
+.coveralls.yml
+coverage.xml
+
 # Miscellaneous files
 notes.txt
