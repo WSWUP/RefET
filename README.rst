@@ -2,7 +2,7 @@
 ASCE Standardized Reference Evapotranspiration (ET)
 ===================================================
 
-|version| |build|
+|version| |build| |codecov|
 
 NumPy functions for computing daily and hourly reference ET following the ASCE Standardized Reference Evapotranspiration Equations (`ASCE 2005 <ASCE2005>`_).
 
