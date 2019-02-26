@@ -4,7 +4,7 @@ ASCE Standardized Reference Evapotranspiration (ET)
 
 |version| |build|
 
-NumPy functions for computing daily and hourly reference ET.
+NumPy functions for computing daily and hourly reference ET following the ASCE Standardized Reference Evapotranspiration Equations (`ASCE 2005 <ASCE2005>`_).
 
 Usage
 =====
@@ -138,19 +138,19 @@ The cloudiness fraction (fcd) is computed as the ratio of the measured solar rad
 
 In the RefET module fcd is hard coded to 1 for all time steps with very low sun angles since the hourly reference ET is computed independently for each time step.
 
-ASCE vs. RefET
-==============
+Calculation Method - ASCE vs. RefET
+===================================
 
-TODO: Discuss the differences between "asce" and "refet" methods.
+The main difference between the two "methods" is that the "asce" method attempts to follow the equations in `ASCE 2005 <ASCE2005>`_, whereas the "refet" method attempts to follow the calculations of the `RefET Software <https://www.uidaho.edu/cals/kimberly-research-and-extension-center/research/water-resources/ref-et-software>`__ as closely as possible.  The output between these methods is generally negligible (if not identical for realistic numbers of signficant digits).  Note that the default is set to "asce" to best match the calculations a user would expect to have happen. The "refet" method was added in order to help validate to the RefET Software.
 
 Installation
 ============
 
-To install the RefET python module:
+The RefET python module can be installed with conda or pip:
 
 .. code-block:: console
 
-    pip install refet
+    conda install refet
 
 Validation
 ==========
@@ -171,14 +171,15 @@ Modules needed to run the test suite:
 References
 ==========
 
-ASCE-EWRI Standardized Reference Evapotranspiration Equation (2005)
+.. _references:
 
- * `Report <http://www.kimberly.uidaho.edu/water/asceewri/ascestzdetmain2005.pdf>`__
- * `Appendix <http://www.kimberly.uidaho.edu/water/asceewri/appendix.pdf>`__
+.. [ASCE2005]
+ | ASCE-EWRI (2005). The ASCE standardized reference evapotranspiration equation.
+ | `https://doi.org/10.1061/9780784408056 <https://doi.org/10.1061/9780784408056>`__
 
-.. |build| image:: https://travis-ci.org/DRI-WSWUP/RefET.svg?branch=master
+.. |build| image:: https://travis-ci.org/WSWUP/RefET.svg?branch=master
    :alt: Build status
-   :target: https://travis-ci.org/DRI-WSWUP/RefET
+   :target: https://travis-ci.org/WSWUP/RefET
 .. |version| image:: https://badge.fury.io/py/refet.svg
    :alt: Latest version on PyPI
    :target: https://badge.fury.io/py/refet
