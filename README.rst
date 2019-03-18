@@ -4,7 +4,7 @@ ASCE Standardized Reference Evapotranspiration (ET)
 
 |version| |build| |codecov|
 
-NumPy functions for computing daily and hourly reference ET following the ASCE Standardized Reference Evapotranspiration Equations (`ASCE 2005 <ASCE2005>`_).
+NumPy functions for computing daily and hourly reference ET following the ASCE Standardized Reference Evapotranspiration Equations ([ASCE2005]_).
 
 Usage
 =====
@@ -134,14 +134,14 @@ The user must handle all QA/QC of the input data and no missing data will be fil
 Cloudiness Fraction (hourly)
 ----------------------------
 
-The cloudiness fraction (fcd) is computed as the ratio of the measured solar radiation (Rs) to the theoretical clear sky solar radiation (Rso).  This ratio cannot be computed directly at night since Rso is 0.  ASCE-EWRI 2005 suggests computing a representative nighttime fcd based on the fcd at sunset and/or sunrise.
+The cloudiness fraction (fcd) is computed as the ratio of the measured solar radiation (Rs) to the theoretical clear sky solar radiation (Rso).  This ratio cannot be computed directly at night since Rso is 0.  [ASCE2005]_ suggests computing a representative nighttime fcd based on the fcd at sunset and/or sunrise.
 
 In the RefET module fcd is hard coded to 1 for all time steps with very low sun angles since the hourly reference ET is computed independently for each time step.
 
 Calculation Method - ASCE vs. RefET
 ===================================
 
-The main difference between the two "methods" is that the "asce" method attempts to follow the equations in `ASCE 2005 <ASCE2005>`_, whereas the "refet" method attempts to follow the calculations of the `RefET Software <https://www.uidaho.edu/cals/kimberly-research-and-extension-center/research/water-resources/ref-et-software>`__ as closely as possible.  The output between these methods is generally negligible (if not identical for realistic numbers of significant digits).  Note that the default is set to "asce" to best match the calculations a user would expect to have happen. The "refet" method was added in order to help validate to the RefET Software.
+The main difference between the two "methods" is that the "asce" method attempts to follow the equations in [ASCE2005]_, whereas the "refet" method attempts to follow the calculations of the `RefET Software <https://www.uidaho.edu/cals/kimberly-research-and-extension-center/research/water-resources/ref-et-software>`__ as closely as possible.  The output between these methods is generally negligible (if not identical for realistic numbers of significant digits).  Note that the default is set to "asce" to best match the calculations a user would expect to have happen. The "refet" method was added in order to help validate to the RefET Software.
 
 Installation
 ============
