@@ -122,6 +122,15 @@ input_units  dict        | Override default input unit types
 
 ===========  ==========  ====================================================
 
+Installation
+============
+
+The RefET python module can be installed with conda or pip:
+
+.. code-block:: console
+
+    conda install refet
+
 Issues
 ======
 
@@ -141,16 +150,8 @@ In the RefET module fcd is hard coded to 1 for all time steps with very low sun 
 Calculation Method - ASCE vs. RefET
 ===================================
 
-The main difference between the two "methods" is that the "asce" method attempts to follow the equations in ASCE2005_, whereas the "refet" method attempts to follow the calculations of the `RefET Software <https://www.uidaho.edu/cals/kimberly-research-and-extension-center/research/water-resources/ref-et-software>`__ as closely as possible.  The output between these methods is generally negligible (if not identical for realistic numbers of significant digits).  Note that the default is set to "asce" to best match the calculations a user would expect to have happen. The "refet" method was added in order to help validate to the RefET Software.
+The main difference between the two "methods" is that the "asce" method attempts to follow the equations in ASCE2005_, whereas the "refet" method attempts to follow the calculations of the `RefET Software <https://www.uidaho.edu/cals/kimberly-research-and-extension-center/research/water-resources/ref-et-software>`__ as closely as possible.  The difference in output between these methods is generally negligible (if not identical for realistic numbers of significant digits).  Note that the default is set to "asce" to best match the calculations a user would expect to have happen. The "refet" method was added in order to help validate this code to the RefET Software.
 
-Installation
-============
-
-The RefET python module can be installed with conda or pip:
-
-.. code-block:: console
-
-    conda install refet
 
 Validation
 ==========
