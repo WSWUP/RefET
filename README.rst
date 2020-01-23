@@ -178,9 +178,9 @@ References
  | ASCE-EWRI (2005). The ASCE standardized reference evapotranspiration equation.
  | `https://ascelibrary.org/doi/book/10.1061/9780784408056 <https://ascelibrary.org/doi/book/10.1061/9780784408056>`__
 
-.. |build| image:: https://travis-ci.org/WSWUP/RefET.svg?branch=master
+.. |build| image:: https://github.com/WSWUP/refet/workflows/build/badge.svg
    :alt: Build status
-   :target: https://travis-ci.org/WSWUP/RefET
+   :target: https://github.com/WSWUP/refet
 .. |version| image:: https://badge.fury.io/py/refet.svg
    :alt: Latest version on PyPI
    :target: https://badge.fury.io/py/refet
