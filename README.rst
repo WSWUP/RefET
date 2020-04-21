@@ -65,7 +65,6 @@ Required Parameters (hourly & daily)
 Variable  Type        Description [default units]
 ========  ==========  ====================================================
 ea        ndarray     Actual vapor pressure [kPa]
-rs        ndarray     Incoming shortwave solar radiation [MJ m-2 day-1]
 uz        ndarray     Wind speed [m s-1]
 zw        float       Wind speed height [m]
 elev      ndarray     Elevation [m]
@@ -79,6 +78,7 @@ Required Daily Parameters
 ========  ==========  ====================================================
 Variable  Type        Description [default units]
 ========  ==========  ====================================================
+rs        ndarray     Incoming shortwave solar radiation [MJ m-2 d-1]
 tmin      ndarray     Minimum daily temperature [C]
 tmax      ndarray     Maximum daily temperature [C]
 ========  ==========  ====================================================
@@ -89,6 +89,7 @@ Required Hourly Parameters
 ========  ==========  ====================================================
 Variable  Type        Description [default units]
 ========  ==========  ====================================================
+rs        ndarray     Incoming shortwave solar radiation [MJ m-2 h-1]
 tmean     ndarray     Average hourly temperature [C]
 lon       ndarray     Longitude [degrees]
 time      ndarray     UTC hour at start of time period
@@ -112,7 +113,7 @@ rso_type     str         | Override default clear sky solar radiation (Rso) calc
                          * 'simple' -- Simplified clear sky solar formulation
                          * 'array' -- Read Rso values from "rso" function parameter
 
-rso          array_like  | Clear sky solar radiation [MJ m-2 day-1]
+rso          array_like  | Clear sky solar radiation [MJ m-2 d-1 or MJ m-2 h-1]
 
                          * Only used if rso_type == 'array'
                          * Defaults to None if not set
