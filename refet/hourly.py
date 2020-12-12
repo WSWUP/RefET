@@ -57,8 +57,6 @@ class Hourly():
         .. [1] ASCE-EWRI (2005). The ASCE standardized reference
            evapotranspiration equation. ASCE-EWRI Standardization of Reference
            Evapotranspiration Task Committee Rep., ASCE Reston, Va.
-           http://www.kimberly.uidaho.edu/water/asceewri/ascestzdetmain2005.pdf
-           http://www.kimberly.uidaho.edu/water/asceewri/appendix.pdf
 
         """
 
