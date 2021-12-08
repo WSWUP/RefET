@@ -814,3 +814,29 @@ def _etsz(rn, g, tmean, u2, vpd, es_slope, psy, cn, cd):
     return (
         (0.408 * es_slope * (rn - g) + (psy * cn * u2 * vpd / (tmean + 273))) /
         (es_slope + psy * (cd * u2 + 1)))
+
+
+def _hargreaves_pet(ra, tmean, tmax, tmin):
+    """Hargreaves Potential ET [mm]
+
+    Parameters
+    ----------
+    ra : scalar or array_like of shape(M, )
+        Extra  radiation [MJ m-2 d-1].
+    tmean : scalar or array_like of shape(M, )
+        Mean air temperature [C]
+    tmax : scalar or array_like of shape(M, )
+        Maximum air temperature [C]
+    tmin : scalar or array_like of shape(M, )
+        Minimum air temperature [C]
+
+    Returns
+    -------
+    ndarray
+
+    References
+    ----------
+
+
+    """
+    return 0.0023 * 0.408 * ra * (tmean + 17.8) * np.power((tmax - tmin), 0.5)

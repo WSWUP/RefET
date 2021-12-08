@@ -49,6 +49,7 @@ d_args = {
     'w': 17.107650595384076,
     'uz': 4.80 * 0.44704,               # Conversion from mph to m s-1
     'u2': 1.976111757722194,
+    'pet_hargreaves': 8.25,
 }
 # Hourly test parameters for 2015-07-01 18:00 UTC (11:00 AM PDT)
 h_args = {
@@ -393,3 +394,10 @@ def test_etsz(rn, g, tmean, u2, es, ea, es_slope, pair, cn, cd, etsz):
     output = calcs._etsz(rn, g, tmean, u2, es - ea, es_slope, 0.000665 * pair,
                          cn, cd)
     assert float(output) == pytest.approx(etsz, abs=0.001)
+
+
+def test_hargreaves_pet():
+    output = calcs._hargreaves_pet(
+        ra=d_args['ra_asce'], tmean=0.5 * (d_args['tmin'] + d_args['tmax']),
+        tmax=d_args['tmax'], tmin=d_args['tmin'])
+    assert float(output) == pytest.approx(d_args['pet_hargreaves'], abs=0.01)

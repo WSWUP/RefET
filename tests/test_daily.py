@@ -25,6 +25,7 @@ d_args = {
     'etr_asce': 10.626087665395694,
     'etr_refet': 10.571314344056955,
     'etr_rso_simple': 10.628137858930051,
+    'pet_hargreaves': 8.25,
     'rs': 674.07 * 0.041868,  # Convert Rs from Langleys to MJ m-2
     'rso': 31.565939444861765,
     'tdew': units._f2c(49.84),
@@ -215,12 +216,11 @@ def test_refet_daily_lat_rad():
     assert float(etr) == pytest.approx(d_args['etr_asce'])
 
 
-# Hargreaves calculation only needs temperature, latitude, and DOY,
-#   setting all other inputs to 0 for but the values would be ignored anyway
-# TODO: Need to verify this test value in an independent calculation
-def test_refet_daily_hargeaves_pet():
+def test_refet_daily_hargreaves():
+    # Hargreaves calculation only needs temperature, latitude, and DOY
+    # Setting all other inputs to 0 for but the values would be ignored anyway
     pet = Daily(
         tmin=d_args['tmin'], tmax=d_args['tmax'],
         ea=0, rs=0, uz=0, zw=2, elev=0,
-        lat=s_args['lat'], doy=d_args['doy'], method='refet').hargeaves_pet()
-    assert float(pet) == pytest.approx(8.247962376780558)
+        lat=s_args['lat'], doy=d_args['doy'], method='asce').pet_hargreaves()
+    assert float(pet) == pytest.approx(d_args['pet_hargreaves'], abs=0.01)
