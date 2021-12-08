@@ -213,3 +213,14 @@ def test_refet_daily_lat_rad():
         lat=s_args['lat'] * math.pi / 180, doy=d_args['doy'],
         input_units={'lat': 'rad'}).etr()
     assert float(etr) == pytest.approx(d_args['etr_asce'])
+
+
+# Hargreaves calculation only needs temperature, latitude, and DOY,
+#   setting all other inputs to 0 for but the values would be ignored anyway
+# TODO: Need to verify this test value in an independent calculation
+def test_refet_daily_hargeaves_pet():
+    pet = Daily(
+        tmin=d_args['tmin'], tmax=d_args['tmax'],
+        ea=0, rs=0, uz=0, zw=2, elev=0,
+        lat=s_args['lat'], doy=d_args['doy'], method='refet').hargeaves_pet()
+    assert float(pet) == pytest.approx(8.247962376780558)

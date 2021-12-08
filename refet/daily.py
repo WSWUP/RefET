@@ -243,3 +243,10 @@ class Daily():
         return calcs._etsz(
             rn=self.rn, g=self.g, tmean=self.tmean, u2=self.u2, vpd=self.vpd,
             es_slope=self.es_slope, psy=self.psy, cn=self.cn, cd=self.cd)
+
+    def hargeaves_pet(self):
+        """Hargeaves potential ET"""
+        tmean = 0.5 * (self.tmin + self.tmax)
+
+        return (0.0023 * (tmean + 17.8) * ((self.tmax - self.tmin) ** 0.5) *
+                0.408 * calcs._ra_daily(self.lat, self.doy, method='asce'))
