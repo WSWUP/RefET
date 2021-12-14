@@ -84,10 +84,11 @@ def _es_slope(tmean, method='asce'):
         Calculation method:
         * 'asce' -- Calculations will follow ASCE-EWRI 2005 [1] equations.
         * 'refet' -- Calculations will follow RefET software.
+        * 'cimis' -- Calculations will follow the Spatial CIMIS equations.
 
     Returns
     -------
-    es_slope : ndarray
+    ndarray
         Slope [kPa C-1].
 
     Notes
@@ -95,14 +96,14 @@ def _es_slope(tmean, method='asce'):
     4098 * 0.6108 * exp(17.27 * T / (T + 237.3)) / ((T + 237.3) ** 2))
 
     """
-    if method == 'refet':
-        es_slope = (
-            4098.0 * _sat_vapor_pressure(tmean) / np.power(tmean + 237.3, 2))
-    elif method == 'asce':
-        es_slope = (
+    if method == 'asce':
+        return (
             2503.0 * np.exp(17.27 * tmean / (tmean + 237.3)) /
             np.power(tmean + 237.3, 2))
-    return es_slope
+    elif method == 'refet':
+        return 4098.0 * _sat_vapor_pressure(tmean) / np.power(tmean + 237.3, 2)
+    elif method == 'cimis':
+        return 4098.17 * _sat_vapor_pressure(tmean) / np.power(tmean + 237.3, 2)
 
 
 def _actual_vapor_pressure(q, pair):
@@ -179,7 +180,6 @@ def _vpd(es, ea):
         Vapor pressure deficit [kPa].
 
     """
-
     return np.maximum(es - ea, 0)
 
 
@@ -395,7 +395,7 @@ def _ra_daily(lat, doy, method='asce'):
 
     Returns
     -------
-    ra : ndarray
+    ndarray
         Daily extraterrestrial radiation [MJ m-2 d-1].
 
     Notes
@@ -410,10 +410,9 @@ def _ra_daily(lat, doy, method='asce'):
              np.cos(lat) * np.cos(delta) * np.sin(omegas))
 
     if method == 'asce':
-        ra = (24. / math.pi) * 4.92 * _dr(doy) * theta
+        return (24. / math.pi) * 4.92 * _dr(doy) * theta
     elif method == 'refet':
-        ra = (24. / math.pi) * (1367 * 0.0036) * _dr(doy) * theta
-    return ra
+        return (24. / math.pi) * (1367 * 0.0036) * _dr(doy) * theta
 
 
 def _ra_hourly(lat, lon, doy, time_mid, method='asce'):
@@ -436,7 +435,7 @@ def _ra_hourly(lat, lon, doy, time_mid, method='asce'):
 
     Returns
     -------
-    ra : ndarray
+    ndarray
         Hourly extraterrestrial radiation [MJ m-2 h-1].
 
     Notes
@@ -460,10 +459,9 @@ def _ra_hourly(lat, lon, doy, time_mid, method='asce'):
         ((omega2 - omega1) * np.sin(lat) * np.sin(delta)) +
         (np.cos(lat) * np.cos(delta) * (np.sin(omega2) - np.sin(omega1))))
     if method == 'asce':
-        ra = (12. / math.pi) * 4.92 * _dr(doy) * theta
+        return (12. / math.pi) * 4.92 * _dr(doy) * theta
     elif method == 'refet':
-        ra = (12. / math.pi) * (1367 * 0.0036) * _dr(doy) * theta
-    return ra
+        return (12. / math.pi) * (1367 * 0.0036) * _dr(doy) * theta
 
 
 def _rso_daily(ra, ea, pair, doy, lat):
@@ -484,7 +482,7 @@ def _rso_daily(ra, ea, pair, doy, lat):
 
     Returns
     -------
-    rso : ndarray
+    ndarray
         Daily clear sky solar radiation [MJ m-2 d-1]
 
     """
@@ -505,8 +503,7 @@ def _rso_daily(ra, ea, pair, doy, lat):
     # Transmissivity index for diffuse radiation (Eq. D.4)
     kd = np.minimum(-0.36 * kb + 0.35, 0.82 * kb + 0.18)
 
-    rso = ra * (kb + kd)
-    return rso
+    return ra * (kb + kd)
 
 
 def _rso_hourly(ra, ea, pair, doy, time_mid, lat, lon, method='asce'):
@@ -536,7 +533,7 @@ def _rso_hourly(ra, ea, pair, doy, time_mid, lat, lon, method='asce'):
 
     Returns
     -------
-    rso : ndarray
+    ndarray
         Hourly clear sky solar radiation [MJ m-2 h-1].
 
     """
@@ -562,8 +559,7 @@ def _rso_hourly(ra, ea, pair, doy, time_mid, lat, lon, method='asce'):
     # Transmissivity index for diffuse radiation (Eq. D.4)
     kd = np.minimum(-0.36 * kb + 0.35, 0.82 * kb + 0.18)
 
-    rso = ra * (kb + kd)
-    return rso
+    return ra * (kb + kd)
 
 
 def _rso_simple(ra, elev):
@@ -578,12 +574,11 @@ def _rso_simple(ra, elev):
 
     Returns
     -------
-    rso : ndarray
+    ndarray
         Clear sky solar radiation [MJ m-2 d-1 or MJ m-2 h-1].
 
     """
-    rso = (0.75 + 2E-5 * elev) * ra
-    return rso
+    return (0.75 + 2E-5 * elev) * ra
 
 
 def _fcd_daily(rs, rso):
@@ -673,11 +668,10 @@ def _fcd_hourly(rs, rso, doy, time_mid, lat, lon, method='asce'):
     # DEADBEEF - Still need to get daytime value of fcd when beta > 0.3
     # Get closest value in time (array space) when beta > 0.3
     fcd[beta < 0.3] = 1
-
     return fcd
 
 
-def _rnl_daily(tmax, tmin, ea, fcd):
+def _rnl_daily(tmax, tmin, ea, fcd, method='asce'):
     """Daily net long-wave radiation  (Eq. 17)
 
     Parameters
@@ -690,6 +684,10 @@ def _rnl_daily(tmax, tmin, ea, fcd):
         Actual vapor pressure [kPa].
     fcd : scalar or array_like of shape(M, )
         cloudiness fraction.
+    method : {'asce' (default), 'cimis'}, optional
+        Calculation method:
+        * 'asce' -- Calculations will follow ASCE-EWRI 2005 [1] equations.
+        * 'cimis' -- Calculations will follow the Spatial CIMIS equations.
 
     Returns
     -------
@@ -697,9 +695,15 @@ def _rnl_daily(tmax, tmin, ea, fcd):
         Daily net long-wave radiation [MJ m-2 d-1].
 
     """
-    return (
-        4.901E-9 * fcd * (0.34 - 0.14 * np.sqrt(ea)) *
-        0.5 * (np.power(tmax + 273.16, 4) + np.power(tmin + 273.16, 4)))
+
+    if method.lower() == 'cimis':
+        return (
+            4.9E-9 * fcd * (0.34 - 0.14 * np.sqrt(ea)) *
+            0.5 * (np.power(tmax + 273.16, 4) + np.power(tmin + 273.16, 4)))
+    else:
+        return (
+            4.901E-9 * fcd * (0.34 - 0.14 * np.sqrt(ea)) *
+            0.5 * (np.power(tmax + 273.16, 4) + np.power(tmin + 273.16, 4)))
 
 
 def _rnl_hourly(tmean, ea, fcd):

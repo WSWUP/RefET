@@ -1,6 +1,5 @@
 import math
 
-import numpy as np
 import pytest
 
 import refet.calcs as calcs
@@ -28,6 +27,7 @@ d_args = {
     'es': 4.6747236227258835,
     'es_slope': 0.23489129849801055,
     'es_slope_asce': 0.23488581814172638,
+    'es_slope_cimis': 0.23490104264655734,
     'eto': 7.942481120179387,
     'etr': 10.571560006380153,
     'fcd': 0.8569860867772078,
@@ -38,6 +38,7 @@ d_args = {
     'ra_asce': 41.64824567735701,
     'rn': 15.174377350374275,
     'rnl': 6.556533974825727,
+    'rnl_cimis': 6.555196179687015,
     'rs': 674.07 * 0.041868,            # Conversion from Langleys to MJ m-2
     'rso': 31.565939444861765,
     'rso_simple': 32.26439287925584,
@@ -151,6 +152,11 @@ def test_es_slope_refet(tmin=d_args['tmin'], tmax=d_args['tmax'],
                         es_slope=d_args['es_slope']):
     assert float(calcs._es_slope(
         0.5 * (tmin + tmax), method='refet')) == pytest.approx(es_slope)
+
+def test_es_slope_cimis(tmin=d_args['tmin'], tmax=d_args['tmax'],
+                        es_slope=d_args['es_slope_cimis']):
+    assert float(calcs._es_slope(
+        0.5 * (tmin + tmax), method='cimis')) == pytest.approx(es_slope)
 
 
 def test_precipitable_water(pair=s_args['pair'], ea=d_args['ea'],
@@ -346,6 +352,11 @@ def test_fcd_hourly_night(rs=h_args['rs'], rso=h_args['rso'],
 def test_rnl_daily(tmin=d_args['tmin'], tmax=d_args['tmax'], ea=d_args['ea'],
                    fcd=d_args['fcd'], rnl=d_args['rnl']):
     assert float(calcs._rnl_daily(tmax, tmin, ea, fcd)) == pytest.approx(rnl)
+
+def test_rnl_daily_cimis(tmin=d_args['tmin'], tmax=d_args['tmax'],
+                         ea=d_args['ea'], fcd=d_args['fcd'],
+                         rnl=d_args['rnl_cimis'], method='cimis'):
+    assert float(calcs._rnl_daily(tmax, tmin, ea, fcd, method)) == pytest.approx(rnl)
 
 
 def test_rnl_hourly(tmean=h_args['tmean'], ea=h_args['ea'],
