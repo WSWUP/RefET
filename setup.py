@@ -37,18 +37,17 @@ setup(
     long_description=long_description,
     license='Apache',
     author='Charles Morton',
-    author_email='charles.g.morton@gmail.com',
+    author_email='charles.morton@dri.edu',
     url='https://github.com/WSWUP/RefET',
-    download_url='https://github.com/WSWUP/RefET/archive/v{}.tar.gz'.format(version),
+    download_url=f'https://github.com/WSWUP/RefET/archive/v{version}.tar.gz',
     install_requires=['numpy'],
     setup_requires=['pytest-runner'],
     tests_require=['pandas', 'pytest', 'pytest-cov', 'pytz'],
     packages=['refet'],
     keywords='RefET Evapotranspiration',
-    classifiers = [
+    classifiers=[
         'License :: OSI Approved :: Apache Software License',
-        'Programming Language :: Python :: 2.7',
-        'Programming Language :: Python :: 3.5',
         'Programming Language :: Python :: 3.6',
+        'Programming Language :: Python :: 3.7',
     ],
 )

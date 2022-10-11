@@ -142,7 +142,7 @@ class HourlyData():
                 'method': 'refet'
             })
             values.append(date_values)
-            ids.append('{}-{}'.format(test_date, surface))
+            ids.append(f'{test_date}-{surface}')
 
 
 def pytest_generate_tests(metafunc):
@@ -159,7 +159,7 @@ def test_refet_hourly_func_values(hourly_params):
     inputs = hourly_params.copy()
     surface = inputs.pop('surface')
     expected = inputs.pop('expected')
-    # print('ETr: {}'.format(expected))
+    # print(f'ETr: {expected}')
 
     if surface.lower() == 'etr':
         assert float(Hourly(**inputs).etr()) == pytest.approx(expected, abs=0.01)

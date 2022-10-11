@@ -27,13 +27,13 @@ The raw input data is available `here <https://www.usbr.gov/pn-bin/daily.pl?stat
     # ea = refet.calcs._saturated_vapor_pressure(tdew_c)
 
     etr = refet.Daily(
-        tmin=66.65, tmax=102.80, ea=ea, rs=674.07, uz=4.80, zw=3, elev=1208.5,
-        lat=39.4575, doy=182, method='asce',
+        tmin=66.65, tmax=102.80, ea=ea, rs=674.07, uz=4.80,
+        zw=3, elev=1208.5, lat=39.4575, doy=182, method='asce',
         input_units={'tmin': 'F', 'tmax': 'F', 'rs': 'Langleys', 'uz': 'mph',
                      'lat': 'deg'}
         ).etr()
 
-    print('ETr: {:.2f} mm'.format(float(etr)))
+    print(f'ETr: {float(etr):.2f} mm')
 
 Hourly Example
 --------------
@@ -52,7 +52,7 @@ The raw input data is available `here <https://www.usbr.gov/pn-bin/instant.pl?st
         input_units={'tmean': 'F', 'rs': 'Langleys', 'uz': 'mph', 'lat': 'deg'}
         ).etr()
 
-    print('ETr: {:.2f} mm'.format(float(etr)))
+    print(f'ETr: {float(etr):.2f} mm')
 
 
 Input Parameters
@@ -137,9 +137,10 @@ Issues
 
 The functions have **not** been tested for inputs with different shapes/sizes and the broadcasting may not work correctly.
 
-Currently the user must handle all of the file I/O and unit conversions.
-
-The user must handle all QA/QC of the input data and no missing data will be filled.
+The user must handle the following:
+ + File I/O
+ + QA/QC of the input data
+ + Filling missing or bad data
 
 Cloudiness Fraction (hourly)
 ----------------------------
@@ -152,7 +153,6 @@ Calculation Method - ASCE vs. RefET
 ===================================
 
 The main difference between the two "methods" is that the "asce" method attempts to follow the equations in ASCE2005_, whereas the "refet" method attempts to follow the calculations of the `RefET Software <https://www.uidaho.edu/cals/kimberly-research-and-extension-center/research/water-resources/ref-et-software>`__ as closely as possible.  The difference in output between these methods is generally negligible (if not identical for realistic numbers of significant digits).  Note that the default is set to "asce" to best match the calculations a user would expect to have happen. The "refet" method was added in order to help validate this code to the RefET Software.
-
 
 Validation
 ==========

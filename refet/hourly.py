@@ -94,8 +94,7 @@ class Hourly():
                     'mph',
                     'ft', 'feet',
                     'rad', 'radian', 'radians']:
-                raise ValueError('unsupported unit conversion for {} {}'.format(
-                    variable, unit))
+                raise ValueError(f'unsupported unit conversion for {variable} {unit}')
 
             # Convert input values to expected units
             if variable == 'tmean':
@@ -204,7 +203,7 @@ class Hourly():
         elif surface.lower() in ['grass', 'eto', 'short']:
             return self.eto()
         else:
-            raise ValueError('unsupported surface type: {}'.format(surface))
+            raise ValueError(f'unsupported surface type: {surface}')
 
     def eto(self):
         """Short (grass) reference surface"""

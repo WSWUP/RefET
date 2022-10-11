@@ -115,7 +115,7 @@ class DailyData():
                 'method': 'refet'
             })
             values.append(date_values)
-            ids.append('{}-{}'.format(test_date, surface))
+            ids.append(f'{test_date}-{surface}')
 
 
 def pytest_generate_tests(metafunc):
@@ -132,7 +132,7 @@ def test_refet_daily_values(daily_params):
     inputs = daily_params.copy()
     surface = inputs.pop('surface')
     expected = inputs.pop('expected')
-    # print('ETr: {}'.format(expected))
+    # print(f'ETr: {expected}')
 
     # ETr/ETo values only have 4 significant figures
     # Small number of days don't match if difference is set < 0.008

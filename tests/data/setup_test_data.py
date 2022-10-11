@@ -8,8 +8,8 @@ from urllib.request import urlopen
 # Input parameters
 station = 'FALN'
 year = 2015
-hourly_csv = '{}_Agrimet_hourly_raw_{}.csv'.format(station, year)
-daily_csv = '{}_Agrimet_daily_raw_{}.csv'.format(station, year)
+hourly_csv = f'{station}_Agrimet_hourly_raw_{year}.csv'
+daily_csv = f'{station}_Agrimet_daily_raw_{year}.csv'
 
 
 
