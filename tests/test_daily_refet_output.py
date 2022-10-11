@@ -26,9 +26,11 @@ class DailyData():
     csv_df.rename(
         columns={'MN': 'TMIN', 'MX': 'TMAX', 'YM': 'TDEW', 'UA': 'WIND',
                  'SR': 'RS'},
-        inplace=True)
+        inplace=True,
+    )
     csv_df['DATE'] = csv_df[['YEAR', 'MONTH', 'DAY']].apply(
-        lambda x: dt.datetime(*x).strftime('%Y-%m-%d'), axis=1)
+        lambda x: dt.datetime(*x).strftime('%Y-%m-%d'), axis=1,
+    )
     csv_df.set_index('DATE', inplace=True, drop=True)
 
     # Convert inputs units
@@ -59,18 +61,20 @@ class DailyData():
     # Identify the row number of the OUT data
     with open(out_path) as out_f:
         out_data = out_f.readlines()
-    out_start = [
-        i for i, x in enumerate(out_data) if x.startswith(' Mo Day Yr')][0]
+    out_start = [i for i, x in enumerate(out_data) if x.startswith(' Mo Day Yr')][0]
     # Read in the OUT file using pandas (skip header and units)
     out_df = pd.read_csv(
         out_path, delim_whitespace=True, index_col=False,
-        skiprows=list(range(out_start)) + [out_start + 1])
+        skiprows=list(range(out_start)) + [out_start + 1],
+    )
     out_df.rename(
         columns={'Yr': 'YEAR', 'Mo': 'MONTH', 'Day': 'DAY', 'Tmax': 'TMAX',
                  'Tmin': 'TMIN', 'Wind': 'WIND', 'Rs': 'RS', 'DewP': 'TDEW'},
-        inplace=True)
+        inplace=True,
+    )
     out_df['DATE'] = out_df[['YEAR', 'MONTH', 'DAY']].apply(
-        lambda x: dt.datetime(*x).strftime('%Y-%m-%d'), axis=1)
+        lambda x: dt.datetime(*x).strftime('%Y-%m-%d'), axis=1,
+    )
     out_df.set_index('DATE', inplace=True, drop=True)
 
     # Read the station properties from the IN2 file for now
@@ -106,13 +110,12 @@ class DailyData():
             date_values.update({
                 'surface': surface.lower(),
                 'expected': out_df.loc[test_date, surface],
-                'doy': int(
-                    dt.datetime.strptime(test_date, '%Y-%m-%d').strftime('%j')),
+                'doy': int(dt.datetime.strptime(test_date, '%Y-%m-%d').strftime('%j')),
                 'zw': zw,
                 'elev': elev,
                 'lat': lat,
                 'rso_type': 'full',
-                'method': 'refet'
+                'method': 'refet',
             })
             values.append(date_values)
             ids.append(f'{test_date}-{surface}')
@@ -122,8 +125,7 @@ def pytest_generate_tests(metafunc):
     if 'daily_params' not in metafunc.fixturenames:
         return
     daily = DailyData()
-    metafunc.parametrize('daily_params', daily.values, ids=daily.ids,
-                         scope='module')
+    metafunc.parametrize('daily_params', daily.values, ids=daily.ids, scope='module')
 
 
 def test_refet_daily_values(daily_params):

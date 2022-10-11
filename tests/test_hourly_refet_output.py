@@ -74,24 +74,26 @@ class HourlyData():
     # Identify the row number of the OUT data
     with open(out_path) as out_f:
         out_data = out_f.readlines()
-    out_start = [
-        i for i, x in enumerate(out_data) if x.startswith(' Mo Day Yr')][0]
+    out_start = [i for i, x in enumerate(out_data) if x.startswith(' Mo Day Yr')][0]
     # Read in the OUT file using pandas (skip header and units)
     out_df = pd.read_csv(
         out_path, delim_whitespace=True, index_col=False,
-        skiprows=list(range(out_start)) + [out_start + 1])
+        skiprows=list(range(out_start)) + [out_start + 1],
+    )
     out_df.rename(
         columns={'Yr': 'YEAR', 'Mo': 'MONTH', 'Day': 'DAY', 'HrMn': 'HOUR',
                  'Tmax': 'TMAX', 'Tmin': 'TMIN', 'DewP': 'TDEW',
                  'Wind': 'WIND', 'Rs': 'RS'},
-        inplace=True)
+        inplace=True,
+    )
     out_df['HOUR'] = (out_df['HOUR'] / 100).astype(int)
     # AgriMet times are local with DST (this will drop one hour)
     out_df['DATETIME'] = out_df[['YEAR', 'MONTH', 'DAY', 'HOUR']].apply(
-        lambda x: pytz.timezone('US/Pacific').localize(dt.datetime(*x)),
-        axis=1)
+        lambda x: pytz.timezone('US/Pacific').localize(dt.datetime(*x)), axis=1
+    )
     out_df['DATETIME'] = out_df['DATETIME'].apply(
-        lambda x: x.tz_convert('UTC').strftime('%Y-%m-%d %H:00'))
+        lambda x: x.tz_convert('UTC').strftime('%Y-%m-%d %H:00')
+    )
     # out_df['DATETIME'] = out_df[['YEAR', 'MONTH', 'DAY', 'HOUR']].apply(
     #     lambda x: dt.datetime(*x).strftime('%Y-%m-%d %H:00'), axis=1)
     out_df.set_index('DATETIME', inplace=True, drop=True)
@@ -139,7 +141,7 @@ class HourlyData():
                 'elev': elev,
                 'lat': lat,
                 'lon': lon,
-                'method': 'refet'
+                'method': 'refet',
             })
             values.append(date_values)
             ids.append(f'{test_date}-{surface}')
@@ -149,8 +151,7 @@ def pytest_generate_tests(metafunc):
     if 'hourly_params' not in metafunc.fixturenames:
         return
     hourly = HourlyData()
-    metafunc.parametrize('hourly_params', hourly.values, ids=hourly.ids,
-                         scope='module')
+    metafunc.parametrize('hourly_params', hourly.values, ids=hourly.ids, scope='module')
 
 
 def test_refet_hourly_func_values(hourly_params):
