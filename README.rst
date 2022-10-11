@@ -185,6 +185,6 @@ References
 .. |version| image:: https://badge.fury.io/py/refet.svg
    :alt: Latest version on PyPI
    :target: https://badge.fury.io/py/refet
-.. |codecov| image:: https://codecov.io/gh/WSWUP/refet/branch/master/graphs/badge.svg
+.. |codecov| image:: https://codecov.io/gh/WSWUP/refet/branch/main/graphs/badge.svg
    :alt: Coverage Status
    :target: https://codecov.io/gh/WSWUP/refet

@@ -20,13 +20,17 @@ dependencies = [
 "Homepage" = "https://github.com/WSWUP/RefET"
 "Bug Tracker" = "https://github.com/WSWUP/RefET/issues"
 
-[project.optional-dependencies]
-dev = [
-    "pandas",
-    "pytz",
-    "pytest",
-    "pytest-cov",
-]
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+# [project.optional-dependencies]
+# dev = [
+#     "pandas",
+#     "pytz",
+#     "pytest",
+#     "pytest-cov",
+# ]
 
 # [tool.pytest.ini_options]
 # pythonpath = [
@@ -39,6 +43,3 @@ dev = [
 # [tool.coverage.run]
 # source = ["src"]
 
-[build-system]
-requires = ["setuptools>=61.0"]
-build-backend = "setuptools.build_meta"
