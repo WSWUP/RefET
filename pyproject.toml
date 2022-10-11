@@ -1,0 +1,36 @@
+[project]
+name = "refet"
+version = "0.3.12"
+authors = [
+  { name="Charles Morton", email="charles.morton@dri.edu" },
+]
+description = "ASCE Standardized Reference Evapotranspiration Functions"
+readme = "README.rst"
+requires-python = ">=3.6"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: Apache Software License",
+    "Operating System :: OS Independent",
+]
+dependencies = [
+    "numpy >=1.10.0",
+]
+
+[project.urls]
+"Homepage" = "https://github.com/WSWUP/RefET"
+"Bug Tracker" = "https://github.com/WSWUP/RefET/issues"
+
+[project.optional-dependencies]
+dev = [
+    "pandas",
+    "pytz",
+    "pytest",
+    "pytest-cov",
+]
+
+# [tool.coverage.run]
+# source = ["src"]
+
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
