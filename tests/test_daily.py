@@ -2,8 +2,8 @@ import math
 
 import pytest
 
-from refet.daily import Daily
-import refet.units as units
+from src.refet.daily import Daily
+import src.refet.units as units
 
 
 # Eventually move to conftest.py or a separate file

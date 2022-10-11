@@ -28,6 +28,14 @@ dev = [
     "pytest-cov",
 ]
 
+# [tool.pytest.ini_options]
+# pythonpath = [
+#   "src"
+# ]
+# addopts = [
+#     "--import-mode=importlib",
+# ]
+
 # [tool.coverage.run]
 # source = ["src"]
 

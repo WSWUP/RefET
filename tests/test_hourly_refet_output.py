@@ -7,8 +7,8 @@ import pandas as pd
 import pytest
 import pytz
 
-from refet.hourly import Hourly
-import refet.units as units
+from src.refet.hourly import Hourly
+import src.refet.units as units
 
 
 # Test hourly functions using actual RefET input/output files

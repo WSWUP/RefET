@@ -6,8 +6,8 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from refet.daily import Daily
-import refet.units as units
+from src.refet.daily import Daily
+import src.refet.units as units
 
 
 # Test daily functions using actual RefET input/output files

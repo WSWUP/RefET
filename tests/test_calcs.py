@@ -3,8 +3,8 @@ import math
 import numpy as np
 import pytest
 
-import refet.calcs as calcs
-import refet.units as units
+import src.refet.calcs as calcs
+import src.refet.units as units
 
 
 # Eventually move to conftest.py or a separate file

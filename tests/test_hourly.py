@@ -2,8 +2,8 @@ import math
 
 import pytest
 
-from refet.hourly import Hourly
-import refet.units as units
+from src.refet.hourly import Hourly
+import src.refet.units as units
 
 
 # Eventually move to conftest.py or a separate file
