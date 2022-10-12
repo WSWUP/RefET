@@ -52,7 +52,7 @@ def convert(values, variable, unit, timestep=None):
 
     # Convert input values to expected units
     # TODO: Split these into separate functions
-    if variable in ['tmean', 'tmin', 'tmax']:
+    if variable in ['tmean', 'tmin', 'tmax', 'tdew']:
         if unit.lower() in ['f', 'fahrenheit']:
             values -= 32
             values *= (5.0 / 9)

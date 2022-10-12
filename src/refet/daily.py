@@ -71,18 +71,12 @@ class Daily():
            Evapotranspiration Task Committee Rep., ASCE Reston, Va.
 
         """
+        if method.lower() not in ['asce', 'refet']:
+            raise ValueError('method must be "asce" or "refet"')
 
         # Convert all inputs to NumPy arrays
         self.tmin = np.array(tmin, copy=True, ndmin=1)
         self.tmax = np.array(tmax, copy=True, ndmin=1)
-        if ea is not None:
-            self.ea = np.array(ea, copy=True, ndmin=1)
-        elif tdew is not None:
-            self.ea = calcs._sat_vapor_pressure(np.array(tdew, copy=True, ndmin=1))
-        else:
-            # TODO: Check if there is a better exception to raise
-            raise Exception('Either "ea" or "tdew" parameter must be set')
-        # self.ea = np.array(ea, copy=True, ndmin=1)
         self.rs = np.array(rs, copy=True, ndmin=1)
         self.uz = np.array(uz, copy=True, ndmin=1)
         self.elev = np.array(elev, copy=True, ndmin=1)
@@ -90,16 +84,28 @@ class Daily():
         self.zw = zw
         self.doy = doy
 
-        # Unit conversion
+        # Use Ea directly if it is set, otherwise try to compute from Tdew
+        if ea is not None:
+            self.ea = np.array(ea, copy=True, ndmin=1)
+            self.tdew = None
+        elif tdew is not None:
+            self.tdew = np.array(tdew, copy=True, ndmin=1)
+            self.ea = None
+        else:
+            # TODO: Check if there is a better exception to raise
+            raise Exception('Either "ea" or "tdew" parameter must be set')
+
+        # Unit conversions
         for v, unit in input_units.items():
             setattr(
-                self, v,
-                units.convert(getattr(self, v), v, unit, timestep='daily')
+                self, v, units.convert(getattr(self, v), v, unit, timestep='daily')
             )
 
-        if method.lower() not in ['asce', 'refet']:
-            raise ValueError('method must be "asce" or "refet"')
+        # Compute Ea after handling unit conversions so that Tdew is in Celsius
+        if self.ea is None and self.tdew is not None:
+            self.ea = calcs._sat_vapor_pressure(self.tdew)
 
+        # Rso
         if rso_type is None:
             pass
         elif rso_type.lower() not in ['simple', 'full', 'array']:
@@ -127,7 +133,8 @@ class Daily():
         # Saturated vapor pressure
         self.es = 0.5 * (
             calcs._sat_vapor_pressure(self.tmax) +
-            calcs._sat_vapor_pressure(self.tmin))
+            calcs._sat_vapor_pressure(self.tmin)
+        )
 
         # Vapor pressure deficit
         self.vpd = calcs._vpd(self.es, self.ea)
@@ -143,12 +150,14 @@ class Daily():
                 self.rso = calcs._rso_simple(self.ra, self.elev)
             elif method.lower() == 'refet':
                 self.rso = calcs._rso_daily(
-                    self.ra, self.ea, self.pair, self.doy, self.lat)
+                    self.ra, self.ea, self.pair, self.doy, self.lat
+                )
         elif rso_type.lower() == 'simple':
             self.rso = calcs._rso_simple(self.ra, elev)
         elif rso_type.lower() == 'full':
             self.rso = calcs._rso_daily(
-                self.ra, self.ea, self.pair, self.doy, self.lat)
+                self.ra, self.ea, self.pair, self.doy, self.lat
+            )
         elif rso_type.lower() == 'array':
             # Use rso array passed to function
             self.rso = rso
@@ -194,7 +203,8 @@ class Daily():
         self.cd = 0.34
         return calcs._etsz(
             rn=self.rn, g=self.g, tmean=self.tmean, u2=self.u2, vpd=self.vpd,
-            es_slope=self.es_slope, psy=self.psy, cn=self.cn, cd=self.cd)
+            es_slope=self.es_slope, psy=self.psy, cn=self.cn, cd=self.cd
+        )
 
     def etr(self):
         """Alfalfa reference surface"""
@@ -202,4 +212,5 @@ class Daily():
         self.cd = 0.38
         return calcs._etsz(
             rn=self.rn, g=self.g, tmean=self.tmean, u2=self.u2, vpd=self.vpd,
-            es_slope=self.es_slope, psy=self.psy, cn=self.cn, cd=self.cd)
+            es_slope=self.es_slope, psy=self.psy, cn=self.cn, cd=self.cd
+        )

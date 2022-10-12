@@ -218,7 +218,7 @@ def test_refet_hourly_lon_rad():
     assert float(etr) == pytest.approx(h_args['etr_asce'])
 
 
-def test_refet_hourly_ea_from_tdew():
+def test_refet_hourly_tdew():
     """Check that Ea can be computed from tdew"""
     etr = Hourly(
         tmean=h_args['tmean'], tdew=h_args['tdew'], rs=h_args['rs'],
@@ -238,3 +238,15 @@ def test_refet_hourly_ea_tdew_exception():
             lat=s_args['lat'], lon=s_args['lon'], doy=h_args['doy'],
             time=h_args['time'],
         )
+
+
+def test_refet_hourly_tdew():
+    """Check that Tdew is converted to C before computing Ea"""
+    etr = Hourly(
+        tmean=h_args['tmean'], rs=h_args['rs'],
+        tdew=units._c2f(h_args['tdew']),
+        uz=h_args['uz'], zw=s_args['zw'], elev=s_args['elev'],
+        lat=s_args['lat'], lon=s_args['lon'], doy=h_args['doy'],
+        time=h_args['time'], input_units={'tdew': 'F'},
+    ).etr()
+    assert float(etr) == pytest.approx(h_args['etr_asce'])
