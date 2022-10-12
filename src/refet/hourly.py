@@ -115,17 +115,18 @@ class Hourly():
         # Psychrometric constant (Eq. 35)
         self.psy = 0.000665 * self.pair
 
-        self.es = calcs._sat_vapor_pressure(self.tmean)
+        # Slope of the saturation vapor pressure-temperature curve
         self.es_slope = calcs._es_slope(self.tmean, method)
+
+        # Saturation vapor pressure
+        self.es = calcs._sat_vapor_pressure(self.tmean)
 
         # Vapor pressure deficit
         self.vpd = self.es - self.ea
         # self.vpd = calcs._vpd(self.es, ea)
 
         # Extraterrestrial radiation
-        self.ra = calcs._ra_hourly(
-            self.lat, self.lon, self.doy, self.time_mid, method
-        )
+        self.ra = calcs._ra_hourly(self.lat, self.lon, self.doy, self.time_mid, method)
 
         # Clear sky solar radiation
         if method == 'asce':

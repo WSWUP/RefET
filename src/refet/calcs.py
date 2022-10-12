@@ -94,19 +94,19 @@ def _es_slope(tmean, method='asce'):
 
     Notes
     -----
-    In the ASCE method, 4098.0 * 0.6108 (the coefficient from the ea calculation)
-    is rounded to 2503.0 exactly.
+    The difference between the two methods is in the rounding of the coefficient.
+
+    Intentionally (partially) recomputing es from tmean instead of taking es as
+    function parameter since this es is computed directly from tmean instead of
+    as the average of the min and max temperature saturation vapor pressures.
 
     """
-    # TODO: Restructure this function to take es an input parameter
-    es = _sat_vapor_pressure(tmean)
+    es_slope = np.exp(17.27 * tmean / (tmean + 237.3)) / np.power(tmean + 237.3, 2)
 
-    if method == 'refet':
-        es *= 4098.0
-    elif method == 'asce':
-        es *= (2503.0 / 0.6108)
-
-    return es / np.power(tmean + 237.3, 2)
+    if method == 'asce':
+        return 2503.0 * es_slope
+    elif method == 'refet':
+        return 4098.0 * 0.6108 * es_slope
 
 
 def _actual_vapor_pressure(q, pair):

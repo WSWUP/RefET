@@ -121,16 +121,19 @@ class Daily():
         #   expecting the default units to be radians
         self.lat *= (math.pi / 180.0)
 
+        # Mean daily air temperature
+        self.tmean = 0.5 * (self.tmax + self.tmin)
+
         # To match standardized form, pair is calculated from elevation
         self.pair = calcs._air_pressure(self.elev, method)
 
         # Psychrometric constant (Eq. 4)
         self.psy = 0.000665 * self.pair
 
-        self.tmean = 0.5 * (self.tmax + self.tmin)
+        # Slope of the saturation vapor pressure-temperature curve
         self.es_slope = calcs._es_slope(self.tmean, method)
 
-        # Saturated vapor pressure
+        # Saturation vapor pressure
         self.es = 0.5 * (
             calcs._sat_vapor_pressure(self.tmax) +
             calcs._sat_vapor_pressure(self.tmin)
