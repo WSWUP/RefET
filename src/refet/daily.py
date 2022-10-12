@@ -7,8 +7,9 @@ from . import units
 
 
 class Daily():
-    def __init__(self, tmin, tmax, ea, rs, uz, zw, elev, lat, doy,
-                 method='asce', rso_type=None, rso=None, input_units={}):
+    def __init__(self, tmin, tmax, rs, uz, zw, elev, lat, doy, ea=None, tdew=None,
+                 method='asce', rso_type=None, rso=None, input_units={},
+                 ):
         """ASCE Daily Standardized Reference Evapotranspiration (ET)
 
         Arguments
@@ -17,8 +18,6 @@ class Daily():
             Minimum daily temperature [C].
         tmax : ndarray
             Maximum daily temperature [C].
-        ea : ndarray
-            Actual vapor pressure [kPa].
         rs : ndarray
             Incoming shortwave solar radiation [MJ m-2 day-1].
         uz : ndarray
@@ -31,6 +30,10 @@ class Daily():
             Latitude [degrees].
         doy : ndarray
             Day of year.
+        ea : ndarray, optional
+            Actual vapor pressure [kPa].  Either ea or tdew must be set.
+        tdew : ndarray, optional
+            Mean daily dew point temperature [C].
         method : {'asce' (default), 'refet'}, optional
             Specifies which calculation method to use.
             * 'asce' -- Calculations will follow ASCE-EWRI 2005 [1]_ equations.
@@ -72,7 +75,14 @@ class Daily():
         # Convert all inputs to NumPy arrays
         self.tmin = np.array(tmin, copy=True, ndmin=1)
         self.tmax = np.array(tmax, copy=True, ndmin=1)
-        self.ea = np.array(ea, copy=True, ndmin=1)
+        if ea is not None:
+            self.ea = np.array(ea, copy=True, ndmin=1)
+        elif tdew is not None:
+            self.ea = calcs._sat_vapor_pressure(np.array(tdew, copy=True, ndmin=1))
+        else:
+            # TODO: Check if there is a better exception to raise
+            raise Exception('Either "ea" or "tdew" parameter must be set')
+        # self.ea = np.array(ea, copy=True, ndmin=1)
         self.rs = np.array(rs, copy=True, ndmin=1)
         self.uz = np.array(uz, copy=True, ndmin=1)
         self.elev = np.array(elev, copy=True, ndmin=1)

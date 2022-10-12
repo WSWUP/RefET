@@ -2,7 +2,7 @@
 ASCE Standardized Reference Evapotranspiration (ET)
 ===================================================
 
-|version| |build| |codecov|
+|version| |build|
 
 NumPy functions for computing daily and hourly reference ET following the ASCE Standardized Reference Evapotranspiration Equations (ASCE2005_).
 
@@ -24,13 +24,12 @@ The raw input data is available `here <https://www.usbr.gov/pn-bin/daily.pl?stat
     # Compute actual vapor pressure from Tdew
     tdew_c = (49.84 - 32) * (5.0 / 9)                          # F -> C
     ea = 0.6108 * math.exp(17.27 * tdew_c / (tdew_c + 237.3))  # kPa
-    # ea = refet.calcs._saturated_vapor_pressure(tdew_c)
+    # ea = refet.calcs._sat_vapor_pressure(tdew_c)
 
     etr = refet.Daily(
         tmin=66.65, tmax=102.80, ea=ea, rs=674.07, uz=4.80,
         zw=3, elev=1208.5, lat=39.4575, doy=182, method='asce',
-        input_units={'tmin': 'F', 'tmax': 'F', 'rs': 'Langleys', 'uz': 'mph',
-                     'lat': 'deg'}
+        input_units={'tmin': 'F', 'tmax': 'F', 'rs': 'Langleys', 'uz': 'mph', 'lat': 'deg'}
         ).etr()
 
     print(f'ETr: {float(etr):.2f} mm')
@@ -185,6 +184,3 @@ References
 .. |version| image:: https://badge.fury.io/py/refet.svg
    :alt: Latest version on PyPI
    :target: https://badge.fury.io/py/refet
-.. |codecov| image:: https://codecov.io/gh/WSWUP/refet/branch/main/graphs/badge.svg
-   :alt: Coverage Status
-   :target: https://codecov.io/gh/WSWUP/refet

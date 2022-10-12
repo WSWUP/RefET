@@ -39,9 +39,9 @@ h_args = {
 # Test full hourly functions with positional inputs
 def test_refet_hourly_input_positions():
     etr = Hourly(
-        h_args['tmean'], h_args['ea'], h_args['rs'], h_args['uz'],
+        h_args['tmean'], h_args['rs'], h_args['uz'],
         s_args['zw'], s_args['elev'], s_args['lat'], s_args['lon'],
-        h_args['doy'], h_args['time'], 'asce',
+        h_args['doy'], h_args['time'], h_args['ea'], None, 'asce',
     ).etr()
     assert float(etr) == pytest.approx(h_args['etr_asce'])
 
@@ -216,3 +216,25 @@ def test_refet_hourly_lon_rad():
         input_units={'lon': 'rad'},
     ).etr()
     assert float(etr) == pytest.approx(h_args['etr_asce'])
+
+
+def test_refet_hourly_ea_from_tdew():
+    """Check that Ea can be computed from tdew"""
+    etr = Hourly(
+        tmean=h_args['tmean'], tdew=h_args['tdew'], rs=h_args['rs'],
+        uz=h_args['uz'], zw=s_args['zw'], elev=s_args['elev'],
+        lat=s_args['lat'], lon=s_args['lon'], doy=h_args['doy'],
+        time=h_args['time'],
+    ).etr()
+    assert float(etr) == pytest.approx(h_args['etr_asce'])
+
+
+def test_refet_hourly_ea_tdew_exception():
+    """Check that an exception is raised if ea and tdew are not set"""
+    with pytest.raises(Exception):
+        Hourly(
+            tmean=h_args['tmean'], rs=h_args['rs'],
+            uz=h_args['uz'], zw=s_args['zw'], elev=s_args['elev'],
+            lat=s_args['lat'], lon=s_args['lon'], doy=h_args['doy'],
+            time=h_args['time'],
+        )

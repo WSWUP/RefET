@@ -7,8 +7,9 @@ from . import units
 
 
 class Hourly():
-    def __init__(self, tmean, ea, rs, uz, zw, elev, lat, lon, doy, time,
-                 method='asce', input_units={}):
+    def __init__(self, tmean, rs, uz, zw, elev, lat, lon, doy, time,
+                 ea=None, tdew=None, method='asce', input_units={},
+                 ):
         """ASCE Hourly Standardized Reference Evapotranspiration (ET)
 
         .. warning:: Cloudiness fraction at night is not being computed per [1]_
@@ -17,8 +18,6 @@ class Hourly():
         ---------
         tmean : ndarray
             Average hourly temperature [C].
-        ea : ndarray
-            Actual vapor pressure [kPa].
         rs : ndarray
             Shortwave solar radiation [MJ m-2 hr-1].
         uz : ndarray
@@ -35,6 +34,10 @@ class Hourly():
             Day of year.
         time : ndarray
             UTC hour at start of time period.
+        ea : ndarray, optional
+            Actual vapor pressure [kPa].  Either ea or tdew parameter must be set.
+        tdew : ndarray, optional
+            Average hourly dew point temperature [C].
         method : {'asce' (default), 'refet'}, optional
             Specifies which calculation method to use.
             * 'asce' -- Calculations will follow ASCE-EWRI 2005 [1]_ equations.
@@ -63,7 +66,14 @@ class Hourly():
 
         # Convert all inputs to NumPy arrays
         self.tmean = np.array(tmean, copy=True, ndmin=1)
-        self.ea = np.array(ea, copy=True, ndmin=1)
+        if ea is not None:
+            self.ea = np.array(ea, copy=True, ndmin=1)
+        elif tdew is not None:
+            self.ea = calcs._sat_vapor_pressure(np.array(tdew, copy=True, ndmin=1))
+        else:
+            # TODO: Check if there is a better exception to raise
+            raise Exception('Either "ea" or "tdew" parameter must be set')
+        # self.ea = np.array(ea, copy=True, ndmin=1)
         self.rs = np.array(rs, copy=True, ndmin=1)
         self.uz = np.array(uz, copy=True, ndmin=1)
         self.elev = np.array(elev, copy=True, ndmin=1)
