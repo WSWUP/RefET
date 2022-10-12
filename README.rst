@@ -21,15 +21,18 @@ The raw input data is available `here <https://www.usbr.gov/pn-bin/daily.pl?stat
     import math
     import refet
 
-    # Compute actual vapor pressure from Tdew
-    tdew_c = (49.84 - 32) * (5.0 / 9)                          # F -> C
-    ea = 0.6108 * math.exp(17.27 * tdew_c / (tdew_c + 237.3))  # kPa
-    # ea = refet.calcs._sat_vapor_pressure(tdew_c)
+    # The actual vapor pressure could be computed from the dew point temperature below
+    #   or the tdew can be passed directly to the function
+    # Convert the dew point temperature to Celsius
+    # tdew = units._f2c(49.84)
+    # ea = 0.6108 * math.exp(17.27 * tdew / (tdew + 237.3))
+    # ea = refet.calcs._sat_vapor_pressure(tdew)
 
     etr = refet.Daily(
-        tmin=66.65, tmax=102.80, ea=ea, rs=674.07, uz=4.80,
+        tmin=66.65, tmax=102.80, tdew=49.84, rs=674.07, uz=4.80,
         zw=3, elev=1208.5, lat=39.4575, doy=182, method='asce',
-        input_units={'tmin': 'F', 'tmax': 'F', 'rs': 'Langleys', 'uz': 'mph', 'lat': 'deg'}
+        input_units={'tmin': 'F', 'tmax': 'F', 'tdew': 'F', 'rs': 'Langleys',
+                     'uz': 'mph', 'lat': 'deg'}
         ).etr()
 
     print(f'ETr: {float(etr):.2f} mm')
@@ -63,12 +66,23 @@ Required Parameters (hourly & daily)
 ========  ==========  ====================================================
 Variable  Type        Description [default units]
 ========  ==========  ====================================================
-ea        ndarray     Actual vapor pressure [kPa]
 uz        ndarray     Wind speed [m s-1]
 zw        float       Wind speed height [m]
 elev      ndarray     Elevation [m]
 lat       ndarray     Latitude [degrees]
 doy       ndarray     Day of year
+========  ==========  ====================================================
+
+Required Ea Parameters (hourly & daily)
+---------------------------------------------------
+
+Either the "ea" or "tdew" parameter must be set
+
+========  ==========  ====================================================
+Variable  Type        Description [default units]
+========  ==========  ====================================================
+ea        ndarray     Actual vapor pressure [kPa]
+tdew      ndarray     Dew point temperature [C]
 ========  ==========  ====================================================
 
 Required Daily Parameters
