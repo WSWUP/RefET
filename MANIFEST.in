@@ -1,6 +1,0 @@
-exclude *.txt
-include LICENSE.txt README.rst setup.py
-recursive-include refet *
-recursive-include tests *.py
-recursive-exclude tests/data *
-exclude MANIFEST.in

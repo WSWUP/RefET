@@ -7,8 +7,9 @@ from . import units
 
 
 class Daily():
-    def __init__(self, tmin, tmax, ea, rs, uz, zw, elev, lat, doy,
-                 method='asce', rso_type=None, rso=None, input_units={}):
+    def __init__(self, tmin, tmax, rs, uz, zw, elev, lat, doy, ea=None, tdew=None,
+                 method='asce', rso_type=None, rso=None, input_units={},
+                 ):
         """ASCE Daily Standardized Reference Evapotranspiration (ET)
 
         Arguments
@@ -17,8 +18,6 @@ class Daily():
             Minimum daily temperature [C].
         tmax : ndarray
             Maximum daily temperature [C].
-        ea : ndarray
-            Actual vapor pressure [kPa].
         rs : ndarray
             Incoming shortwave solar radiation [MJ m-2 day-1].
         uz : ndarray
@@ -31,6 +30,10 @@ class Daily():
             Latitude [degrees].
         doy : ndarray
             Day of year.
+        ea : ndarray, optional
+            Actual vapor pressure [kPa].  Either ea or tdew must be set.
+        tdew : ndarray, optional
+            Mean daily dew point temperature [C].
         method : {'asce' (default), 'refet'}, optional
             Specifies which calculation method to use.
             * 'asce' -- Calculations will follow ASCE-EWRI 2005 [1]_ equations.
@@ -68,11 +71,12 @@ class Daily():
            Evapotranspiration Task Committee Rep., ASCE Reston, Va.
 
         """
+        if method.lower() not in ['asce', 'refet']:
+            raise ValueError('method must be "asce" or "refet"')
 
         # Convert all inputs to NumPy arrays
         self.tmin = np.array(tmin, copy=True, ndmin=1)
         self.tmax = np.array(tmax, copy=True, ndmin=1)
-        self.ea = np.array(ea, copy=True, ndmin=1)
         self.rs = np.array(rs, copy=True, ndmin=1)
         self.uz = np.array(uz, copy=True, ndmin=1)
         self.elev = np.array(elev, copy=True, ndmin=1)
@@ -80,16 +84,28 @@ class Daily():
         self.zw = zw
         self.doy = doy
 
-        # Unit conversion
+        # Use Ea directly if it is set, otherwise try to compute from Tdew
+        if ea is not None:
+            self.ea = np.array(ea, copy=True, ndmin=1)
+            self.tdew = None
+        elif tdew is not None:
+            self.tdew = np.array(tdew, copy=True, ndmin=1)
+            self.ea = None
+        else:
+            # TODO: Check if there is a better exception to raise
+            raise Exception('Either "ea" or "tdew" parameter must be set')
+
+        # Unit conversions
         for v, unit in input_units.items():
             setattr(
-                self, v,
-                units.convert(getattr(self, v), v, unit, timestep='daily')
+                self, v, units.convert(getattr(self, v), v, unit, timestep='daily')
             )
 
-        if method.lower() not in ['asce', 'refet']:
-            raise ValueError('method must be "asce" or "refet"')
+        # Compute Ea after handling unit conversions so that Tdew is in Celsius
+        if self.ea is None and self.tdew is not None:
+            self.ea = calcs._sat_vapor_pressure(self.tdew)
 
+        # Rso
         if rso_type is None:
             pass
         elif rso_type.lower() not in ['simple', 'full', 'array']:
@@ -105,19 +121,23 @@ class Daily():
         #   expecting the default units to be radians
         self.lat *= (math.pi / 180.0)
 
+        # Mean daily air temperature
+        self.tmean = 0.5 * (self.tmax + self.tmin)
+
         # To match standardized form, pair is calculated from elevation
         self.pair = calcs._air_pressure(self.elev, method)
 
         # Psychrometric constant (Eq. 4)
         self.psy = 0.000665 * self.pair
 
-        self.tmean = 0.5 * (self.tmax + self.tmin)
+        # Slope of the saturation vapor pressure-temperature curve
         self.es_slope = calcs._es_slope(self.tmean, method)
 
-        # Saturated vapor pressure
+        # Saturation vapor pressure
         self.es = 0.5 * (
             calcs._sat_vapor_pressure(self.tmax) +
-            calcs._sat_vapor_pressure(self.tmin))
+            calcs._sat_vapor_pressure(self.tmin)
+        )
 
         # Vapor pressure deficit
         self.vpd = calcs._vpd(self.es, self.ea)
@@ -133,12 +153,14 @@ class Daily():
                 self.rso = calcs._rso_simple(self.ra, self.elev)
             elif method.lower() == 'refet':
                 self.rso = calcs._rso_daily(
-                    self.ra, self.ea, self.pair, self.doy, self.lat)
+                    self.ra, self.ea, self.pair, self.doy, self.lat
+                )
         elif rso_type.lower() == 'simple':
             self.rso = calcs._rso_simple(self.ra, elev)
         elif rso_type.lower() == 'full':
             self.rso = calcs._rso_daily(
-                self.ra, self.ea, self.pair, self.doy, self.lat)
+                self.ra, self.ea, self.pair, self.doy, self.lat
+            )
         elif rso_type.lower() == 'array':
             # Use rso array passed to function
             self.rso = rso
@@ -184,7 +206,8 @@ class Daily():
         self.cd = 0.34
         return calcs._etsz(
             rn=self.rn, g=self.g, tmean=self.tmean, u2=self.u2, vpd=self.vpd,
-            es_slope=self.es_slope, psy=self.psy, cn=self.cn, cd=self.cd)
+            es_slope=self.es_slope, psy=self.psy, cn=self.cn, cd=self.cd
+        )
 
     def etr(self):
         """Alfalfa reference surface"""
@@ -192,4 +215,5 @@ class Daily():
         self.cd = 0.38
         return calcs._etsz(
             rn=self.rn, g=self.g, tmean=self.tmean, u2=self.u2, vpd=self.vpd,
-            es_slope=self.es_slope, psy=self.psy, cn=self.cn, cd=self.cd)
+            es_slope=self.es_slope, psy=self.psy, cn=self.cn, cd=self.cd
+        )

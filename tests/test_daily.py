@@ -38,9 +38,9 @@ d_args = {
 # Test full daily functions with positional inputs
 def test_refet_daily_input_positions():
     etr = Daily(
-        d_args['tmin'], d_args['tmax'], d_args['ea'], d_args['rs'],
+        d_args['tmin'], d_args['tmax'], d_args['rs'],
         d_args['uz'], s_args['zw'], s_args['elev'], s_args['lat'],
-        d_args['doy'], 'asce',
+        d_args['doy'], d_args['ea'], None, 'asce',
     ).etr()
     assert float(etr) == pytest.approx(d_args['etr_asce'])
 
@@ -239,5 +239,39 @@ def test_refet_daily_lat_rad():
         rs=d_args['rs'], uz=d_args['uz'], zw=s_args['zw'],
         elev=s_args['elev'], lat=s_args['lat'] * math.pi / 180, doy=d_args['doy'],
         input_units={'lat': 'rad'},
+    ).etr()
+    assert float(etr) == pytest.approx(d_args['etr_asce'])
+
+
+def test_refet_daily_tdew():
+    """Check that Ea can be computed from tdew"""
+    etr = Daily(
+        tmin=d_args['tmin'], tmax=d_args['tmax'], tdew=d_args['tdew'],
+        rs=d_args['rs'], uz=d_args['uz'], zw=s_args['zw'],
+        elev=s_args['elev'], lat=s_args['lat'], doy=d_args['doy'],
+        method='asce',
+    ).etr()
+    assert float(etr) == pytest.approx(d_args['etr_asce'])
+
+
+def test_refet_daily_ea_tdew_exception():
+    """Check that an exception is raised if ea and tdew are not set"""
+    with pytest.raises(Exception):
+        Daily(
+            tmin=d_args['tmin'], tmax=d_args['tmax'],
+            rs=d_args['rs'], uz=d_args['uz'], zw=s_args['zw'],
+            elev=s_args['elev'], lat=s_args['lat'], doy=d_args['doy'],
+            method='asce',
+        )
+
+
+def test_refet_daily_tdew():
+    """Check that Tdew is converted to C before computing Ea"""
+    etr = Daily(
+        tmin=d_args['tmin'], tmax=d_args['tmax'],
+        tdew=units._c2f(d_args['tdew']),
+        rs=d_args['rs'], uz=d_args['uz'], zw=s_args['zw'],
+        elev=s_args['elev'], lat=s_args['lat'], doy=d_args['doy'],
+        method='asce', input_units={'tdew': 'F'},
     ).etr()
     assert float(etr) == pytest.approx(d_args['etr_asce'])
