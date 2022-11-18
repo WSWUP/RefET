@@ -92,7 +92,6 @@ class Hourly():
 
         # Unit conversions
         for v, unit in input_units.items():
-            print(v, unit)
             setattr(
                 self, v, units.convert(getattr(self, v), v, unit, timestep='hourly')
             )
