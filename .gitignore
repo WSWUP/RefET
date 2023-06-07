@@ -27,5 +27,8 @@ dist/
 .coveralls.yml
 coverage.xml
 
+# MacOS
+.DS_Store
+
 # Miscellaneous files
 notes.txt
