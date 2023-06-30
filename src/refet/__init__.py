@@ -6,4 +6,4 @@ try:
 except ImportError:  # for Python<3.8
     import importlib_metadata as metadata
 
-__version__ = metadata.version(__package__ or __name__)
+__version__ = metadata.version("refet")

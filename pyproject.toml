@@ -2,7 +2,7 @@
 name = "refet"
 version = "0.4.2"
 authors = [
-  { name="Charles Morton", email="charles.morton@dri.edu" },
+    { name="Charles Morton", email="charles.morton@dri.edu" },
 ]
 description = "ASCE Standardized Reference Evapotranspiration Functions"
 readme = "README.rst"
@@ -24,16 +24,16 @@ dependencies = [
 requires = ["setuptools>=61.0"]
 build-backend = "setuptools.build_meta"
 
- [project.optional-dependencies]
- test = [
-     "pandas",
-     "pytz",
-     "pytest",
- ]
+[project.optional-dependencies]
+test = [
+    "pandas",
+    "pytz",
+    "pytest",
+]
 
 # [tool.pytest.ini_options]
 # pythonpath = [
-#   "src"
+#     "src"
 # ]
 # addopts = [
 #     "--import-mode=importlib",
