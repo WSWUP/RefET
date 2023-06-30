@@ -1,5 +1,0 @@
-pandas
-pytest>=4.0.0
-pytest-cov
-coverage
-codecov
