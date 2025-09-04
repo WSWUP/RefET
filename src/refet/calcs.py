@@ -3,7 +3,7 @@ import math
 import numpy as np
 
 
-def _air_pressure(elev, method='asce'):
+def air_pressure(elev, method='asce'):
     """Mean atmospheric pressure at station elevation (Eqs. 3 & 34)
 
     Parameters
@@ -46,7 +46,7 @@ def _air_pressure(elev, method='asce'):
     return pair
 
 
-def _sat_vapor_pressure(temperature):
+def sat_vapor_pressure(temperature):
     """Saturation vapor pressure from temperature (Eq. 7)
 
     Parameters
@@ -75,7 +75,7 @@ def _sat_vapor_pressure(temperature):
     return e
 
 
-def _es_slope(tmean, method='asce'):
+def es_slope(tmean, method='asce'):
     """Slope of the saturation vapor pressure-temperature curve (Eq. 5)
 
     Parameters
@@ -109,7 +109,7 @@ def _es_slope(tmean, method='asce'):
         return 4098.0 * 0.6108 * es_slope
 
 
-def _actual_vapor_pressure(q, pair):
+def actual_vapor_pressure(q, pair):
     """"Actual vapor pressure from specific humidity
 
     Parameters
@@ -139,7 +139,7 @@ def _actual_vapor_pressure(q, pair):
     return ea
 
 
-def _specific_humidity(ea, pair):
+def specific_humidity(ea, pair):
     """"Specific humidity from actual vapor pressure
 
     Parameters
@@ -169,7 +169,7 @@ def _specific_humidity(ea, pair):
     return q
 
 
-def _vpd(es, ea):
+def vpd(es, ea):
     """Vapor pressure deficit
 
     Parameters
@@ -188,7 +188,7 @@ def _vpd(es, ea):
     return np.maximum(es - ea, 0)
 
 
-def _precipitable_water(pair, ea):
+def precipitable_water(pair, ea):
     """Precipitable water in the atmosphere (Eq. D.3)
 
     Parameters
@@ -207,7 +207,7 @@ def _precipitable_water(pair, ea):
     return pair * 0.14 * ea + 2.1
 
 
-def _doy_fraction(doy):
+def doy_fraction(doy):
     """Fraction of the DOY in the year (Eq. 50)
 
     Parameters
@@ -224,7 +224,7 @@ def _doy_fraction(doy):
     return doy * (2 * math.pi / 365)
 
 
-def _delta(doy, method='asce'):
+def declination(doy, method='asce'):
     """Earth declination (Eq. 51)
 
     Parameters
@@ -250,12 +250,12 @@ def _delta(doy, method='asce'):
 
     """
     if method == 'asce':
-        return 0.409 * np.sin(_doy_fraction(doy) - 1.39)
+        return 0.409 * np.sin(doy_fraction(doy) - 1.39)
     elif method == 'refet':
         return 23.45 * (math.pi / 180) * np.sin(2 * math.pi * (doy + 284) / 365)
 
 
-def _dr(doy):
+def dr(doy):
     """Inverse square of the Earth-Sun Distance (Eq. 50)
 
     Parameters
@@ -274,10 +274,10 @@ def _dr(doy):
     pi * L * d^2 / (ESUN * cos(theta)) -> pi * L / (ESUN * cos(theta) * d)
 
     """
-    return 1.0 + 0.033 * np.cos(_doy_fraction(doy))
+    return 1.0 + 0.033 * np.cos(doy_fraction(doy))
 
 
-def _seasonal_correction(doy):
+def seasonal_correction(doy):
     """Seasonal correction for solar time (Eqs. 57 & 58)
 
     Parameters
@@ -295,7 +295,7 @@ def _seasonal_correction(doy):
     return 0.1645 * np.sin(2 * b) - 0.1255 * np.cos(b) - 0.0250 * np.sin(b)
 
 
-def _solar_time_rad(lon, time_mid, sc):
+def solar_time_rad(lon, time_mid, sc):
     """Solar time (i.e. noon is 0) (Eq. 55)
 
     Parameters
@@ -314,16 +314,16 @@ def _solar_time_rad(lon, time_mid, sc):
 
     Notes
     -----
-    This function could be integrated into the _omega() function since they are
-    always called together (i.e. _omega(_solar_time_rad()).  It was built
-    independently from _omega to eventually support having a separate
+    This function could be integrated into the sha() function since they are
+    always called together (i.e. sha(solar_time_rad()).  It was built
+    independently from sha to eventually support having a separate
     solar_time functions for longitude in degrees.
 
     """
     return time_mid + (lon * 24 / (2 * math.pi)) + sc - 12
 
 
-def _omega(solar_time):
+def sha(solar_time):
     """Solar hour angle (Eq. 55)
 
     Parameters
@@ -341,10 +341,10 @@ def _omega(solar_time):
 
     # Need to adjust omega so that the values go from -pi to pi
     # Values outside this range are wrapped (i.e. -3*pi/2 -> pi/2)
-    return _wrap(omega, -math.pi, math.pi)
+    return wrap(omega, -math.pi, math.pi)
 
 
-def _wrap(x, x_min, x_max):
+def wrap(x, x_min, x_max):
     """Wrap floating point values into range
 
     Parameters
@@ -364,7 +364,7 @@ def _wrap(x, x_min, x_max):
     return np.mod((x - x_min), (x_max - x_min)) + x_min
 
 
-def _omega_sunset(lat, delta):
+def sha_sunset(lat, delta):
     """Sunset hour angle (Eq. 59)
 
     Parameters
@@ -383,7 +383,7 @@ def _omega_sunset(lat, delta):
     return np.arccos(np.clip(-np.tan(lat) * np.tan(delta), -1, 1))
 
 
-def _ra_daily(lat, doy, method='asce'):
+def ra_daily(lat, doy, method='asce'):
     """Daily extraterrestrial radiation (Eq. 21)
 
     Parameters
@@ -408,20 +408,17 @@ def _ra_daily(lat, doy, method='asce'):
     Equation in Duffie & Beckman (?) uses a solar constant of 1367 W m-2
 
     """
-    delta = _delta(doy, method)
-    omegas = _omega_sunset(lat, delta)
-    theta = (
-        omegas * np.sin(lat) * np.sin(delta) +
-        np.cos(lat) * np.cos(delta) * np.sin(omegas)
-    )
+    delta = declination(doy, method)
+    omegas = sha_sunset(lat, delta)
+    theta = omegas * np.sin(lat) * np.sin(delta) + np.cos(lat) * np.cos(delta) * np.sin(omegas)
 
     if method == 'asce':
-        return (24. / math.pi) * 4.92 * _dr(doy) * theta
+        return (24. / math.pi) * 4.92 * dr(doy) * theta
     elif method == 'refet':
-        return (24. / math.pi) * (1367 * 0.0036) * _dr(doy) * theta
+        return (24. / math.pi) * (1367 * 0.0036) * dr(doy) * theta
 
 
-def _ra_hourly(lat, lon, doy, time_mid, method='asce'):
+def ra_hourly(lat, lon, doy, time_mid, method='asce'):
     """Hourly extraterrestrial radiation (Eq. 48)
 
     Parameters
@@ -450,9 +447,9 @@ def _ra_hourly(lat, lon, doy, time_mid, method='asce'):
     Equation in Duffie & Beckman (?) uses a solar constant of 1367 W m-2
 
     """
-    omega = _omega(_solar_time_rad(lon, time_mid, _seasonal_correction(doy)))
-    delta = _delta(doy, method)
-    omegas = _omega_sunset(lat, delta)
+    delta = declination(doy, method)
+    omega = sha(solar_time_rad(lon, time_mid, seasonal_correction(doy)))
+    omegas = sha_sunset(lat, delta)
 
     # Solar time as start and end of period (Eqs. 53 & 54)
     # Modify omega1 and omega2 at sunrise and sunset (Eq. 56)
@@ -467,12 +464,12 @@ def _ra_hourly(lat, lon, doy, time_mid, method='asce'):
     )
 
     if method == 'asce':
-        return (12. / math.pi) * 4.92 * _dr(doy) * theta
+        return (12. / math.pi) * 4.92 * dr(doy) * theta
     elif method == 'refet':
-        return (12. / math.pi) * (1367 * 0.0036) * _dr(doy) * theta
+        return (12. / math.pi) * (1367 * 0.0036) * dr(doy) * theta
 
 
-def _rso_daily(ra, ea, pair, doy, lat):
+def rso_daily(ra, ea, pair, doy, lat):
     """Full daily clear sky solar radiation formulation (Appendix D)
 
     Parameters
@@ -496,19 +493,17 @@ def _rso_daily(ra, ea, pair, doy, lat):
     """
     # sin of the angle of the sun above the horizon (D.5 and Eq. 62)
     sin_beta_24 = np.sin(
-        0.85 + 0.3 * lat * np.sin(_doy_fraction(doy) - 1.39) - 0.42 * np.power(lat, 2)
+        0.85 + 0.3 * lat * np.sin(doy_fraction(doy) - 1.39) - 0.42 * np.power(lat, 2)
     )
 
     # Precipitable water
-    w = _precipitable_water(pair, ea)
+    w = precipitable_water(pair, ea)
 
     # Limit sin_beta >= 0.01 so that KB does not go undefined
     sin_beta_24 = np.maximum(sin_beta_24, 0.1)
 
     # Clearness index for direct beam radiation (Eq. D.2)
-    kb = np.exp(
-        (-0.00146 * pair) / sin_beta_24 - 0.075 * np.power((w / sin_beta_24), 0.4)
-    )
+    kb = np.exp((-0.00146 * pair) / sin_beta_24 - 0.075 * np.power((w / sin_beta_24), 0.4))
     kb *= 0.98
 
     # Transmissivity index for diffuse radiation (Eq. D.4)
@@ -517,7 +512,7 @@ def _rso_daily(ra, ea, pair, doy, lat):
     return (kb + kd) * ra
 
 
-def _rso_hourly(ra, ea, pair, doy, time_mid, lat, lon, method='asce'):
+def rso_hourly(ra, ea, pair, doy, time_mid, lat, lon, method='asce'):
     """Full hourly clear sky solar radiation formulation (Appendix D)
 
     Parameters
@@ -540,7 +535,7 @@ def _rso_hourly(ra, ea, pair, doy, time_mid, lat, lon, method='asce'):
         Calculation method:
         * 'asce' -- Calculations will follow ASCE-EWRI 2005 [1] equations.
         * 'refet' -- Calculations will follow RefET software.
-        Passed through to declination calculation (_delta()).
+        Passed through to declination calculation (delta()).
 
     Returns
     -------
@@ -548,24 +543,22 @@ def _rso_hourly(ra, ea, pair, doy, time_mid, lat, lon, method='asce'):
         Hourly clear sky solar radiation [MJ m-2 h-1].
 
     """
-    sc = _seasonal_correction(doy)
-    omega = _omega(_solar_time_rad(lon, time_mid, sc))
+    sc = seasonal_correction(doy)
+    omega = sha(solar_time_rad(lon, time_mid, sc))
 
     # sin of the angle of the sun above the horizon (D.6 and Eq. 62)
-    delta = _delta(doy, method)
+    delta = declination(doy, method)
     sin_beta = np.sin(lat) * np.sin(delta) + np.cos(lat) * np.cos(delta) * np.cos(omega)
 
     # Precipitable water
-    w = _precipitable_water(pair, ea)
+    w = precipitable_water(pair, ea)
 
     # Limit sin_beta >= 0.01 so that KB does not go undefined
     sin_beta = np.maximum(sin_beta, 0.01)
 
     # Clearness index for direct beam radiation (Eq. D.2)
     kt = 1.0
-    kb = np.exp(
-        (-0.00146 * pair) / (kt * sin_beta) - 0.075 * np.power((w / sin_beta), 0.4)
-    )
+    kb = np.exp((-0.00146 * pair) / (kt * sin_beta) - 0.075 * np.power((w / sin_beta), 0.4))
     kb *= 0.98
 
     # Transmissivity index for diffuse radiation (Eq. D.4)
@@ -574,7 +567,7 @@ def _rso_hourly(ra, ea, pair, doy, time_mid, lat, lon, method='asce'):
     return (kb + kd) * ra
 
 
-def _rso_simple(ra, elev):
+def rso_simple(ra, elev):
     """Simplified daily/hourly clear sky solar formulation (Eqs. 19 & 45)
 
     Parameters
@@ -593,7 +586,7 @@ def _rso_simple(ra, elev):
     return (0.75 + 2E-5 * elev) * ra
 
 
-def _fcd_daily(rs, rso):
+def fcd_daily(rs, rso):
     """Daytime cloudiness fraction (Eq. 18)
 
     Parameters
@@ -626,7 +619,7 @@ def _fcd_daily(rs, rso):
     # return fcd
 
 
-def _fcd_hourly(rs, rso, doy, time_mid, lat, lon, method='asce'):
+def fcd_hourly(rs, rso, doy, time_mid, lat, lon, method='asce'):
     """Cloudiness fraction (Eq. 45)
 
     Parameters
@@ -647,7 +640,7 @@ def _fcd_hourly(rs, rso, doy, time_mid, lat, lon, method='asce'):
         Calculation method:
         * 'asce' -- Calculations will follow ASCE-EWRI 2005 [1] equations.
         * 'refet' -- Calculations will follow RefET software.
-        Passed through to declination calculation (_delta()).
+        Passed through to declination calculation (delta()).
 
     Returns
     -------
@@ -662,12 +655,10 @@ def _fcd_hourly(rs, rso, doy, time_mid, lat, lon, method='asce'):
     rso = np.array(rso, copy=True, ndmin=1).astype(np.float64)
 
     # DEADBEEF - These values are only needed for identifying low sun angles
-    sc = _seasonal_correction(doy)
-    delta = _delta(doy, method)
-    omega = _omega(_solar_time_rad(lon, time_mid, sc))
-    beta = np.arcsin(
-        np.sin(lat) * np.sin(delta) + np.cos(lat) * np.cos(delta) * np.cos(omega)
-    )
+    sc = seasonal_correction(doy)
+    delta = declination(doy, method)
+    omega = sha(solar_time_rad(lon, time_mid, sc))
+    beta = np.arcsin(np.sin(lat) * np.sin(delta) + np.cos(lat) * np.cos(delta) * np.cos(omega))
 
     # As of NumPy 1.7+, ufuncs can take a "where" parameter
     fcd = np.divide(rs, rso, out=np.ones_like(rs), where=rso != 0)
@@ -684,7 +675,7 @@ def _fcd_hourly(rs, rso, doy, time_mid, lat, lon, method='asce'):
     return fcd
 
 
-def _rnl_daily(tmax, tmin, ea, fcd):
+def rnl_daily(tmax, tmin, ea, fcd):
     """Daily net long-wave radiation  (Eq. 17)
 
     Parameters
@@ -710,7 +701,7 @@ def _rnl_daily(tmax, tmin, ea, fcd):
     )
 
 
-def _rnl_hourly(tmean, ea, fcd):
+def rnl_hourly(tmean, ea, fcd):
     """Hourly net long-wave radiation  (Eq. 44)
 
     Parameters
@@ -728,13 +719,10 @@ def _rnl_hourly(tmean, ea, fcd):
         Hourly net long-wave radiation [MJ m-2 h-1].
 
     """
-    return (
-         2.042E-10 * fcd * (0.34 - 0.14 * np.sqrt(ea)) *
-         np.power((tmean + 273.16), 4)
-    )
+    return 2.042E-10 * fcd * (0.34 - 0.14 * np.sqrt(ea)) * np.power((tmean + 273.16), 4)
 
 
-def _rn_daily(rs, rnl):
+def rn_daily(rs, rnl):
     """Daily net radiation (Eqs. 15 & 16)
 
     Parameters
@@ -753,7 +741,7 @@ def _rn_daily(rs, rnl):
     return 0.77 * rs - rnl
 
 
-def _rn_hourly(rs, rnl):
+def rn_hourly(rs, rnl):
     """Daily net radiation (Eqs. 42 & 43)
 
     Parameters
@@ -772,7 +760,7 @@ def _rn_hourly(rs, rnl):
     return 0.77 * rs - rnl
 
 
-def _wind_height_adjust(uz, zw):
+def wind_height_adjust(uz, zw):
     """Wind speed at 2 m height based on full logarithmic profile (Eq. 33)
 
     Parameters
@@ -791,7 +779,7 @@ def _wind_height_adjust(uz, zw):
     return uz * 4.87 / np.log(67.8 * zw - 5.42)
 
 
-def _etsz(rn, g, tmean, u2, vpd, es_slope, psy, cn, cd):
+def etsz(rn, g, tmean, u2, vpd, es_slope, psy, cn, cd):
     """Standardized Reference ET [mm] (Eq. 1)
 
     Parameters

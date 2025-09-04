@@ -7,9 +7,15 @@ from . import units
 
 
 class Hourly():
-    def __init__(self, tmean, rs, uz, zw, elev, lat, lon, doy, time,
-                 ea=None, tdew=None, method='asce', input_units={},
-                 ):
+    def __init__(
+            self,
+            tmean, rs, uz, zw, elev, lat, lon, doy,
+            time,
+            ea=None,
+            tdew=None,
+            method='asce',
+            input_units={}
+    ):
         """ASCE Hourly Standardized Reference Evapotranspiration (ET)
 
         .. warning:: Cloudiness fraction at night is not being computed per [1]_
@@ -92,13 +98,11 @@ class Hourly():
 
         # Unit conversions
         for v, unit in input_units.items():
-            setattr(
-                self, v, units.convert(getattr(self, v), v, unit, timestep='hourly')
-            )
+            setattr(self, v, units.convert(getattr(self, v), v, unit, timestep='hourly'))
 
         # Compute Ea after handling unit conversions so that Tdew is in Celsius
         if self.ea is None and self.tdew is not None:
-            self.ea = calcs._sat_vapor_pressure(self.tdew)
+            self.ea = calcs.sat_vapor_pressure(self.tdew)
 
         # The input angles are converted to degrees by default in units.convert
         # They need to be converted back to radians for the calc functions
@@ -109,31 +113,30 @@ class Hourly():
         self.lon *= (math.pi / 180.0)
 
         # To match standardized form, psy is calculated from elevation based pair
-        self.pair = calcs._air_pressure(self.elev, method)
+        self.pair = calcs.air_pressure(self.elev, method)
 
         # Psychrometric constant (Eq. 35)
         self.psy = 0.000665 * self.pair
 
         # Slope of the saturation vapor pressure-temperature curve
-        self.es_slope = calcs._es_slope(self.tmean, method)
+        self.es_slope = calcs.es_slope(self.tmean, method)
 
         # Saturation vapor pressure
-        self.es = calcs._sat_vapor_pressure(self.tmean)
+        self.es = calcs.sat_vapor_pressure(self.tmean)
 
         # Vapor pressure deficit
         self.vpd = self.es - self.ea
-        # self.vpd = calcs._vpd(self.es, ea)
+        # self.vpd = calcs.vpd(self.es, ea)
 
         # Extraterrestrial radiation
-        self.ra = calcs._ra_hourly(self.lat, self.lon, self.doy, self.time_mid, method)
+        self.ra = calcs.ra_hourly(self.lat, self.lon, self.doy, self.time_mid, method)
 
         # Clear sky solar radiation
         if method == 'asce':
-            self.rso = calcs._rso_simple(self.ra, self.elev)
+            self.rso = calcs.rso_simple(self.ra, self.elev)
         elif method == 'refet':
-            self.rso = calcs._rso_hourly(
-                self.ra, self.ea, self.pair, self.doy, self.time_mid, self.lat,
-                self.lon, method
+            self.rso = calcs.rso_hourly(
+                self.ra, self.ea, self.pair, self.doy, self.time_mid, self.lat, self.lon, method
             )
 
         # Cloudiness fraction
@@ -141,21 +144,21 @@ class Hourly():
         # In IN2, "Beta" is computed for the start of the time period,
         #   but "SinBeta" is computed for the midpoint.
         # Beta (not SinBeta) is used for clamping fcd.
-        self.fcd = calcs._fcd_hourly(
+        self.fcd = calcs.fcd_hourly(
             self.rs, self.rso, self.doy, self.time, self.lat, self.lon, method
         )
 
         # Net long-wave radiation
-        self.rnl = calcs._rnl_hourly(self.tmean, self.ea, self.fcd)
+        self.rnl = calcs.rnl_hourly(self.tmean, self.ea, self.fcd)
 
         # Net radiation
-        self.rn = calcs._rn_hourly(self.rs, self.rnl)
+        self.rn = calcs.rn_hourly(self.rs, self.rnl)
 
         # Soil heat flux (Eqs. 65 and 66)
         # self.g = self.rn * g_rn
 
         # Wind speed
-        self.u2 = calcs._wind_height_adjust(self.uz, self.zw)
+        self.u2 = calcs.wind_height_adjust(self.uz, self.zw)
 
     def etsz(self, surface):
         """Standardized reference ET
@@ -191,7 +194,7 @@ class Hourly():
         # Soil heat flux (Eqs. 65 and 66)
         self.g = self.rn * self.g_rn
 
-        return calcs._etsz(
+        return calcs.etsz(
             rn=self.rn, g=self.g, tmean=self.tmean, u2=self.u2, vpd=self.vpd,
             es_slope=self.es_slope, psy=self.psy, cn=self.cn, cd=self.cd
         )
@@ -210,7 +213,7 @@ class Hourly():
         # Soil heat flux (Eqs. 65 and 66)
         self.g = self.rn * self.g_rn
 
-        return calcs._etsz(
+        return calcs.etsz(
             rn=self.rn, g=self.g, tmean=self.tmean, u2=self.u2, vpd=self.vpd,
             es_slope=self.es_slope, psy=self.psy, cn=self.cn, cd=self.cd
         )
