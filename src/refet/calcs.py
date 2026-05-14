@@ -467,6 +467,8 @@ def ra_hourly(lat, lon, doy, time_mid, method='asce'):
         return (12. / math.pi) * 4.92 * dr(doy) * theta
     elif method == 'refet':
         return (12. / math.pi) * (1367 * 0.0036) * dr(doy) * theta
+    else:
+        raise ValueError(f'unsupported ra_hourly() method parameter: {method}')
 
 
 def rso_daily(ra, ea, pair, doy, lat):
