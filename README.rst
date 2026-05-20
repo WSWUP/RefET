@@ -26,7 +26,7 @@ The raw input data is available `here <https://www.usbr.gov/pn-bin/daily.pl?stat
     # Convert the dew point temperature to Celsius
     # tdew = units._f2c(49.84)
     # ea = 0.6108 * math.exp(17.27 * tdew / (tdew + 237.3))
-    # ea = refet.calcs._sat_vapor_pressure(tdew)
+    # ea = refet.calcs.sat_vapor_pressure(tdew)
 
     etr = refet.Daily(
         tmin=66.65, tmax=102.80, tdew=49.84, rs=674.07, uz=4.80,

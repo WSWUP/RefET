@@ -91,21 +91,21 @@ def convert(values, variable, unit, timestep=None):
     return values
 
 
-def _deg2rad(deg):
+def deg2rad(deg):
     """Convert degrees to radians"""
     return deg * math.pi / 180.0
 
 
-def _rad2deg(rad):
+def rad2deg(rad):
     """Convert radians to degrees"""
     return rad * 180.0 / math.pi
 
 
-def _c2f(c):
+def c2f(c):
     """Convert Celsius to Fahrenheit"""
     return c * (9.0 / 5) + 32
 
 
-def _f2c(f):
+def f2c(f):
     """Convert Fahrenheit to Celsius"""
     return (f - 32) * (5.0 / 9)

@@ -24,9 +24,7 @@ class HourlyData():
 
     # Read in the inputs CSV file using pandas
     csv_df = pd.read_csv(csv_path, engine='python', na_values='NO RECORD')
-    csv_df.rename(
-        columns={'OB': 'TEMP', 'TP': 'TDEW', 'WS': 'WIND', 'SI': 'RS'},
-        inplace=True)
+    csv_df.rename(columns={'OB': 'TEMP', 'TP': 'TDEW', 'WS': 'WIND', 'SI': 'RS'}, inplace=True)
     # AgriMet times are local with DST (this will drop one hour)
     # DEADBEEF - Can't set timezone as variable in class?
     csv_df['DATETIME'] = csv_df[['YEAR', 'MONTH', 'DAY', 'HOUR']].apply(
@@ -38,8 +36,8 @@ class HourlyData():
     csv_df.set_index('DATETIME', inplace=True, drop=True)
 
     # Convert inputs units
-    csv_df['TEMP'] = units._f2c(csv_df['TEMP'])
-    csv_df['TDEW'] = units._f2c(csv_df['TDEW'])
+    csv_df['TEMP'] = units.f2c(csv_df['TEMP'])
+    csv_df['TDEW'] = units.f2c(csv_df['TDEW'])
     csv_df['WIND'] *= 0.44704
     csv_df['RS'] *= 0.041868  # Conversion from Langleys to MJ m-2 to match RefET
     # csv_df['RS'] *= 0.041840  # Alternate conversion from Langleys to MJ m-2
@@ -77,7 +75,10 @@ class HourlyData():
     out_start = [i for i, x in enumerate(out_data) if x.startswith(' Mo Day Yr')][0]
     # Read in the OUT file using pandas (skip header and units)
     out_df = pd.read_csv(
-        out_path, delim_whitespace=True, index_col=False,
+        out_path,
+        sep=r"\s+",
+        # delim_whitespace=True,
+        index_col=False,
         skiprows=list(range(out_start)) + [out_start + 1],
     )
     out_df.rename(
@@ -126,12 +127,12 @@ class HourlyData():
         test_dt = dt.datetime.strptime(test_date, '%Y-%m-%d %H:%M')
         # Can the surface type be parameterized inside pytest_generate_tests?
         for surface in ['ETr', 'ETo']:
-            date_values = csv_df \
-                .loc[test_date, ['TEMP', 'EA', 'RS', 'WIND', 'DOY']] \
-                .rename({
-                    'DOY': 'doy', 'TEMP': 'tmean', 'EA': 'ea', 'RS': 'rs',
-                    'WIND': 'uz'}) \
+            date_values = (
+                csv_df
+                .loc[test_date, ['TEMP', 'EA', 'RS', 'WIND', 'DOY']]
+                .rename({'DOY': 'doy', 'TEMP': 'tmean', 'EA': 'ea', 'RS': 'rs', 'WIND': 'uz'})
                 .to_dict()
+            )
             date_values.update({
                 'surface': surface.lower(),
                 'expected': out_df.loc[test_date, surface],
@@ -163,6 +164,6 @@ def test_refet_hourly_func_values(hourly_params):
     # print(f'ETr: {expected}')
 
     if surface.lower() == 'etr':
-        assert float(Hourly(**inputs).etr()) == pytest.approx(expected, abs=0.01)
+        assert float(Hourly(**inputs).etr()[0]) == pytest.approx(expected, abs=0.01)
     elif surface.lower() == 'eto':
-        assert float(Hourly(**inputs).eto()) == pytest.approx(expected, abs=0.01)
+        assert float(Hourly(**inputs).eto()[0]) == pytest.approx(expected, abs=0.01)

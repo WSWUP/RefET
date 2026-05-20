@@ -7,9 +7,23 @@ from . import units
 
 
 class Daily():
-    def __init__(self, tmin, tmax, rs, uz, zw, elev, lat, doy, ea=None, tdew=None,
-                 method='asce', rso_type=None, rso=None, input_units={},
-                 ):
+    def __init__(
+            self,
+            tmin,
+            tmax,
+            rs,
+            uz,
+            zw,
+            elev,
+            lat,
+            doy,
+            ea=None,
+            tdew=None,
+            method='asce',
+            rso_type=None,
+            rso=None,
+            input_units={},
+        ):
         """ASCE Daily Standardized Reference Evapotranspiration (ET)
 
         Arguments
@@ -97,13 +111,11 @@ class Daily():
 
         # Unit conversions
         for v, unit in input_units.items():
-            setattr(
-                self, v, units.convert(getattr(self, v), v, unit, timestep='daily')
-            )
+            setattr(self, v, units.convert(getattr(self, v), v, unit, timestep='daily'))
 
         # Compute Ea after handling unit conversions so that Tdew is in Celsius
         if self.ea is None and self.tdew is not None:
-            self.ea = calcs._sat_vapor_pressure(self.tdew)
+            self.ea = calcs.sat_vapor_pressure(self.tdew)
 
         # Rso
         if rso_type is None:
@@ -125,60 +137,53 @@ class Daily():
         self.tmean = 0.5 * (self.tmax + self.tmin)
 
         # To match standardized form, pair is calculated from elevation
-        self.pair = calcs._air_pressure(self.elev, method)
+        self.pair = calcs.air_pressure(self.elev, method)
 
         # Psychrometric constant (Eq. 4)
         self.psy = 0.000665 * self.pair
 
         # Slope of the saturation vapor pressure-temperature curve
-        self.es_slope = calcs._es_slope(self.tmean, method)
+        self.es_slope = calcs.es_slope(self.tmean, method)
 
         # Saturation vapor pressure
-        self.es = 0.5 * (
-            calcs._sat_vapor_pressure(self.tmax) +
-            calcs._sat_vapor_pressure(self.tmin)
-        )
+        self.es = 0.5 * (calcs.sat_vapor_pressure(self.tmax) + calcs.sat_vapor_pressure(self.tmin))
 
         # Vapor pressure deficit
-        self.vpd = calcs._vpd(self.es, self.ea)
+        self.vpd = calcs.vpd(self.es, self.ea)
 
         # Extraterrestrial radiation
-        self.ra = calcs._ra_daily(self.lat, self.doy, method)
+        self.ra = calcs.ra_daily(self.lat, self.doy, method)
 
         # Clear sky solar radiation
         # If rso_type is not set, use the method
         # If rso_type is set, use rso_type directly
         if rso_type is None :
             if method.lower() == 'asce':
-                self.rso = calcs._rso_simple(self.ra, self.elev)
+                self.rso = calcs.rso_simple(self.ra, self.elev)
             elif method.lower() == 'refet':
-                self.rso = calcs._rso_daily(
-                    self.ra, self.ea, self.pair, self.doy, self.lat
-                )
+                self.rso = calcs.rso_daily(self.ra, self.ea, self.pair, self.doy, self.lat)
         elif rso_type.lower() == 'simple':
-            self.rso = calcs._rso_simple(self.ra, elev)
+            self.rso = calcs.rso_simple(self.ra, elev)
         elif rso_type.lower() == 'full':
-            self.rso = calcs._rso_daily(
-                self.ra, self.ea, self.pair, self.doy, self.lat
-            )
+            self.rso = calcs.rso_daily(self.ra, self.ea, self.pair, self.doy, self.lat)
         elif rso_type.lower() == 'array':
             # Use rso array passed to function
             self.rso = rso
 
         # Cloudiness fraction
-        self.fcd = calcs._fcd_daily(self.rs, self.rso)
+        self.fcd = calcs.fcd_daily(self.rs, self.rso)
 
         # Net long-wave radiation
-        self.rnl = calcs._rnl_daily(self.tmax, self.tmin, self.ea, self.fcd)
+        self.rnl = calcs.rnl_daily(self.tmax, self.tmin, self.ea, self.fcd)
 
         # Net radiation
-        self.rn = calcs._rn_daily(self.rs, self.rnl)
+        self.rn = calcs.rn_daily(self.rs, self.rnl)
 
         # Soil heat flux
         self.g = 0
 
         # Wind speed
-        self.u2 = calcs._wind_height_adjust(self.uz, self.zw)
+        self.u2 = calcs.wind_height_adjust(self.uz, self.zw)
 
     def etsz(self, surface):
         """Standardized reference ET
@@ -204,7 +209,7 @@ class Daily():
         """Grass reference surface"""
         self.cn = 900
         self.cd = 0.34
-        return calcs._etsz(
+        return calcs.etsz(
             rn=self.rn, g=self.g, tmean=self.tmean, u2=self.u2, vpd=self.vpd,
             es_slope=self.es_slope, psy=self.psy, cn=self.cn, cd=self.cd
         )
@@ -213,7 +218,7 @@ class Daily():
         """Alfalfa reference surface"""
         self.cn = 1600
         self.cd = 0.38
-        return calcs._etsz(
+        return calcs.etsz(
             rn=self.rn, g=self.g, tmean=self.tmean, u2=self.u2, vpd=self.vpd,
             es_slope=self.es_slope, psy=self.psy, cn=self.cn, cd=self.cd
         )
