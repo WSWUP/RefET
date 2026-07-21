@@ -18,6 +18,7 @@ For the equivalent functions implemented for Google Earth Engine, see
 
    installation
    usage
+   report
    api
    fao56
    validation

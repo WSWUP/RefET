@@ -33,6 +33,19 @@ project uses [semantic versioning](https://semver.org/).
   version classifiers, keywords.
 
 ### Added
+- `refet.io.agrimet`: client for the Bureau of Reclamation AgriMet/Hydromet
+  web service (daily and hourly fetch, station metadata lookup, disk caching
+  with expiry for recent ranges, retries, and normalization of every known
+  missing-data convention with per-parameter plausibility ranges). Install
+  with `pip install refet[data]`.
+- `refet.report` and the `refet-report` console script: build a
+  self-contained interactive HTML report of daily and hourly reference ET
+  from a TOML station config, from AgriMet or local CSV sources, with
+  optional validation against Ref-ET .out output. Every number in the report
+  prose is derived from the data and the build fails on any mismatch between
+  narrative and computation. Install with `pip install refet[report]`.
+- `tests/data/setup_test_data.py` regenerates the validation CSVs through
+  `refet.io.agrimet`, replacing the Python 2 era download script.
 - `results()` method on `Daily` and `Hourly` returning the input and
   intermediate terms (net radiation, VPD, clear sky solar, and so on) as a
   dict of arrays.

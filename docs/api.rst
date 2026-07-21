@@ -27,3 +27,18 @@ refet.units
 
 .. automodule:: refet.units
    :members:
+
+refet.io.agrimet
+----------------
+
+Requires the ``refet[data]`` extra.
+
+.. automodule:: refet.io.agrimet
+   :members:
+
+refet.report
+------------
+
+Requires the ``refet[report]`` extra. See :doc:`report` for usage.
+
+.. autofunction:: refet.report.build_report
