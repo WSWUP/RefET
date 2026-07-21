@@ -1,0 +1,46 @@
+# Same station, fetched live from the AgriMet web service, for a period with
+# no Ref-ET output to compare against. The validation panel is dropped
+# automatically because no reference file is configured.
+#
+#   refet-report examples/stations/faln_2024_live.toml
+#
+# Note how little this needs: station id, dates, and the column/unit mapping.
+# Title, station name, latitude, longitude, elevation and timezone are all
+# read from the published AgriMet station list. Anemometer height defaults to
+# the network standard of 3 m; override it in [station] if a site differs,
+# since it materially changes ETr.
+
+start = 2024-04-01
+end = 2024-09-30
+
+method = "asce"
+rso_type = "full"
+
+[source]
+type = "agrimet"
+station = "FALN"
+# Responses are cached here so repeat builds do not re-hit the service.
+# Historical ranges are cached indefinitely; ranges touching the last 30 days
+# expire after a day (AgriMet data is preliminary and gets revised).
+cache = ".cache"
+
+[daily.columns]
+tmin = "MN"
+tmax = "MX"
+tdew = "YM"
+uz = "UA"
+rs = "SR"
+
+[hourly.columns]
+tmean = "OB"
+tdew = "TP"
+uz = "WS"
+rs = "SI"
+
+[units]
+tmin = "F"
+tmax = "F"
+tmean = "F"
+tdew = "F"
+uz = "mph"
+rs = "Langleys"

@@ -1,0 +1,562 @@
+<title>Reference ET at {{title}}</title>
+<style>
+  .viz-root {
+    color-scheme: light;
+    --surface-1: #fcfcfb;
+    --plane: #f9f9f7;
+    --text-primary: #0b0b0b;
+    --text-secondary: #52514e;
+    --muted: #898781;
+    --grid: #e1e0d9;
+    --axis: #c3c2b7;
+    --border: rgba(11,11,11,0.10);
+    --etr: #2a78d6;
+    --eto: #eb6834;
+    --seq-400: #3987e5;
+    /* Sequential heat ramp: the step nearest zero must recede toward the chart
+       surface, so the ramp reverses direction in dark mode rather than flipping. */
+    --heat-1: #cde2fb; --heat-2: #9ec5f4; --heat-3: #6da7ec; --heat-4: #3987e5;
+    --heat-5: #256abf; --heat-6: #184f95; --heat-7: #0d366b;
+    --good: #0ca30c;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:where(:not([data-theme="light"])) .viz-root {
+      color-scheme: dark;
+      --surface-1: #1a1a19;
+      --plane: #0d0d0d;
+      --text-primary: #ffffff;
+      --text-secondary: #c3c2b7;
+      --muted: #898781;
+      --grid: #2c2c2a;
+      --axis: #383835;
+      --border: rgba(255,255,255,0.10);
+      --etr: #3987e5;
+      --eto: #d95926;
+      --seq-400: #3987e5;
+      --heat-1: #0d366b; --heat-2: #184f95; --heat-3: #256abf; --heat-4: #3987e5;
+      --heat-5: #6da7ec; --heat-6: #9ec5f4; --heat-7: #cde2fb;
+    }
+  }
+  :root[data-theme="dark"] .viz-root {
+    color-scheme: dark;
+    --surface-1: #1a1a19;
+    --plane: #0d0d0d;
+    --text-primary: #ffffff;
+    --text-secondary: #c3c2b7;
+    --muted: #898781;
+    --grid: #2c2c2a;
+    --axis: #383835;
+    --border: rgba(255,255,255,0.10);
+    --etr: #3987e5;
+    --eto: #d95926;
+    --seq-400: #3987e5;
+    --heat-1: #0d366b; --heat-2: #184f95; --heat-3: #256abf; --heat-4: #3987e5;
+    --heat-5: #6da7ec; --heat-6: #9ec5f4; --heat-7: #cde2fb;
+  }
+
+  .viz-root {
+    background: var(--plane);
+    color: var(--text-primary);
+    font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+    line-height: 1.5;
+    padding: 32px 20px 64px;
+    min-height: 100vh;
+  }
+  .wrap { max-width: 1080px; margin: 0 auto; }
+  h1 { font-size: 1.6rem; font-weight: 650; letter-spacing: -0.01em; margin: 0 0 6px; }
+  .sub { color: var(--text-secondary); font-size: 0.9rem; margin: 0 0 4px; }
+  .meta { color: var(--muted); font-size: 0.8rem; margin: 0 0 28px; }
+
+  .card {
+    background: var(--surface-1);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px 22px 18px;
+    margin-bottom: 20px;
+  }
+  .card h2 { font-size: 1rem; font-weight: 620; margin: 0 0 2px; }
+  .card .cap { color: var(--text-secondary); font-size: 0.83rem; margin: 0 0 16px; }
+
+  .hero-row { display: grid; grid-template-columns: minmax(240px, 1.15fr) 2fr; gap: 20px; align-items: stretch; }
+  @media (max-width: 720px) { .hero-row { grid-template-columns: 1fr; } }
+  .hero { display: flex; flex-direction: column; justify-content: center; }
+  .hero .label { color: var(--text-secondary); font-size: 0.85rem; }
+  .hero .value { font-size: 3.4rem; font-weight: 660; letter-spacing: -0.02em; line-height: 1.05; }
+  .hero .unit { font-size: 1.1rem; font-weight: 500; color: var(--text-secondary); margin-left: 6px; }
+  .hero .note { color: var(--muted); font-size: 0.8rem; margin-top: 8px; }
+
+  .kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 2px; }
+  .kpi { padding: 10px 14px; }
+  .kpi .label { color: var(--text-secondary); font-size: 0.78rem; }
+  .kpi .value { font-size: 1.5rem; font-weight: 620; letter-spacing: -0.01em; }
+  .kpi .value small { font-size: 0.72rem; font-weight: 500; color: var(--text-secondary); margin-left: 4px; }
+  .kpi .foot { color: var(--muted); font-size: 0.74rem; }
+
+  .legend { display: flex; gap: 18px; flex-wrap: wrap; margin: 0 0 10px; font-size: 0.82rem; color: var(--text-secondary); }
+  .legend span { display: inline-flex; align-items: center; gap: 7px; }
+  .key { width: 14px; height: 3px; border-radius: 2px; display: inline-block; }
+
+  .plot { position: relative; overflow-x: auto; }
+  .plot svg { display: block; max-width: 100%; height: auto; }
+  text { font-family: system-ui, -apple-system, "Segoe UI", sans-serif; }
+  .tick { fill: var(--muted); font-size: 11px; font-variant-numeric: tabular-nums; }
+  .axtitle { fill: var(--text-secondary); font-size: 11px; }
+  .dlabel { fill: var(--text-primary); font-size: 11px; font-weight: 600; }
+
+  .tip {
+    position: absolute; pointer-events: none; opacity: 0;
+    background: var(--surface-1); color: var(--text-primary);
+    border: 1px solid var(--border); border-radius: 8px;
+    padding: 8px 10px; font-size: 0.78rem; white-space: nowrap;
+    box-shadow: 0 4px 14px rgba(0,0,0,0.14); transition: opacity 90ms; z-index: 5;
+  }
+  .tip b { font-weight: 620; }
+  .tip .r { display: flex; align-items: center; gap: 6px; justify-content: space-between; }
+  .tip .r i { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
+  .tip .v { font-variant-numeric: tabular-nums; font-weight: 600; margin-left: 12px; }
+
+  .ramp { display: flex; align-items: center; gap: 8px; font-size: 0.78rem; color: var(--text-secondary); margin-bottom: 10px; }
+  .ramp .bar { display: flex; height: 10px; border-radius: 3px; overflow: hidden; width: 160px; }
+  .ramp .bar i { flex: 1; }
+
+  details { margin-top: 6px; }
+  summary { cursor: pointer; font-size: 0.83rem; color: var(--text-secondary); padding: 6px 0; }
+  table { border-collapse: collapse; width: 100%; font-size: 0.82rem; margin-top: 8px; }
+  th, td { text-align: right; padding: 6px 10px; border-bottom: 1px solid var(--grid); font-variant-numeric: tabular-nums; }
+  th:first-child, td:first-child { text-align: left; font-variant-numeric: normal; }
+  th { color: var(--text-secondary); font-weight: 600; }
+  tfoot td { font-weight: 620; border-bottom: none; }
+  .foot-note { color: var(--muted); font-size: 0.78rem; margin-top: 10px; }
+  code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 0.85em; }
+</style>
+
+<div class="viz-root">
+<div class="wrap">
+  <h1>Reference evapotranspiration at {{title}}</h1>
+  <p class="sub">{{period_phrase}} of ASCE standardized reference ET computed with <code>refet</code>, from raw {{network}} weather data.</p>
+  <p class="meta" id="meta"></p>
+
+  <div class="hero-row">
+    <div class="card hero">
+      <div class="label">{{period_adjective}} grass reference ET (ET<sub>o</sub>)</div>
+      <div class="value" id="hero-val"></div>
+      <div class="note">Alfalfa reference ET<sub>r</sub> totals {{etr_total}} mm &mdash; about {{etr_eto_ratio}}&times; the grass reference.</div>
+    </div>
+    <div class="card">
+      <div class="kpis" id="kpis"></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>The season, day by day</h2>
+    <p class="cap">Daily reference ET from {{start_date}} to {{end_date}}. Demand peaks in {{busiest_month}} and bottoms out in {{quietest_month}}.</p>
+    <div class="legend">
+      <span><i class="key" style="background:var(--etr)"></i>ET<sub>r</sub> &mdash; alfalfa reference</span>
+      <span><i class="key" style="background:var(--eto)"></i>ET<sub>o</sub> &mdash; grass reference</span>
+    </div>
+    <div class="plot" id="p-daily"><div class="tip" id="t-daily"></div></div>
+  </div>
+
+  <div class="card">
+    <h2>Where the water goes, hour by hour</h2>
+    <p class="cap">Mean hourly ET<sub>r</sub> for every hour in the record &mdash; {{n_hours}} hourly solutions of the ASCE equation. The bright band is the sun, running {{summer_open}}&ndash;{{summer_close}} at its widest and {{winter_open}}&ndash;{{winter_close}} at its narrowest. The faint vertical streaks reaching into the small hours are real, not noise: the hourly ASCE equation returns non-zero ET overnight whenever wind and dry air persist, and dips slightly negative on calm, humid nights.<!--if night_et--> Here the two do not cancel &mdash; a net {{night_share}} of total ET<sub>r</sub> falls between 20:00 and 05:00.<!--endif--></p>
+    <div class="ramp">
+      <span>0</span>
+      <span class="bar" id="ramp-bar"></span>
+      <span id="ramp-max"></span>
+      <span style="color:var(--muted)">mm h<sup>-1</sup></span>
+    </div>
+    <div class="plot" id="p-heat"><div class="tip" id="t-heat"></div></div>
+  </div>
+
+  <div class="card">
+    <h2>Cumulative atmospheric demand</h2>
+    <p class="cap">Running total across the record. The slope <em>is</em> the daily rate &mdash; steepest around {{busiest_month}}, nearly flat through {{quietest_month}}.</p>
+    <div class="legend">
+      <span><i class="key" style="background:var(--etr)"></i>ET<sub>r</sub></span>
+      <span><i class="key" style="background:var(--eto)"></i>ET<sub>o</sub></span>
+    </div>
+    <div class="plot" id="p-cum"><div class="tip" id="t-cum"></div></div>
+  </div>
+
+  <!--if validation-->
+  <div class="card" id="card-val">
+    <h2>Agreement with the reference implementation</h2>
+    <p class="cap">Daily ET<sub>r</sub> residual (this library &minus; Ref-ET output) against the reference value, for all {{val_n}} days with complete input data.</p>
+    <div class="plot" id="p-val"><div class="tip" id="t-val"></div></div>
+    <p class="foot-note">Every day lands within &plusmn;{{val_max}} mm of the reference software
+      (RMSE {{val_rmse}} mm, bias {{val_bias}} mm). ET<sub>o</sub> agrees more tightly still
+      (max {{val_eto_max}} mm). Hourly ET<sub>r</sub> over all {{val_hourly_n}} hours: RMSE
+      {{val_hourly_rmse}} mm, max {{val_hourly_max}} mm &mdash; the widest hourly gaps fall in
+      low-radiation hours, which the shipped test suite deliberately excludes.</p>
+  </div>
+  <!--endif-->
+
+  <div class="card">
+    <h2>Monthly summary</h2>
+    <p class="cap">Everything above, as numbers.</p>
+    <div style="overflow-x:auto"><table id="tbl"></table></div>
+  </div>
+
+  <p class="foot-note" id="prov"></p>
+</div>
+</div>
+
+<script>
+const D = __DATA__;
+
+const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+// Everything is indexed by position in D.dates rather than day-of-year, so an
+// arbitrary date range works. Tick placement is decided in Python (D.ticks),
+// which knows the span; the page just draws where it is told.
+const N = D.dates.length;
+const F_ = D.facts;
+// Heat ramp by CSS role, not raw hex — so the theme toggle re-steps it for the
+// dark surface without re-rendering 8,760 cells.
+const SEQ = [1, 2, 3, 4, 5, 6, 7].map(i => `var(--heat-${i})`);
+
+const svgNS = 'http://www.w3.org/2000/svg';
+const el = (n, a = {}) => { const e = document.createElementNS(svgNS, n);
+  for (const k in a) e.setAttribute(k, a[k]); return e; };
+const fmt = (v, n = 1) => v == null ? '—' : v.toLocaleString('en-US',
+  { minimumFractionDigits: n, maximumFractionDigits: n });
+
+/* ---------------------------------------------------------------- header */
+// All copy below reads pre-formatted strings from D.facts. Nothing is rounded
+// or reworded here, so the page and the build script cannot disagree.
+document.getElementById('meta').textContent =
+  `${F_.station_name} · ${F_.lat}, ${F_.lon} · ${F_.elev} m elevation · `
+  + `${F_.zw} m anemometer · ASCE standardized (${F_.method}) · `
+  + `${F_.n_days} days and ${F_.n_hours} hours, ${F_.start_date} to ${F_.end_date}`;
+
+document.getElementById('hero-val').innerHTML =
+  `${F_.eto_total}<span class="unit">mm ET<sub>o</sub></span>`;
+
+const KPI = [
+  { label: 'Peak daily ETr', value: F_.peak_etr, unit: 'mm d⁻¹',
+    foot: `${F_.peak_date} — ${F_.peak_solstice_note}` },
+  { label: 'Peak hourly ETr', value: F_.peak_hourly_etr, unit: 'mm h⁻¹',
+    foot: 'Highest single hour in the record' },
+];
+// The validation card itself is dropped at build time when no reference data is
+// configured; this only adds its KPI tile when the card is present.
+if (D.validation) {
+  KPI.push({ label: 'Match to Ref-ET', value: D.facts.val_rmse, unit: 'mm RMSE',
+    foot: `Max deviation ${D.facts.val_max} mm over ${D.facts.val_n} days` });
+}
+KPI.push({ label: 'Record length', value: F_.n_days, unit: 'days',
+  foot: `${F_.n_hours} hourly steps` });
+document.getElementById('kpis').innerHTML = KPI.map(k => `
+  <div class="kpi">
+    <div class="label">${k.label}</div>
+    <div class="value">${k.value}<small>${k.unit}</small></div>
+    <div class="foot">${k.foot}</div>
+  </div>`).join('');
+
+/* ------------------------------------------------------------ chart utils */
+function frame(host, w, h, m) {
+  const svg = el('svg', { viewBox: `0 0 ${w} ${h}`, width: w, height: h,
+    role: 'img', style: 'min-width:' + Math.min(w, 660) + 'px' });
+  host.insertBefore(svg, host.firstChild);
+  return { svg, w, h, m, iw: w - m.l - m.r, ih: h - m.t - m.b };
+}
+function yAxis(F, ticks, fmtT, title) {
+  ticks.forEach(t => {
+    const y = F.yScale(t);
+    F.svg.appendChild(el('line', { x1: F.m.l, x2: F.m.l + F.iw, y1: y, y2: y,
+      stroke: 'var(--grid)', 'stroke-width': 1 }));
+    const tx = el('text', { x: F.m.l - 8, y: y + 4, 'text-anchor': 'end', class: 'tick' });
+    tx.textContent = fmtT(t); F.svg.appendChild(tx);
+  });
+  if (title) axTitle(F, title);
+}
+// Axis titles hang at the top-left of the plot area — anchoring them to the
+// tick column clips the longer ones off the left edge of the viewBox.
+function axTitle(F, title) {
+  const t = el('text', { x: 2, y: F.m.t - 10, class: 'axtitle' });
+  t.textContent = title; F.svg.appendChild(t);
+}
+function timeAxis(F, y) {
+  F.svg.appendChild(el('line', { x1: F.m.l, x2: F.m.l + F.iw, y1: y, y2: y,
+    stroke: 'var(--axis)', 'stroke-width': 1 }));
+  D.ticks.forEach(tk => {
+    const t = el('text', { x: F.xScale(tk.i) + 3, y: y + 15, class: 'tick' });
+    t.textContent = tk.label; F.svg.appendChild(t);
+  });
+}
+// Shared index -> pixel mapping. N === 1 would divide by zero.
+const xIndex = F => i => F.m.l + (N > 1 ? i / (N - 1) : 0.5) * F.iw;
+function path(F, xs, ys, color, width = 2) {
+  let dstr = '', pen = false;
+  for (let i = 0; i < xs.length; i++) {
+    if (ys[i] == null) { pen = false; continue; }
+    dstr += (pen ? 'L' : 'M') + F.xScale(xs[i]).toFixed(1) + ' ' + F.yScale(ys[i]).toFixed(1) + ' ';
+    pen = true;
+  }
+  F.svg.appendChild(el('path', { d: dstr, fill: 'none', stroke: color,
+    'stroke-width': width, 'stroke-linejoin': 'round', 'stroke-linecap': 'round' }));
+}
+// Crosshair + tooltip shared by the three time-series plots
+function crosshair(F, host, tip, doys, series, fmtRow) {
+  const line = el('line', { y1: F.m.t, y2: F.m.t + F.ih, stroke: 'var(--axis)',
+    'stroke-width': 1, opacity: 0 });
+  F.svg.appendChild(line);
+  const dots = series.map(s => {
+    const g = el('circle', { r: 4.5, fill: s.color, stroke: 'var(--surface-1)',
+      'stroke-width': 2, opacity: 0 });
+    F.svg.appendChild(g); return g;
+  });
+  const hide = () => { line.setAttribute('opacity', 0);
+    dots.forEach(d => d.setAttribute('opacity', 0)); tip.style.opacity = 0; };
+  F.svg.addEventListener('mouseleave', hide);
+  F.svg.addEventListener('mousemove', ev => {
+    const r = F.svg.getBoundingClientRect();
+    const sx = (ev.clientX - r.left) * (F.w / r.width);
+    if (sx < F.m.l - 4 || sx > F.m.l + F.iw + 4) { hide(); return; }
+    let bi = 0, bd = Infinity;
+    for (let i = 0; i < doys.length; i++) {
+      const d = Math.abs(F.xScale(doys[i]) - sx);
+      if (d < bd) { bd = d; bi = i; }
+    }
+    const x = F.xScale(doys[bi]);
+    line.setAttribute('x1', x); line.setAttribute('x2', x); line.setAttribute('opacity', 1);
+    series.forEach((s, k) => {
+      const v = s.values[bi];
+      if (v == null) { dots[k].setAttribute('opacity', 0); return; }
+      dots[k].setAttribute('cx', x); dots[k].setAttribute('cy', F.yScale(v));
+      dots[k].setAttribute('opacity', 1);
+    });
+    tip.innerHTML = fmtRow(bi);
+    tip.style.opacity = 1;
+    const px = x / F.w * r.width;
+    tip.style.left = Math.min(Math.max(px + 14, 4), r.width - tip.offsetWidth - 4) + 'px';
+    tip.style.top = Math.max((ev.clientY - r.top) - tip.offsetHeight - 12, 4) + 'px';
+  });
+}
+const dateLabel = i => {
+  const d = new Date(D.dates[i] + 'T00:00:00');
+  return `${MONTHS[d.getMonth()]} ${d.getDate()}, ${d.getFullYear()}`;
+};
+const IDX = D.dates.map((_, i) => i);
+// Round an axis up to a clean maximum and step, so the ticks stay readable
+// whatever the range's magnitude turns out to be.
+function niceAxis(max, target = 6) {
+  if (!(max > 0)) return { max: 1, ticks: [0, 1] };
+  const raw = max / target;
+  const mag = Math.pow(10, Math.floor(Math.log10(raw)));
+  const step = [1, 2, 2.5, 5, 10].find(m => m * mag >= raw) * mag;
+  const top = Math.ceil(max / step) * step;
+  const ticks = [];
+  for (let v = 0; v <= top + step / 2; v += step) ticks.push(Number(v.toFixed(6)));
+  return { max: top, ticks };
+}
+const maxOf = arr => Math.max(...arr.filter(v => v != null));
+const tipRow = (color, name, val, unit) =>
+  `<div class="r"><span><i style="background:${color}"></i>${name}</span>` +
+  `<span class="v">${val}${unit ? ' ' + unit : ''}</span></div>`;
+
+/* ------------------------------------------------------- 1. daily series */
+(function () {
+  const host = document.getElementById('p-daily');
+  const F = frame(host, 980, 340, { l: 46, r: 22, t: 26, b: 30 });
+  F.xScale = xIndex(F);
+  const A = niceAxis(maxOf(D.daily.ETR), 7);
+  F.yScale = v => F.m.t + F.ih - (v / A.max) * F.ih;
+  yAxis(F, A.ticks, t => t, 'mm d⁻¹');
+  timeAxis(F, F.m.t + F.ih);
+  path(F, IDX, D.daily.ETO, 'var(--eto)');
+  path(F, IDX, D.daily.ETR, 'var(--etr)');
+
+  // Direct label on the single extreme — the peak ETr day
+  const pi = D.daily.ETR.indexOf(maxOf(D.daily.ETR));
+  const px = F.xScale(pi), py = F.yScale(D.daily.ETR[pi]);
+  F.svg.appendChild(el('circle', { cx: px, cy: py, r: 4, fill: 'var(--etr)',
+    stroke: 'var(--surface-1)', 'stroke-width': 2 }));
+  const lab = el('text', { x: px, y: py - 10, 'text-anchor': 'middle', class: 'dlabel' });
+  lab.textContent = `${D.daily.ETR[pi].toFixed(1)} mm`;
+  F.svg.appendChild(lab);
+
+  // No end labels here: the two series converge into the December noise and the
+  // labels collide. The legend plus the peak label carry identity instead.
+
+  crosshair(F, host, document.getElementById('t-daily'), IDX,
+    [{ color: 'var(--etr)', values: D.daily.ETR }, { color: 'var(--eto)', values: D.daily.ETO }],
+    i => `<b>${dateLabel(i)}</b>`
+      + tipRow('var(--etr)', 'ETr', fmt(D.daily.ETR[i], 2), 'mm')
+      + tipRow('var(--eto)', 'ETo', fmt(D.daily.ETO[i], 2), 'mm')
+      + tipRow('transparent', 'Tmax', fmt(D.daily.TMAX[i], 1), '°C')
+      + tipRow('transparent', 'Solar Rs', fmt(D.daily.RS[i], 1), 'MJ m⁻²')
+      + tipRow('transparent', 'Wind u₂', fmt(D.daily.U2[i], 1), 'm s⁻¹'));
+})();
+
+/* ------------------------------------------------------------ 2. heatmap */
+(function () {
+  const host = document.getElementById('p-heat');
+  const F = frame(host, 980, 330, { l: 46, r: 14, t: 20, b: 30 });
+  const cw = F.iw / N, ch = F.ih / 24;
+  let hmax = 0;
+  D.heatmap.forEach(row => row.forEach(v => { if (v != null && v > hmax) hmax = v; }));
+  document.getElementById('ramp-max').textContent = hmax.toFixed(2);
+  document.getElementById('ramp-bar').innerHTML = SEQ.map(c => `<i style="background:${c}"></i>`).join('');
+
+  const color = v => {
+    if (v == null) return 'var(--grid)';
+    const f = Math.pow(Math.max(v, 0) / hmax, 0.8);
+    if (f < 0.02) return 'var(--surface-1)';
+    return SEQ[Math.min(SEQ.length - 1, Math.floor(f * SEQ.length))];
+  };
+  const g = el('g'); F.svg.appendChild(g);
+  for (let hr = 0; hr < 24; hr++) {
+    for (let d = 0; d < N; d++) {
+      const v = D.heatmap[hr][d];
+      g.appendChild(el('rect', {
+        x: (F.m.l + d * cw).toFixed(2), y: (F.m.t + hr * ch).toFixed(2),
+        width: (cw + 0.4).toFixed(2), height: (ch + 0.4).toFixed(2),
+        fill: color(v), 'data-h': hr, 'data-d': d,
+      }));
+    }
+  }
+  // Hour ticks every 4 hours, labelled at the row's centre
+  [0, 4, 8, 12, 16, 20].forEach(hr => {
+    const t = el('text', { x: F.m.l - 8, y: F.m.t + hr * ch + ch / 2 + 4,
+      'text-anchor': 'end', class: 'tick' });
+    t.textContent = String(hr).padStart(2, '0') + ':00'; F.svg.appendChild(t);
+  });
+  axTitle(F, `hour of day (standard local time, ${F_.standard_offset})`);
+  F.xScale = xIndex(F);
+  timeAxis(F, F.m.t + F.ih);
+
+  const tip = document.getElementById('t-heat');
+  F.svg.addEventListener('mouseleave', () => tip.style.opacity = 0);
+  F.svg.addEventListener('mousemove', ev => {
+    const r = F.svg.getBoundingClientRect();
+    const sx = (ev.clientX - r.left) * (F.w / r.width);
+    const sy = (ev.clientY - r.top) * (F.h / r.height);
+    const d = Math.floor((sx - F.m.l) / cw), hr = Math.floor((sy - F.m.t) / ch);
+    if (d < 0 || d >= N || hr < 0 || hr > 23) { tip.style.opacity = 0; return; }
+    const v = D.heatmap[hr][d];
+    tip.innerHTML = `<b>${dateLabel(d)}, ${String(hr).padStart(2, '0')}:00</b>`
+      + tipRow('var(--seq-400)', 'Hourly ETr', v == null ? '—' : v.toFixed(3), 'mm');
+    tip.style.opacity = 1;
+    tip.style.left = Math.min(Math.max((ev.clientX - r.left) + 14, 4), r.width - tip.offsetWidth - 4) + 'px';
+    tip.style.top = Math.max((ev.clientY - r.top) - tip.offsetHeight - 12, 4) + 'px';
+  });
+})();
+
+/* --------------------------------------------------------- 3. cumulative */
+const CUM = {};
+['ETR', 'ETO'].forEach(k => {
+  let s = 0;
+  CUM[k] = D.daily[k].map(v => { if (v != null) s += v; return s; });
+});
+(function () {
+  const host = document.getElementById('p-cum');
+  const F = frame(host, 980, 300, { l: 56, r: 58, t: 26, b: 30 });
+  F.xScale = xIndex(F);
+  const A = niceAxis(CUM.ETR[CUM.ETR.length - 1], 6);
+  F.yScale = v => F.m.t + F.ih - (v / A.max) * F.ih;
+  yAxis(F, A.ticks, t => t.toLocaleString('en-US'), 'mm');
+  timeAxis(F, F.m.t + F.ih);
+  path(F, IDX, CUM.ETO, 'var(--eto)');
+  path(F, IDX, CUM.ETR, 'var(--etr)');
+  [['ETR', 'var(--etr)'], ['ETO', 'var(--eto)']].forEach(([k, c]) => {
+    const i = CUM[k].length - 1;
+    F.svg.appendChild(el('circle', { cx: F.xScale(i), cy: F.yScale(CUM[k][i]),
+      r: 4, fill: c, stroke: 'var(--surface-1)', 'stroke-width': 2 }));
+    const t = el('text', { x: F.xScale(i) + 9, y: F.yScale(CUM[k][i]) + 4, class: 'dlabel' });
+    t.textContent = Math.round(CUM[k][i]).toLocaleString('en-US');
+    F.svg.appendChild(t);
+  });
+  crosshair(F, host, document.getElementById('t-cum'), IDX,
+    [{ color: 'var(--etr)', values: CUM.ETR }, { color: 'var(--eto)', values: CUM.ETO }],
+    i => `<b>through ${dateLabel(i)}</b>`
+      + tipRow('var(--etr)', 'ETr to date', fmt(CUM.ETR[i], 0), 'mm')
+      + tipRow('var(--eto)', 'ETo to date', fmt(CUM.ETO[i], 0), 'mm')
+      + tipRow('transparent', 'share of record', (CUM.ETR[i] / CUM.ETR[CUM.ETR.length - 1] * 100).toFixed(0) + '%', ''));
+})();
+
+/* --------------------------------------------------------- 4. validation */
+if (D.validation) (function () {
+  const host = document.getElementById('p-val');
+  const F = frame(host, 980, 260, { l: 56, r: 20, t: 26, b: 42 });
+  const R = D.validation.resid_daily_etr, X = D.validation.ref_daily_etr;
+  // Symmetric residual axis sized to the data, so a worse-agreeing station
+  // doesn't silently push its outliers off the top of the panel.
+  const RA = niceAxis(Math.max(...R.map(Math.abs)), 2);
+  const XA = niceAxis(maxOf(X), 7);
+  F.xScale = v => F.m.l + v / XA.max * F.iw;
+  F.yScale = v => F.m.t + F.ih / 2 - (v / RA.max) * (F.ih / 2);
+  RA.ticks.concat(RA.ticks.slice(1).map(t => -t)).forEach(t => {
+    const y = F.yScale(t);
+    F.svg.appendChild(el('line', { x1: F.m.l, x2: F.m.l + F.iw, y1: y, y2: y,
+      stroke: t === 0 ? 'var(--axis)' : 'var(--grid)', 'stroke-width': 1 }));
+    const tx = el('text', { x: F.m.l - 8, y: y + 4, 'text-anchor': 'end', class: 'tick' });
+    tx.textContent = (t > 0 ? '+' : '') + t.toFixed(3); F.svg.appendChild(tx);
+  });
+  axTitle(F, 'residual, mm');
+  XA.ticks.forEach(v => {
+    const t = el('text', { x: F.xScale(v), y: F.m.t + F.ih + 18, 'text-anchor': 'middle', class: 'tick' });
+    t.textContent = v; F.svg.appendChild(t);
+  });
+  const xt = el('text', { x: F.m.l + F.iw / 2, y: F.m.t + F.ih + 36,
+    'text-anchor': 'middle', class: 'axtitle' });
+  xt.textContent = 'Ref-ET reference daily ETr (mm d⁻¹)'; F.svg.appendChild(xt);
+
+  const tip = document.getElementById('t-val');
+  R.forEach((r, i) => {
+    const c = el('circle', { cx: F.xScale(X[i]).toFixed(1), cy: F.yScale(r).toFixed(1),
+      r: 4, fill: 'var(--etr)', 'fill-opacity': 0.55,
+      stroke: 'var(--surface-1)', 'stroke-width': 1.5 });
+    c.addEventListener('mouseenter', ev => {
+      c.setAttribute('fill-opacity', 1);
+      tip.innerHTML = `<b>reference ${X[i].toFixed(2)} mm d⁻¹</b>`
+        + tipRow('var(--etr)', 'residual', (r >= 0 ? '+' : '') + r.toFixed(4), 'mm')
+        + tipRow('transparent', 'relative', ((r / X[i]) * 100).toFixed(2) + '%', '');
+      tip.style.opacity = 1;
+      const rect = F.svg.getBoundingClientRect();
+      tip.style.left = Math.min(Math.max((ev.clientX - rect.left) + 14, 4), rect.width - tip.offsetWidth - 4) + 'px';
+      tip.style.top = Math.max((ev.clientY - rect.top) - tip.offsetHeight - 12, 4) + 'px';
+    });
+    c.addEventListener('mouseleave', () => { c.setAttribute('fill-opacity', 0.55); tip.style.opacity = 0; });
+    F.svg.appendChild(c);
+  });
+})();
+
+/* ------------------------------------------------------------- 5. table */
+(function () {
+  // Group by the actual calendar month present in the record, so a partial
+  // range or a multi-year range both come out right.
+  const groups = new Map();
+  D.dates.forEach((d, i) => {
+    const key = d.slice(0, 7);
+    if (!groups.has(key)) groups.set(key, []);
+    groups.get(key).push(i);
+  });
+  const multiYear = new Set(D.dates.map(d => d.slice(0, 4))).size > 1;
+  const rows = [...groups.entries()].map(([key, idx]) => {
+    const [y, m] = key.split('-');
+    const sum = k => idx.reduce((a, i) => a + (D.daily[k][i] ?? 0), 0);
+    const mean = k => { const v = idx.map(i => D.daily[k][i]).filter(x => x != null);
+      return v.length ? v.reduce((a, b) => a + b, 0) / v.length : null; };
+    const etr = idx.map(i => D.daily.ETR[i]).filter(x => x != null);
+    return { label: MONTHS[+m - 1] + (multiYear ? ` ${y}` : ''),
+      etr: sum('ETR'), eto: sum('ETO'), peak: etr.length ? Math.max(...etr) : null,
+      tmax: mean('TMAX'), rs: mean('RS'), u2: mean('U2'), vpd: mean('VPD') };
+  });
+  const total = k => rows.reduce((a, r) => a + r[k], 0);
+  document.getElementById('tbl').innerHTML =
+    '<thead><tr><th>Month</th><th>ETr (mm)</th><th>ETo (mm)</th><th>Peak ETr (mm d⁻¹)</th>'
+    + '<th>Mean Tmax (°C)</th><th>Mean Rs (MJ m⁻²)</th><th>Mean u₂ (m s⁻¹)</th><th>Mean VPD (kPa)</th></tr></thead>'
+    + '<tbody>' + rows.map(r => `<tr><td>${r.label}</td><td>${fmt(r.etr, 1)}</td><td>${fmt(r.eto, 1)}</td>`
+      + `<td>${fmt(r.peak, 1)}</td><td>${fmt(r.tmax, 1)}</td><td>${fmt(r.rs, 1)}</td>`
+      + `<td>${fmt(r.u2, 1)}</td><td>${fmt(r.vpd, 2)}</td></tr>`).join('') + '</tbody>'
+    + `<tfoot><tr><td>Total</td><td>${fmt(total('etr'), 0)}</td><td>${fmt(total('eto'), 0)}</td>`
+    + `<td>${F_.peak_etr}</td><td colspan="4"></td></tr></tfoot>`;
+})();
+
+document.getElementById('prov').innerHTML =
+  `Computed with <code>refet.Daily</code> and <code>refet.Hourly</code> `
+  + `(<code>method='${F_.method}'</code>) from ${F_.source_note}. `
+  + 'Palette and mark specs follow the data-viz design system; identity is carried by '
+  + 'legends and direct labels as well as hue.';
+</script>

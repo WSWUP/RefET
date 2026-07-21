@@ -33,3 +33,5 @@ coverage.xml
 # Miscellaneous files
 notes.txt
 docs/_build/
+.cache/
+*_report.html

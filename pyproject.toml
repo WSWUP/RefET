@@ -45,25 +45,45 @@ test = [
     "pandas",
     "pytz",
     "pytest",
+    "tzdata",
+]
+data = [
+    "pandas",
+]
+report = [
+    "pandas",
+    "tzdata",
 ]
 docs = [
     "sphinx",
     "furo",
     "myst-parser",
+    "pandas",
 ]
+
+[project.scripts]
+refet-report = "refet.report.cli:main"
 
 [build-system]
 requires = ["setuptools>=77.0"]
 build-backend = "setuptools.build_meta"
 
 [tool.setuptools.package-data]
-refet = ["py.typed"]
+refet = ["py.typed", "report/template.html"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+markers = [
+    "network: tests that hit the live AgriMet service (set RUN_NETWORK_TESTS=1 to run)",
+]
 
 [tool.ruff]
 line-length = 100
 
 [tool.ruff.lint]
 select = ["E", "F", "W"]
+
+[tool.ruff.lint.per-file-ignores]
+# pytest.importorskip('pandas') must run before the refet.io/report imports
+"tests/test_io_agrimet.py" = ["E402"]
+"tests/test_report.py" = ["E402"]
