@@ -78,6 +78,67 @@ def sat_vapor_pressure(temperature: ArrayLike) -> FloatArray:
     return e
 
 
+def ea_from_rh_daily(
+        tmin: ArrayLike, tmax: ArrayLike, rh_min: ArrayLike,
+        rh_max: ArrayLike) -> FloatArray | float:
+    """Daily actual vapor pressure from min/max relative humidity (Table 3)
+
+    Parameters
+    ----------
+    tmin : scalar or array_like of shape(M, )
+        Minimum daily air temperature [C].
+    tmax : scalar or array_like of shape(M, )
+        Maximum daily air temperature [C].
+    rh_min : scalar or array_like of shape(M, )
+        Minimum daily relative humidity [percent].
+    rh_max : scalar or array_like of shape(M, )
+        Maximum daily relative humidity [percent].
+
+    Returns
+    -------
+    ndarray
+        Actual vapor pressure [kPa].
+
+    Notes
+    -----
+    ea = (es(tmin) * rh_max / 100 + es(tmax) * rh_min / 100) / 2
+
+    Follows ASCE-EWRI (2005) Table 3 (equivalently FAO-56 Eq. 17): RHmax
+    pairs with Tmin and RHmin pairs with Tmax.
+
+    """
+    return 0.5 * (
+        sat_vapor_pressure(tmin) * rh_max / 100.0 +
+        sat_vapor_pressure(tmax) * rh_min / 100.0
+    )
+
+
+def ea_from_rh(tmean: ArrayLike, rh: ArrayLike) -> FloatArray | float:
+    """Actual vapor pressure from temperature and relative humidity (Table 4)
+
+    Parameters
+    ----------
+    tmean : scalar or array_like of shape(M, )
+        Mean air temperature for the period [C].
+    rh : scalar or array_like of shape(M, )
+        Mean relative humidity for the period [percent].
+
+    Returns
+    -------
+    ndarray
+        Actual vapor pressure [kPa].
+
+    Notes
+    -----
+    ea = es(tmean) * rh / 100
+
+    Follows ASCE-EWRI (2005) Table 4 (equivalently FAO-56 Eq. 54) for
+    hourly or shorter periods.
+
+    """
+    return sat_vapor_pressure(tmean) * rh / 100.0
+
+
 def es_slope(tmean: ArrayLike, method: str = 'asce') -> FloatArray | float:
     """Slope of the saturation vapor pressure-temperature curve (Eq. 5)
 

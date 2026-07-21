@@ -14,6 +14,8 @@ DEFAULT_UNITS = [
     'm s-1', 'm/s',
     'm', 'meter', 'meters',
     'deg', 'degree', 'degrees',
+    '%', 'percent',
+    'kg/kg', 'kg kg-1',
 ]
 RS_HOURLY_UNITS = [
     'w m-2 h-1', 'w m-2 hr-1', 'w m-2 hour-1', 'w/m2/hr', 'w/m2/hour'
@@ -28,6 +30,7 @@ SUPPORTED_UNITS = [
     'mph',
     'ft', 'feet',
     'rad', 'radian', 'radians',
+    'fraction', 'decimal',
 ]
 SUPPORTED_UNITS.extend(RS_HOURLY_UNITS)
 SUPPORTED_UNITS.extend(RS_DAILY_UNITS)
@@ -92,6 +95,9 @@ def convert(
     elif variable in ['zw', 'elev']:
         if unit.lower() in ['ft', 'feet']:
             values = values * 0.3048
+    elif variable in ['rh', 'rh_min', 'rh_max']:
+        if unit.lower() in ['fraction', 'decimal']:
+            values = values * 100.0
     elif variable in ['lat', 'lon']:
         if unit.lower() in ['rad', 'radian', 'radians']:
             # This is a little backwards but convert to degrees so that

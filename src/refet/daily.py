@@ -24,6 +24,9 @@ class Daily():
             rso_type: str | None = None,
             rso: ArrayLike | None = None,
             input_units: dict[str, str] | None = None,
+            q: ArrayLike | None = None,
+            rh_min: ArrayLike | None = None,
+            rh_max: ArrayLike | None = None,
         ):
         """ASCE Daily Standardized Reference Evapotranspiration (ET)
 
@@ -46,7 +49,9 @@ class Daily():
         doy : ndarray
             Day of year.
         ea : ndarray, optional
-            Actual vapor pressure [kPa].  Either ea or tdew must be set.
+            Actual vapor pressure [kPa].  One of ea, tdew, q, or the rh_min/
+            rh_max pair must be set; when several are given the first in
+            that order is used (the ASCE-EWRI 2005 preference hierarchy).
         tdew : ndarray, optional
             Mean daily dew point temperature [C].
         method : {'asce' (default), 'refet'}, optional
@@ -64,6 +69,12 @@ class Daily():
             Only used if rso_type == 'array'.
         input_units : dict, optional
             Input unit types.
+        q : ndarray, optional
+            Specific humidity [kg kg-1].
+        rh_min : ndarray, optional
+            Minimum daily relative humidity [percent].
+        rh_max : ndarray, optional
+            Maximum daily relative humidity [percent].
 
         Returns
         -------
@@ -99,15 +110,19 @@ class Daily():
         self.zw = zw
         self.doy = np.array(doy, copy=True, ndmin=1)
 
-        # Use Ea directly if it is set, otherwise try to compute from Tdew
-        if ea is not None:
-            self.ea = np.array(ea, copy=True, ndmin=1)
-            self.tdew = None
-        elif tdew is not None:
-            self.tdew = np.array(tdew, copy=True, ndmin=1)
-            self.ea = None
-        else:
-            raise ValueError('Either "ea" or "tdew" parameter must be set')
+        # Vapor pressure inputs, in the ASCE-EWRI 2005 preference order:
+        # measured ea, then tdew, then specific humidity, then min/max RH
+        if (rh_min is None) != (rh_max is None):
+            raise ValueError('rh_min and rh_max must be set together')
+        self.ea = np.array(ea, copy=True, ndmin=1) if ea is not None else None
+        self.tdew = np.array(tdew, copy=True, ndmin=1) if tdew is not None else None
+        self.q = np.array(q, copy=True, ndmin=1) if q is not None else None
+        self.rh_min = np.array(rh_min, copy=True, ndmin=1) if rh_min is not None else None
+        self.rh_max = np.array(rh_max, copy=True, ndmin=1) if rh_max is not None else None
+        if all(v is None for v in [ea, tdew, q, rh_min]):
+            raise ValueError(
+                'One of "ea", "tdew", "q", or the "rh_min"/"rh_max" pair '
+                'must be set')
 
         # Unit conversions
         if input_units is None:
@@ -115,9 +130,17 @@ class Daily():
         for v, unit in input_units.items():
             setattr(self, v, units.convert(getattr(self, v), v, unit, timestep='daily'))
 
-        # Compute Ea after handling unit conversions so that Tdew is in Celsius
-        if self.ea is None and self.tdew is not None:
-            self.ea = calcs.sat_vapor_pressure(self.tdew)
+        # Compute Ea after handling unit conversions so that the humidity
+        # inputs are in their default units
+        if self.ea is None:
+            if self.tdew is not None:
+                self.ea = calcs.sat_vapor_pressure(self.tdew)
+            elif self.q is not None:
+                self.ea = calcs.actual_vapor_pressure(
+                    self.q, calcs.air_pressure(self.elev, method))
+            else:
+                self.ea = calcs.ea_from_rh_daily(
+                    self.tmin, self.tmax, self.rh_min, self.rh_max)
 
         # Rso
         if rso_type is not None:

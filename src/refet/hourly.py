@@ -23,6 +23,8 @@ class Hourly():
             tdew: ArrayLike | None = None,
             method: str = 'asce',
             input_units: dict[str, str] | None = None,
+            q: ArrayLike | None = None,
+            rh: ArrayLike | None = None,
         ):
         """ASCE Hourly Standardized Reference Evapotranspiration (ET)
 
@@ -50,7 +52,9 @@ class Hourly():
         time : ndarray
             UTC hour at start of time period.
         ea : ndarray, optional
-            Actual vapor pressure [kPa].  Either ea or tdew parameter must be set.
+            Actual vapor pressure [kPa].  One of ea, tdew, q, or rh must be
+            set; when several are given the first in that order is used
+            (the ASCE-EWRI 2005 preference hierarchy).
         tdew : ndarray, optional
             Average hourly dew point temperature [C].
         method : {'asce' (default), 'refet'}, optional
@@ -59,6 +63,10 @@ class Hourly():
             * 'refet' -- Calculations will follow RefET software.
         input_units : dict, optional
             Input unit types.
+        q : ndarray, optional
+            Specific humidity [kg kg-1].
+        rh : ndarray, optional
+            Mean hourly relative humidity [percent].
 
         Returns
         -------
@@ -93,15 +101,14 @@ class Hourly():
         self.time_mid = self.time + 0.5
         self.zw = zw
 
-        # Use Ea directly if it is set, otherwise try to compute from Tdew
-        if ea is not None:
-            self.ea = np.array(ea, copy=True, ndmin=1)
-            self.tdew = None
-        elif tdew is not None:
-            self.tdew = np.array(tdew, copy=True, ndmin=1)
-            self.ea = None
-        else:
-            raise ValueError('Either "ea" or "tdew" parameter must be set')
+        # Vapor pressure inputs, in the ASCE-EWRI 2005 preference order:
+        # measured ea, then tdew, then specific humidity, then RH
+        self.ea = np.array(ea, copy=True, ndmin=1) if ea is not None else None
+        self.tdew = np.array(tdew, copy=True, ndmin=1) if tdew is not None else None
+        self.q = np.array(q, copy=True, ndmin=1) if q is not None else None
+        self.rh = np.array(rh, copy=True, ndmin=1) if rh is not None else None
+        if all(v is None for v in [ea, tdew, q, rh]):
+            raise ValueError('One of "ea", "tdew", "q", or "rh" must be set')
 
         # Unit conversions
         if input_units is None:
@@ -109,9 +116,16 @@ class Hourly():
         for v, unit in input_units.items():
             setattr(self, v, units.convert(getattr(self, v), v, unit, timestep='hourly'))
 
-        # Compute Ea after handling unit conversions so that Tdew is in Celsius
-        if self.ea is None and self.tdew is not None:
-            self.ea = calcs.sat_vapor_pressure(self.tdew)
+        # Compute Ea after handling unit conversions so that the humidity
+        # inputs are in their default units
+        if self.ea is None:
+            if self.tdew is not None:
+                self.ea = calcs.sat_vapor_pressure(self.tdew)
+            elif self.q is not None:
+                self.ea = calcs.actual_vapor_pressure(
+                    self.q, calcs.air_pressure(self.elev, method))
+            else:
+                self.ea = calcs.ea_from_rh(self.tmean, self.rh)
 
         # The input angles are converted to degrees by default in units.convert
         # They need to be converted back to radians for the calc functions

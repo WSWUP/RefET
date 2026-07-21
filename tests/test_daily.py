@@ -333,3 +333,67 @@ def test_refet_daily_results_tdew():
         rs=d_args['rs'], uz=d_args['uz'], zw=s_args['zw'],
         elev=s_args['elev'], lat=s_args['lat'], doy=d_args['doy']).results()
     assert 'tdew' in r
+
+
+def test_refet_daily_q():
+    """Ea can be computed from specific humidity"""
+    import refet.calcs as calcs
+    pair = calcs.air_pressure(s_args['elev'])
+    q = calcs.specific_humidity(d_args['ea'], pair)
+    etr = Daily(
+        tmin=d_args['tmin'], tmax=d_args['tmax'], q=q,
+        rs=d_args['rs'], uz=d_args['uz'], zw=s_args['zw'],
+        elev=s_args['elev'], lat=s_args['lat'], doy=d_args['doy'],
+    ).etr()
+    assert float(etr[0]) == pytest.approx(d_args['etr_asce'])
+
+
+def test_refet_daily_rh():
+    """Ea can be computed from min/max relative humidity (ASCE Table 3)"""
+    import refet.calcs as calcs
+    # Back out RH values that are exactly consistent with the known ea
+    rh_max = 100 * d_args['ea'] / float(calcs.sat_vapor_pressure(d_args['tmin'])[0])
+    rh_min = 100 * d_args['ea'] / float(calcs.sat_vapor_pressure(d_args['tmax'])[0])
+    etr = Daily(
+        tmin=d_args['tmin'], tmax=d_args['tmax'],
+        rh_min=rh_min, rh_max=rh_max,
+        rs=d_args['rs'], uz=d_args['uz'], zw=s_args['zw'],
+        elev=s_args['elev'], lat=s_args['lat'], doy=d_args['doy'],
+    ).etr()
+    assert float(etr[0]) == pytest.approx(d_args['etr_asce'])
+
+
+def test_refet_daily_rh_fraction_units():
+    """RH given as a fraction converts through input_units"""
+    import refet.calcs as calcs
+    rh_max = d_args['ea'] / float(calcs.sat_vapor_pressure(d_args['tmin'])[0])
+    rh_min = d_args['ea'] / float(calcs.sat_vapor_pressure(d_args['tmax'])[0])
+    etr = Daily(
+        tmin=d_args['tmin'], tmax=d_args['tmax'],
+        rh_min=rh_min, rh_max=rh_max,
+        rs=d_args['rs'], uz=d_args['uz'], zw=s_args['zw'],
+        elev=s_args['elev'], lat=s_args['lat'], doy=d_args['doy'],
+        input_units={'rh_min': 'fraction', 'rh_max': 'fraction'},
+    ).etr()
+    assert float(etr[0]) == pytest.approx(d_args['etr_asce'])
+
+
+def test_refet_daily_ea_priority_over_rh():
+    """When several humidity inputs are given, measured ea wins"""
+    etr = Daily(
+        tmin=d_args['tmin'], tmax=d_args['tmax'], ea=d_args['ea'],
+        rh_min=10.0, rh_max=90.0,
+        rs=d_args['rs'], uz=d_args['uz'], zw=s_args['zw'],
+        elev=s_args['elev'], lat=s_args['lat'], doy=d_args['doy'],
+    ).etr()
+    assert float(etr[0]) == pytest.approx(d_args['etr_asce'])
+
+
+def test_refet_daily_rh_pair_exception():
+    """rh_min without rh_max (or vice versa) raises"""
+    with pytest.raises(ValueError):
+        Daily(
+            tmin=d_args['tmin'], tmax=d_args['tmax'], rh_min=25.0,
+            rs=d_args['rs'], uz=d_args['uz'], zw=s_args['zw'],
+            elev=s_args['elev'], lat=s_args['lat'], doy=d_args['doy'],
+        )

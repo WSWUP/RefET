@@ -303,3 +303,26 @@ def test_refet_hourly_results():
         'rs', 'pair', 'psy', 'ra', 'rso', 'fcd', 'rnl', 'rn', 'u2'}
     assert float(r['u2'][0]) == pytest.approx(h_args['u2'])
     assert r['ra'] is h.ra
+
+
+def test_refet_hourly_q():
+    """Ea can be computed from specific humidity"""
+    etr = Hourly(
+        tmean=h_args['tmean'], q=h_args['q'], rs=h_args['rs'],
+        uz=h_args['uz'], zw=s_args['zw'], elev=s_args['elev'],
+        lat=s_args['lat'], lon=s_args['lon'], doy=h_args['doy'],
+        time=h_args['time'],
+    ).etr()
+    assert float(etr[0]) == pytest.approx(h_args['etr_asce'], abs=0.001)
+
+
+def test_refet_hourly_rh():
+    """Ea can be computed from relative humidity (ASCE Table 4)"""
+    rh = 100 * h_args['ea'] / h_args['es']
+    etr = Hourly(
+        tmean=h_args['tmean'], rh=rh, rs=h_args['rs'],
+        uz=h_args['uz'], zw=s_args['zw'], elev=s_args['elev'],
+        lat=s_args['lat'], lon=s_args['lon'], doy=h_args['doy'],
+        time=h_args['time'],
+    ).etr()
+    assert float(etr[0]) == pytest.approx(h_args['etr_asce'])
