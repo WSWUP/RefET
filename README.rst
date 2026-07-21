@@ -6,6 +6,10 @@ ASCE Standardized Reference Evapotranspiration (ET)
 
 NumPy functions for computing daily and hourly reference ET following the ASCE Standardized Reference Evapotranspiration Equations (ASCE2005_).
 
+Beyond the core equations, optional modules cover the rest of the station workflow: fetching AgriMet weather data (``refet.io.agrimet``), building self-contained interactive HTML station reports (``refet-report``), screening suspect inputs (``refet.qaqc``), and estimating missing inputs (``refet.estimate``).
+
+Full documentation: https://wswup.github.io/RefET/
+
 Usage
 =====
 
@@ -18,16 +22,10 @@ The raw input data is available `here <https://www.usbr.gov/pn-bin/daily.pl?stat
 
 .. code-block:: python
 
-    import math
     import refet
 
-    # The actual vapor pressure could be computed from the dew point temperature below
-    #   or the tdew can be passed directly to the function
-    # Convert the dew point temperature to Celsius
-    # tdew = units._f2c(49.84)
-    # ea = 0.6108 * math.exp(17.27 * tdew / (tdew + 237.3))
-    # ea = refet.calcs.sat_vapor_pressure(tdew)
-
+    # The dew point feeds the vapor pressure pathway here; measured ea,
+    # specific humidity (q), or the rh_min/rh_max pair work as well
     etr = refet.Daily(
         tmin=66.65, tmax=102.80, tdew=49.84, rs=674.07, uz=4.80,
         zw=3, elev=1208.5, lat=39.4575, doy=182, method='asce',
@@ -49,7 +47,7 @@ The raw input data is available `here <https://www.usbr.gov/pn-bin/instant.pl?st
     import refet
 
     etr = refet.Hourly(
-        tmean=91.80, ea=1.20 , rs=61.16, uz=3.33, zw=3, elev=1208.5,
+        tmean=91.80, ea=1.20, rs=61.16, uz=3.33, zw=3, elev=1208.5,
         lat=39.4575, lon=-118.77388, doy=182, time=18, method='asce',
         input_units={'tmean': 'F', 'rs': 'Langleys', 'uz': 'mph', 'lat': 'deg'}
         ).etr()
@@ -73,17 +71,23 @@ lat       ndarray     Latitude [degrees]
 doy       ndarray     Day of year
 ========  ==========  ====================================================
 
-Required Ea Parameters (hourly & daily)
----------------------------------------------------
+Required Humidity Parameters (hourly & daily)
+---------------------------------------------
 
-Either the "ea" or "tdew" parameter must be set
+One humidity input must be set.  When several are given, the first available
+in the ASCE-EWRI 2005 preference order is used: measured vapor pressure, then
+dew point, then specific humidity, then relative humidity.
 
-========  ==========  ====================================================
-Variable  Type        Description [default units]
-========  ==========  ====================================================
-ea        ndarray     Actual vapor pressure [kPa]
-tdew      ndarray     Dew point temperature [C]
-========  ==========  ====================================================
+==============  ==========  ==============================================
+Variable        Type        Description [default units]
+==============  ==========  ==============================================
+ea              ndarray     Actual vapor pressure [kPa]
+tdew            ndarray     Dew point temperature [C]
+q               ndarray     Specific humidity [kg kg-1]
+rh_min/rh_max   ndarray     Min/max daily relative humidity [%]
+                            (Daily only, both required together)
+rh              ndarray     Mean relative humidity [%] (Hourly only)
+==============  ==========  ==============================================
 
 Required Daily Parameters
 -------------------------
@@ -136,6 +140,37 @@ input_units  dict        | Override default input unit types
 
 ===========  ==========  ====================================================
 
+AgriMet Data and Station Reports
+================================
+
+The ``refet[data]`` extra adds a client for the Bureau of Reclamation AgriMet network that returns pandas DataFrames in native AgriMet units, with every known missing-data convention normalized:
+
+.. code-block:: python
+
+    import datetime as dt
+    from refet.io import agrimet
+
+    daily = agrimet.fetch_daily(
+        'FALN', dt.date(2015, 7, 1), dt.date(2015, 7, 31),
+        ['MN', 'MX', 'SR', 'YM', 'UA'], cache='.cache')
+
+The ``refet[report]`` extra adds the ``refet-report`` command, which builds a self-contained interactive HTML report of daily and hourly reference ET from a small TOML config (see the worked configs in `examples/ <examples/>`__):
+
+.. code-block:: console
+
+    refet-report examples/stations/faln_2024_live.toml
+
+Screening and Gap Filling
+=========================
+
+``refet.qaqc`` flags suspect inputs following ASCE2005_ Appendix D (solar above the clear sky envelope, vapor pressure above saturation, inverted daily temperatures, wind range) without modifying any data.  ``refet.estimate`` provides clearly labeled estimators for missing inputs (dew point from Tmin, Hargreaves-Samani solar) following FAO-56 and ASCE2005_ Appendix E.
+
+.. code-block:: python
+
+    d = refet.Daily(...)
+    flags = refet.qaqc.check(d)
+    print(refet.qaqc.counts(flags))
+
 Installation
 ============
 
@@ -149,15 +184,22 @@ The RefET python module can be installed with pip or conda:
 
     conda install conda-forge::refet
 
+The core package depends only on NumPy.  Optional extras pull in what the data and reporting modules need:
+
+.. code-block:: console
+
+    pip install refet[data]      # AgriMet client (adds pandas)
+    pip install refet[report]    # report builder and refet-report command
+
 Issues
 ======
 
 The functions have **not** been tested for inputs with different shapes/sizes and the broadcasting may not work correctly.
 
 The user must handle the following:
- + File I/O
- + QA/QC of the input data
- + Filling missing or bad data
+ + File I/O (``refet.io.agrimet`` covers AgriMet stations)
+ + QA/QC of the input data (``refet.qaqc`` flags common problems; see `agweather-qaqc <https://github.com/WSWUP/agweather-qaqc>`__ for full correction workflows)
+ + Filling missing or bad data (``refet.estimate`` provides documented estimators)
 
 Cloudiness Fraction (hourly)
 ----------------------------
@@ -179,13 +221,9 @@ Please see the `validation document <VALIDATION.md>`__ for additional details on
 Dependencies
 ============
 
- * `numpy <http://www.numpy.org>`__
+ * `numpy <https://numpy.org>`__ (the only core dependency)
 
-Modules needed to run the test suite:
-
- * `pandas <http://pandas.pydata.org>`__
- * `pytest <https://docs.pytest.org/en/latest/>`__
- * `pytz <http://pythonhosted.org/pytz/>`__
+The ``data`` and ``report`` extras add `pandas <https://pandas.pydata.org>`__ (and ``tzdata`` on Windows for timezone support).  The test suite additionally uses `pytest <https://docs.pytest.org>`__ and `pytz <https://pypi.org/project/pytz/>`__.
 
 References
 ==========

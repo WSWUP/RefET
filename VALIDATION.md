@@ -1,6 +1,6 @@
 # Validation
 
-Validation of the RefET functions was done using [AgriMet](https://www.usbr.gov/pn/agrimet/) data for all of 2015 from the [Fallon, NV station](https://www.usbr.gov/pn/agrimet/agrimetmap/falnda.html).  The data were downloaded and prepared using the setup_test_data.py Python script in in the tests/data folder.
+Validation of the RefET functions was done using [AgriMet](https://www.usbr.gov/pn/agrimet/) data for all of 2015 from the [Fallon, NV station](https://www.usbr.gov/pn/agrimet/agrimetmap/falnda.html).  The data were downloaded and prepared using the setup_test_data.py Python script in the tests/data folder, which retrieves the records through `refet.io.agrimet`.
 
 ## Daily
 

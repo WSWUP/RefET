@@ -90,6 +90,17 @@ rh_min/rh_max   ndarray     Min/max daily relative humidity [%] (Daily,
 rh              ndarray     Mean relative humidity [%] (Hourly)
 ==============  ==========  ==============================================
 
+For a station that reports relative humidity rather than dew point:
+
+.. code-block:: python
+
+    eto = refet.Daily(
+        tmin=19.2, tmax=39.3, rh_min=15.0, rh_max=72.0, rs=28.2, uz=2.2,
+        zw=3, elev=1208.5, lat=39.4575, doy=182).eto()
+
+RH values default to percent; pass ``input_units={'rh_min': 'fraction', ...}``
+for 0 to 1 values.
+
 Required daily parameters
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 

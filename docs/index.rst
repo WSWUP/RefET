@@ -10,6 +10,11 @@ tall (alfalfa, ETr) reference surfaces from standard weather station inputs,
 and is validated against the University of Idaho Ref-ET software using a full
 year of AgriMet data (see :doc:`validation`).
 
+Beyond the core equations, optional modules cover the rest of the station
+workflow: an AgriMet data client and a self-contained HTML report builder
+(:doc:`report`), input screening flags (``refet.qaqc``), and documented
+estimators for missing inputs (``refet.estimate``).
+
 For the equivalent functions implemented for Google Earth Engine, see
 `openet-refet-gee <https://github.com/Open-ET/openet-refet-gee>`__.
 
@@ -22,6 +27,7 @@ For the equivalent functions implemented for Google Earth Engine, see
    api
    fao56
    validation
+   development
 
 References
 ----------

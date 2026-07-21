@@ -76,13 +76,11 @@ class Daily():
         rh_max : ndarray, optional
             Maximum daily relative humidity [percent].
 
-        Returns
-        -------
-        etsz : ndarray
-            Standardized reference ET [mm].
-
         Notes
         -----
+        Call eto(), etr(), or etsz(surface) to compute the standardized
+        reference ET [mm], and results() for the intermediate terms.
+
         cn: 900 for ETo, 1600 for ETr
         cd: 0.34 for ETo, 0.38 for ETr
 

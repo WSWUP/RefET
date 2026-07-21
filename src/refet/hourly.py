@@ -68,13 +68,11 @@ class Hourly():
         rh : ndarray, optional
             Mean hourly relative humidity [percent].
 
-        Returns
-        -------
-        etsz : ndarray
-            Standardized reference ET [mm].
-
         Notes
         -----
+        Call eto(), etr(), or etsz(surface) to compute the standardized
+        reference ET [mm], and results() for the intermediate terms.
+
         The Langleys to MJ m-2 conversion factor is the value used in the RefET
         program, although there are other factors that could be applied:
         https://www.aps.org/policy/reports/popa-reports/energy/units.cfm

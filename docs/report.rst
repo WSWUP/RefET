@@ -55,6 +55,49 @@ and the build fails rather than rendering a page whose narrative and numbers
 could disagree. Reports for stations without reference data automatically
 omit the validation panel.
 
+Config reference
+----------------
+
+Relative paths in a config resolve against the config file's directory.
+Top-level keys:
+
+=============  ==========================================================
+Key            Meaning
+=============  ==========================================================
+start, end     Inclusive date range as TOML dates (required)
+title          Page title (auto-filled for AgriMet sources)
+name           Station display name (auto-filled for AgriMet sources)
+network        Network label shown in the report (auto-filled)
+timezone       IANA zone of the raw timestamps, the DST-observing zone,
+               not a fixed offset (auto-filled for AgriMet sources)
+method         'asce' (default) or 'refet', passed to the compute classes
+rso_type       Clear sky solar model override: 'simple' or 'full'
+               (defaults to the method's standard choice)
+=============  ==========================================================
+
+Sections:
+
+==================  =====================================================
+Section             Meaning
+==================  =====================================================
+[source]            type = "csv" (default) or "agrimet". AgriMet sources
+                    need a station id and accept an optional cache
+                    directory.
+[station]           lat, lon, elev [m], zw [m] overrides. Required for
+                    csv sources with no reference file to scrape them
+                    from; optional otherwise (explicit values always win).
+[daily]             csv path (csv sources) and an optional Ref-ET .out
+                    reference file; with a reference, the report gains a
+                    validation panel.
+[daily.columns]     report variable = source column name. Must map tmin,
+                    tmax, uz, rs, and either tdew or ea.
+[hourly]            As [daily], for the hourly source.
+[hourly.columns]    Must map tmean, uz, rs, and either tdew or ea.
+[units]             Unit string per variable, anything
+                    refet.units.convert accepts. Omit for library
+                    defaults (C, m s-1, MJ m-2).
+==================  =====================================================
+
 The AgriMet client can also be used directly:
 
 .. code-block:: python
