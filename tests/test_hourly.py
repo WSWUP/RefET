@@ -230,8 +230,8 @@ def test_refet_hourly_tdew():
 
 
 def test_refet_hourly_ea_tdew_exception():
-    """Check that an exception is raised if ea and tdew are not set"""
-    with pytest.raises(Exception):
+    """Check that a ValueError is raised if ea and tdew are not set"""
+    with pytest.raises(ValueError):
         Hourly(
             tmean=h_args['tmean'], rs=h_args['rs'],
             uz=h_args['uz'], zw=s_args['zw'], elev=s_args['elev'],
@@ -240,7 +240,7 @@ def test_refet_hourly_ea_tdew_exception():
         )
 
 
-def test_refet_hourly_tdew():
+def test_refet_hourly_tdew_f():
     """Check that Tdew is converted to C before computing Ea"""
     etr = Hourly(
         tmean=h_args['tmean'], rs=h_args['rs'], tdew=units.c2f(h_args['tdew']),
@@ -288,12 +288,3 @@ def test_refet_hourly_vpd_clamped():
     )
     assert float(h.vpd[0]) == 0.0
 
-
-def test_refet_hourly_ea_tdew_exception():
-    """Check that a ValueError is raised if ea and tdew are not set"""
-    with pytest.raises(ValueError):
-        Hourly(
-            tmean=h_args['tmean'], rs=h_args['rs'], uz=h_args['uz'],
-            zw=s_args['zw'], elev=s_args['elev'], lat=s_args['lat'],
-            lon=s_args['lon'], doy=h_args['doy'], time=h_args['time'],
-        )

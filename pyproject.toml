@@ -1,28 +1,44 @@
 [project]
 name = "refet"
-version = "0.5.0"
+version = "0.6.0"
 authors = [
     { name="Charles Morton", email="charles.morton@dri.edu" },
 ]
 description = "ASCE Standardized Reference Evapotranspiration Functions"
 readme = "README.rst"
+license = "Apache-2.0"
+license-files = ["LICENSE.txt"]
 requires-python = ">=3.11"
+keywords = [
+    "evapotranspiration",
+    "reference ET",
+    "ASCE",
+    "ETo",
+    "ETr",
+    "irrigation",
+    "agriculture",
+    "hydrology",
+]
 classifiers = [
-    "Programming Language :: Python :: 3",
-    "License :: OSI Approved :: Apache Software License",
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Science/Research",
     "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
+    "Topic :: Scientific/Engineering :: Atmospheric Science",
+    "Topic :: Scientific/Engineering :: Hydrology",
 ]
 dependencies = [
     "numpy >=2.0.0",
 ]
 
 [project.urls]
-"Homepage" = "https://github.com/WSWUP/RefET"
+Homepage = "https://github.com/WSWUP/RefET"
 "Bug Tracker" = "https://github.com/WSWUP/RefET/issues"
-
-[build-system]
-requires = ["setuptools>=61.0"]
-build-backend = "setuptools.build_meta"
+Changelog = "https://github.com/WSWUP/RefET/blob/main/CHANGELOG.md"
 
 [project.optional-dependencies]
 test = [
@@ -30,3 +46,16 @@ test = [
     "pytz",
     "pytest",
 ]
+
+[build-system]
+requires = ["setuptools>=77.0"]
+build-backend = "setuptools.build_meta"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+
+[tool.ruff]
+line-length = 100
+
+[tool.ruff.lint]
+select = ["E", "F", "W"]

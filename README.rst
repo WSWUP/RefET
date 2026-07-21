@@ -16,7 +16,7 @@ The following demonstrates how to compute a single daily ETr value using weather
 The necessary unit conversions are shown on the input values.
 The raw input data is available `here <https://www.usbr.gov/pn-bin/daily.pl?station=FALN&year=2015&month=7&day=1&year=2015&month=7&day=1&pcode=ETRS&pcode=MN&pcode=MX&pcode=SR&pcode=YM&pcode=UA>`__.
 
-.. code-block:: console
+.. code-block:: python
 
     import math
     import refet
@@ -44,7 +44,7 @@ The following demonstrates how to compute a single hourly ETr value using weathe
 The necessary unit conversions are shown on the input values.
 The raw input data is available `here <https://www.usbr.gov/pn-bin/instant.pl?station=FALN&year=2015&month=7&day=1&year=2015&month=7&day=1&pcode=OB&pcode=EA&pcode=WS&pcode=SI&print_hourly=1>`__
 
-.. code-block:: console
+.. code-block:: python
 
     import refet
 
@@ -139,11 +139,15 @@ input_units  dict        | Override default input unit types
 Installation
 ============
 
-The RefET python module can be installed with conda or pip:
+The RefET python module can be installed with pip or conda:
 
 .. code-block:: console
 
-    conda install refet
+    pip install refet
+
+.. code-block:: console
+
+    conda install conda-forge::refet
 
 Issues
 ======
@@ -192,9 +196,9 @@ References
  | ASCE-EWRI (2005). The ASCE standardized reference evapotranspiration equation.
  | `https://ascelibrary.org/doi/book/10.1061/9780784408056 <https://ascelibrary.org/doi/book/10.1061/9780784408056>`__
 
-.. |build| image:: https://github.com/WSWUP/refet/workflows/build/badge.svg
+.. |build| image:: https://github.com/WSWUP/RefET/actions/workflows/tests.yml/badge.svg
    :alt: Build status
-   :target: https://github.com/WSWUP/refet
+   :target: https://github.com/WSWUP/RefET/actions/workflows/tests.yml
 .. |version| image:: https://badge.fury.io/py/refet.svg
    :alt: Latest version on PyPI
    :target: https://badge.fury.io/py/refet

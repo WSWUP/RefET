@@ -1,0 +1,23 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it as below."
+title: "RefET: ASCE Standardized Reference Evapotranspiration Functions"
+type: software
+authors:
+  - family-names: Morton
+    given-names: Charles
+    email: charles.morton@dri.edu
+    affiliation: "Desert Research Institute"
+version: 0.6.0
+license: Apache-2.0
+repository-code: "https://github.com/WSWUP/RefET"
+keywords:
+  - evapotranspiration
+  - reference ET
+  - ASCE
+references:
+  - type: book
+    title: "The ASCE Standardized Reference Evapotranspiration Equation"
+    authors:
+      - name: "ASCE-EWRI Task Committee on Standardization of Reference Evapotranspiration"
+    year: 2005
+    doi: 10.1061/9780784408056

@@ -1,6 +1,5 @@
 import math
 
-import numpy as np
 import pytest
 
 import refet.calcs as calcs
@@ -140,7 +139,8 @@ def test_vpd(es=d_args['es'], ea=d_args['ea']):
     assert float(calcs.vpd(es, es+1)) == pytest.approx(0)
 
 
-def test_es_slope_default(tmin=d_args['tmin'], tmax=d_args['tmax'], es_slope=d_args['es_slope_asce']):
+def test_es_slope_default(
+        tmin=d_args['tmin'], tmax=d_args['tmax'], es_slope=d_args['es_slope_asce']):
     output = calcs.es_slope(0.5 * (tmin + tmax))
     assert float(output) == pytest.approx(es_slope)
 
