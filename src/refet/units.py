@@ -1,5 +1,10 @@
 import math
 
+import numpy as np
+from numpy.typing import ArrayLike, NDArray
+
+FloatArray = NDArray[np.float64]
+
 
 DEFAULT_UNITS = [
     'c', 'celsius',
@@ -28,7 +33,9 @@ SUPPORTED_UNITS.extend(RS_HOURLY_UNITS)
 SUPPORTED_UNITS.extend(RS_DAILY_UNITS)
 
 
-def convert(values, variable, unit, timestep=None):
+def convert(
+        values: ArrayLike, variable: str | None, unit: str,
+        timestep: str | None = None) -> FloatArray | float:
     """Unit conversion function
 
     Args:
@@ -95,21 +102,21 @@ def convert(values, variable, unit, timestep=None):
     return values
 
 
-def deg2rad(deg):
+def deg2rad(deg: ArrayLike) -> FloatArray | float:
     """Convert degrees to radians"""
     return deg * math.pi / 180.0
 
 
-def rad2deg(rad):
+def rad2deg(rad: ArrayLike) -> FloatArray | float:
     """Convert radians to degrees"""
     return rad * 180.0 / math.pi
 
 
-def c2f(c):
+def c2f(c: ArrayLike) -> FloatArray | float:
     """Convert Celsius to Fahrenheit"""
     return c * (9.0 / 5) + 32
 
 
-def f2c(f):
+def f2c(f: ArrayLike) -> FloatArray | float:
     """Convert Fahrenheit to Celsius"""
     return (f - 32) * (5.0 / 9)

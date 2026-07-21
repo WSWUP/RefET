@@ -51,6 +51,9 @@ test = [
 requires = ["setuptools>=77.0"]
 build-backend = "setuptools.build_meta"
 
+[tool.setuptools.package-data]
+refet = ["py.typed"]
+
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 

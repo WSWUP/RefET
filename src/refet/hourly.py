@@ -1,6 +1,7 @@
 import math
 
 import numpy as np
+from numpy.typing import ArrayLike, NDArray
 
 from . import calcs
 from . import units
@@ -9,19 +10,19 @@ from . import units
 class Hourly():
     def __init__(
             self,
-            tmean,
-            rs,
-            uz,
-            zw,
-            elev,
-            lat,
-            lon,
-            doy,
-            time,
-            ea=None,
-            tdew=None,
-            method='asce',
-            input_units=None,
+            tmean: ArrayLike,
+            rs: ArrayLike,
+            uz: ArrayLike,
+            zw: float,
+            elev: ArrayLike,
+            lat: ArrayLike,
+            lon: ArrayLike,
+            doy: ArrayLike,
+            time: ArrayLike,
+            ea: ArrayLike | None = None,
+            tdew: ArrayLike | None = None,
+            method: str = 'asce',
+            input_units: dict[str, str] | None = None,
         ):
         """ASCE Hourly Standardized Reference Evapotranspiration (ET)
 
@@ -168,7 +169,7 @@ class Hourly():
         # Wind speed
         self.u2 = calcs.wind_height_adjust(self.uz, self.zw)
 
-    def results(self):
+    def results(self) -> dict[str, NDArray[np.float64]]:
         """Input and intermediate terms of the hourly calculation
 
         Returns
@@ -190,7 +191,7 @@ class Hourly():
         ]
         return {k: getattr(self, k) for k in keys if getattr(self, k) is not None}
 
-    def etsz(self, surface):
+    def etsz(self, surface: str) -> NDArray[np.float64]:
         """Standardized reference ET
 
         Parameters
@@ -210,7 +211,7 @@ class Hourly():
         else:
             raise ValueError(f'unsupported surface type: {surface}')
 
-    def eto(self):
+    def eto(self) -> NDArray[np.float64]:
         """Short (grass) reference surface"""
         self.cn = 37.0
 
@@ -229,7 +230,7 @@ class Hourly():
             es_slope=self.es_slope, psy=self.psy, cn=self.cn, cd=self.cd
         )
 
-    def etr(self):
+    def etr(self) -> NDArray[np.float64]:
         """Tall (alfalfa) reference surface"""
         self.cn = 66.0
 

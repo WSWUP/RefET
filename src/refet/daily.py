@@ -1,6 +1,7 @@
 import math
 
 import numpy as np
+from numpy.typing import ArrayLike, NDArray
 
 from . import calcs
 from . import units
@@ -9,20 +10,20 @@ from . import units
 class Daily():
     def __init__(
             self,
-            tmin,
-            tmax,
-            rs,
-            uz,
-            zw,
-            elev,
-            lat,
-            doy,
-            ea=None,
-            tdew=None,
-            method='asce',
-            rso_type=None,
-            rso=None,
-            input_units=None,
+            tmin: ArrayLike,
+            tmax: ArrayLike,
+            rs: ArrayLike,
+            uz: ArrayLike,
+            zw: float,
+            elev: ArrayLike,
+            lat: ArrayLike,
+            doy: ArrayLike,
+            ea: ArrayLike | None = None,
+            tdew: ArrayLike | None = None,
+            method: str = 'asce',
+            rso_type: str | None = None,
+            rso: ArrayLike | None = None,
+            input_units: dict[str, str] | None = None,
         ):
         """ASCE Daily Standardized Reference Evapotranspiration (ET)
 
@@ -184,7 +185,7 @@ class Daily():
         # Wind speed
         self.u2 = calcs.wind_height_adjust(self.uz, self.zw)
 
-    def results(self):
+    def results(self) -> dict[str, NDArray[np.float64]]:
         """Input and intermediate terms of the daily calculation
 
         Returns
@@ -206,7 +207,7 @@ class Daily():
         ]
         return {k: getattr(self, k) for k in keys if getattr(self, k) is not None}
 
-    def etsz(self, surface):
+    def etsz(self, surface: str) -> NDArray[np.float64]:
         """Standardized reference ET
 
         Parameters
@@ -226,7 +227,7 @@ class Daily():
         else:
             raise ValueError(f'unsupported surface type: {surface}')
 
-    def eto(self):
+    def eto(self) -> NDArray[np.float64]:
         """Grass reference surface"""
         self.cn = 900
         self.cd = 0.34
@@ -235,7 +236,7 @@ class Daily():
             es_slope=self.es_slope, psy=self.psy, cn=self.cn, cd=self.cd
         )
 
-    def etr(self):
+    def etr(self) -> NDArray[np.float64]:
         """Alfalfa reference surface"""
         self.cn = 1600
         self.cd = 0.38

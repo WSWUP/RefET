@@ -1,9 +1,12 @@
 import math
 
 import numpy as np
+from numpy.typing import ArrayLike, NDArray
+
+FloatArray = NDArray[np.float64]
 
 
-def air_pressure(elev, method='asce'):
+def air_pressure(elev: ArrayLike, method: str = 'asce') -> FloatArray:
     """Mean atmospheric pressure at station elevation (Eqs. 3 & 34)
 
     Parameters
@@ -46,7 +49,7 @@ def air_pressure(elev, method='asce'):
     return pair
 
 
-def sat_vapor_pressure(temperature):
+def sat_vapor_pressure(temperature: ArrayLike) -> FloatArray:
     """Saturation vapor pressure from temperature (Eq. 7)
 
     Parameters
@@ -75,7 +78,7 @@ def sat_vapor_pressure(temperature):
     return e
 
 
-def es_slope(tmean, method='asce'):
+def es_slope(tmean: ArrayLike, method: str = 'asce') -> FloatArray | float:
     """Slope of the saturation vapor pressure-temperature curve (Eq. 5)
 
     Parameters
@@ -111,7 +114,7 @@ def es_slope(tmean, method='asce'):
         raise ValueError(f'Unsupported calculation method {method}')
 
 
-def actual_vapor_pressure(q, pair):
+def actual_vapor_pressure(q: ArrayLike, pair: ArrayLike) -> FloatArray:
     """"Actual vapor pressure from specific humidity
 
     Parameters
@@ -141,7 +144,7 @@ def actual_vapor_pressure(q, pair):
     return ea
 
 
-def specific_humidity(ea, pair):
+def specific_humidity(ea: ArrayLike, pair: ArrayLike) -> FloatArray:
     """"Specific humidity from actual vapor pressure
 
     Parameters
@@ -171,7 +174,7 @@ def specific_humidity(ea, pair):
     return q
 
 
-def vpd(es, ea):
+def vpd(es: ArrayLike, ea: ArrayLike) -> FloatArray | float:
     """Vapor pressure deficit
 
     Parameters
@@ -190,7 +193,7 @@ def vpd(es, ea):
     return np.maximum(es - ea, 0)
 
 
-def precipitable_water(pair, ea):
+def precipitable_water(pair: ArrayLike, ea: ArrayLike) -> FloatArray | float:
     """Precipitable water in the atmosphere (Eq. D.3)
 
     Parameters
@@ -209,7 +212,7 @@ def precipitable_water(pair, ea):
     return pair * 0.14 * ea + 2.1
 
 
-def doy_fraction(doy):
+def doy_fraction(doy: ArrayLike) -> FloatArray | float:
     """Fraction of the DOY in the year (Eq. 50)
 
     Parameters
@@ -226,7 +229,7 @@ def doy_fraction(doy):
     return doy * (2 * math.pi / 365)
 
 
-def declination(doy, method='asce'):
+def declination(doy: ArrayLike, method: str = 'asce') -> FloatArray | float:
     """Earth declination (Eq. 51)
 
     Parameters
@@ -259,7 +262,7 @@ def declination(doy, method='asce'):
         raise ValueError(f'Unsupported calculation method {method}')
 
 
-def dr(doy):
+def dr(doy: ArrayLike) -> FloatArray | float:
     """Inverse square of the Earth-Sun Distance (Eq. 50)
 
     Parameters
@@ -281,7 +284,7 @@ def dr(doy):
     return 1.0 + 0.033 * np.cos(doy_fraction(doy))
 
 
-def seasonal_correction(doy):
+def seasonal_correction(doy: ArrayLike) -> FloatArray | float:
     """Seasonal correction for solar time (Eqs. 57 & 58)
 
     Parameters
@@ -299,7 +302,8 @@ def seasonal_correction(doy):
     return 0.1645 * np.sin(2 * b) - 0.1255 * np.cos(b) - 0.0250 * np.sin(b)
 
 
-def solar_time_rad(lon, time_mid, sc):
+def solar_time_rad(
+        lon: ArrayLike, time_mid: ArrayLike, sc: ArrayLike) -> FloatArray | float:
     """Solar time (i.e. noon is 0) (Eq. 55)
 
     Parameters
@@ -327,7 +331,7 @@ def solar_time_rad(lon, time_mid, sc):
     return time_mid + (lon * 24 / (2 * math.pi)) + sc - 12
 
 
-def solar_hour_angle(solar_time):
+def solar_hour_angle(solar_time: ArrayLike) -> FloatArray | float:
     """Solar hour angle (Eq. 55)
 
     Parameters
@@ -348,7 +352,7 @@ def solar_hour_angle(solar_time):
     return wrap(omega, -math.pi, math.pi)
 
 
-def wrap(x, x_min, x_max):
+def wrap(x: ArrayLike, x_min: float, x_max: float) -> FloatArray | float:
     """Wrap floating point values into range
 
     Parameters
@@ -368,7 +372,7 @@ def wrap(x, x_min, x_max):
     return np.mod((x - x_min), (x_max - x_min)) + x_min
 
 
-def sunset_hour_angle(lat, delta):
+def sunset_hour_angle(lat: ArrayLike, delta: ArrayLike) -> FloatArray | float:
     """Sunset hour angle (Eq. 59)
 
     Parameters
@@ -387,7 +391,7 @@ def sunset_hour_angle(lat, delta):
     return np.arccos(np.clip(-np.tan(lat) * np.tan(delta), -1, 1))
 
 
-def ra_daily(lat, doy, method='asce'):
+def ra_daily(lat: ArrayLike, doy: ArrayLike, method: str = 'asce') -> FloatArray | float:
     """Daily extraterrestrial radiation (Eq. 21)
 
     Parameters
@@ -424,7 +428,9 @@ def ra_daily(lat, doy, method='asce'):
         raise ValueError(f'Unsupported calculation method {method}')
 
 
-def ra_hourly(lat, lon, doy, time_mid, method='asce'):
+def ra_hourly(
+        lat: ArrayLike, lon: ArrayLike, doy: ArrayLike, time_mid: ArrayLike,
+        method: str = 'asce') -> FloatArray | float:
     """Hourly extraterrestrial radiation (Eq. 48)
 
     Parameters
@@ -477,7 +483,9 @@ def ra_hourly(lat, lon, doy, time_mid, method='asce'):
         raise ValueError(f'Unsupported calculation method {method}')
 
 
-def rso_daily(ra, ea, pair, doy, lat):
+def rso_daily(
+        ra: ArrayLike, ea: ArrayLike, pair: ArrayLike, doy: ArrayLike,
+        lat: ArrayLike) -> FloatArray | float:
     """Full daily clear sky solar radiation formulation (Appendix D)
 
     Parameters
@@ -520,7 +528,10 @@ def rso_daily(ra, ea, pair, doy, lat):
     return (kb + kd) * ra
 
 
-def rso_hourly(ra, ea, pair, doy, time_mid, lat, lon, method='asce'):
+def rso_hourly(
+        ra: ArrayLike, ea: ArrayLike, pair: ArrayLike, doy: ArrayLike,
+        time_mid: ArrayLike, lat: ArrayLike, lon: ArrayLike,
+        method: str = 'asce') -> FloatArray | float:
     """Full hourly clear sky solar radiation formulation (Appendix D)
 
     Parameters
@@ -575,7 +586,7 @@ def rso_hourly(ra, ea, pair, doy, time_mid, lat, lon, method='asce'):
     return (kb + kd) * ra
 
 
-def rso_simple(ra, elev):
+def rso_simple(ra: ArrayLike, elev: ArrayLike) -> FloatArray | float:
     """Simplified daily/hourly clear sky solar formulation (Eqs. 19 & 45)
 
     Parameters
@@ -594,7 +605,7 @@ def rso_simple(ra, elev):
     return (0.75 + 2E-5 * elev) * ra
 
 
-def fcd_daily(rs, rso):
+def fcd_daily(rs: ArrayLike, rso: ArrayLike) -> FloatArray:
     """Daytime cloudiness fraction (Eq. 18)
 
     Parameters
@@ -627,7 +638,9 @@ def fcd_daily(rs, rso):
     # return fcd
 
 
-def fcd_hourly(rs, rso, doy, time_mid, lat, lon, method='asce'):
+def fcd_hourly(
+        rs: ArrayLike, rso: ArrayLike, doy: ArrayLike, time_mid: ArrayLike,
+        lat: ArrayLike, lon: ArrayLike, method: str = 'asce') -> FloatArray:
     """Cloudiness fraction (Eq. 45)
 
     Parameters
@@ -683,7 +696,9 @@ def fcd_hourly(rs, rso, doy, time_mid, lat, lon, method='asce'):
     return fcd
 
 
-def rnl_daily(tmax, tmin, ea, fcd):
+def rnl_daily(
+        tmax: ArrayLike, tmin: ArrayLike, ea: ArrayLike,
+        fcd: ArrayLike) -> FloatArray | float:
     """Daily net long-wave radiation  (Eq. 17)
 
     Parameters
@@ -709,7 +724,7 @@ def rnl_daily(tmax, tmin, ea, fcd):
     )
 
 
-def rnl_hourly(tmean, ea, fcd):
+def rnl_hourly(tmean: ArrayLike, ea: ArrayLike, fcd: ArrayLike) -> FloatArray | float:
     """Hourly net long-wave radiation  (Eq. 44)
 
     Parameters
@@ -730,7 +745,7 @@ def rnl_hourly(tmean, ea, fcd):
     return 2.042E-10 * fcd * (0.34 - 0.14 * np.sqrt(ea)) * np.power((tmean + 273.16), 4)
 
 
-def rn_daily(rs, rnl):
+def rn_daily(rs: ArrayLike, rnl: ArrayLike) -> FloatArray | float:
     """Daily net radiation (Eqs. 15 & 16)
 
     Parameters
@@ -749,7 +764,7 @@ def rn_daily(rs, rnl):
     return 0.77 * rs - rnl
 
 
-def rn_hourly(rs, rnl):
+def rn_hourly(rs: ArrayLike, rnl: ArrayLike) -> FloatArray | float:
     """Daily net radiation (Eqs. 42 & 43)
 
     Parameters
@@ -768,7 +783,7 @@ def rn_hourly(rs, rnl):
     return 0.77 * rs - rnl
 
 
-def wind_height_adjust(uz, zw):
+def wind_height_adjust(uz: ArrayLike, zw: ArrayLike) -> FloatArray | float:
     """Wind speed at 2 m height based on full logarithmic profile (Eq. 33)
 
     Parameters
@@ -787,7 +802,10 @@ def wind_height_adjust(uz, zw):
     return uz * 4.87 / np.log(67.8 * zw - 5.42)
 
 
-def etsz(rn, g, tmean, u2, vpd, es_slope, psy, cn, cd):
+def etsz(
+        rn: ArrayLike, g: ArrayLike, tmean: ArrayLike, u2: ArrayLike,
+        vpd: ArrayLike, es_slope: ArrayLike, psy: ArrayLike,
+        cn: ArrayLike, cd: ArrayLike) -> FloatArray | float:
     """Standardized Reference ET [mm] (Eq. 1)
 
     Parameters
