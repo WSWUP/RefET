@@ -33,6 +33,15 @@ project uses [semantic versioning](https://semver.org/).
   version classifiers, keywords.
 
 ### Added
+- Additional humidity input pathways on `Daily` (`q`, `rh_min`/`rh_max`) and
+  `Hourly` (`q`, `rh`), resolved in the ASCE-EWRI (2005) preference order
+  (ea, then tdew, then q, then RH), with `fraction` unit support for RH.
+  New `calcs.ea_from_rh_daily()` and `calcs.ea_from_rh()` functions.
+- `refet.qaqc`: input screening flags per ASCE-EWRI (2005) Appendix D
+  (Rs vs clear-sky envelope, saturation, temperature order, wind range).
+  Flags only; data is never modified.
+- `refet.estimate`: clearly-labeled gap-filling estimators (tdew from tmin
+  with the Ko offset, Hargreaves-Samani Rs, tdew from ea).
 - `refet.io.agrimet`: client for the Bureau of Reclamation AgriMet/Hydromet
   web service (daily and hourly fetch, station metadata lookup, disk caching
   with expiry for recent ranges, retries, and normalization of every known

@@ -28,6 +28,18 @@ refet.units
 .. automodule:: refet.units
    :members:
 
+refet.qaqc
+----------
+
+.. automodule:: refet.qaqc
+   :members:
+
+refet.estimate
+--------------
+
+.. automodule:: refet.estimate
+   :members:
+
 refet.io.agrimet
 ----------------
 

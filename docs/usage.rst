@@ -71,17 +71,24 @@ lat       ndarray     Latitude [degrees]
 doy       ndarray     Day of year
 ========  ==========  ====================================================
 
-Required vapor pressure parameters (hourly and daily)
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Required humidity parameters
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Either the "ea" or "tdew" parameter must be set.
+One humidity input must be set. When several are given, the first
+available in the ASCE-EWRI (2005) preference order is used:
+measured vapor pressure, then dew point, then specific humidity, then
+relative humidity.
 
-========  ==========  ====================================================
-Variable  Type        Description [default units]
-========  ==========  ====================================================
-ea        ndarray     Actual vapor pressure [kPa]
-tdew      ndarray     Dew point temperature [C]
-========  ==========  ====================================================
+==============  ==========  ==============================================
+Variable        Type        Description [default units]
+==============  ==========  ==============================================
+ea              ndarray     Actual vapor pressure [kPa]
+tdew            ndarray     Dew point temperature [C]
+q               ndarray     Specific humidity [kg kg-1]
+rh_min/rh_max   ndarray     Min/max daily relative humidity [%] (Daily,
+                            both required together)
+rh              ndarray     Mean relative humidity [%] (Hourly)
+==============  ==========  ==============================================
 
 Required daily parameters
 ~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -133,6 +140,25 @@ input_units  dict        | Override default input unit types
                          | Input values will be converted to default unit types
 
 ===========  ==========  ====================================================
+
+Screening inputs and filling gaps
+---------------------------------
+
+``refet.qaqc`` flags suspect inputs (solar above the clear sky envelope,
+vapor pressure above saturation, inverted daily temperatures, wind range)
+without modifying anything:
+
+.. code-block:: python
+
+    d = refet.Daily(...)
+    flags = refet.qaqc.check(d)
+    print(refet.qaqc.counts(flags))
+
+``refet.estimate`` holds clearly-labeled estimators for missing inputs
+(dew point from tmin with the arid-site Ko offset, Hargreaves-Samani solar
+from the temperature range), following FAO-56 and ASCE-EWRI (2005)
+Appendix E. Estimates should be disclosed, never silently mixed with
+measurements.
 
 Limitations
 -----------
