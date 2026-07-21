@@ -2,8 +2,8 @@ import math
 
 import pytest
 
-from src.refet.hourly import Hourly
-import src.refet.units as units
+from refet.hourly import Hourly
+import refet.units as units
 
 
 # Eventually move to conftest.py or a separate file
@@ -265,3 +265,35 @@ def test_refet_hourly_tdew():
 #         input_units={'lon': 'deg', 'lat': 'deg', 'rs': 'w m-2'},
 #     ).eto()
 #     assert float(eto[0]) == pytest.approx(expected)
+
+
+def test_refet_hourly_doy_is_array():
+    """doy must survive as an ndarray (it was previously overwritten)"""
+    import numpy as np
+    h = Hourly(
+        tmean=h_args['tmean'], ea=h_args['ea'], rs=h_args['rs'],
+        uz=h_args['uz'], zw=s_args['zw'], elev=s_args['elev'],
+        lat=s_args['lat'], lon=s_args['lon'], doy=[h_args['doy']],
+        time=h_args['time'],
+    )
+    assert isinstance(h.doy, np.ndarray)
+
+
+def test_refet_hourly_vpd_clamped():
+    """VPD is clamped at zero when Tdew exceeds Tmean, matching Daily"""
+    h = Hourly(
+        tmean=10.0, tdew=12.0, rs=0.0, uz=h_args['uz'], zw=s_args['zw'],
+        elev=s_args['elev'], lat=s_args['lat'], lon=s_args['lon'],
+        doy=h_args['doy'], time=8.0,
+    )
+    assert float(h.vpd[0]) == 0.0
+
+
+def test_refet_hourly_ea_tdew_exception():
+    """Check that a ValueError is raised if ea and tdew are not set"""
+    with pytest.raises(ValueError):
+        Hourly(
+            tmean=h_args['tmean'], rs=h_args['rs'], uz=h_args['uz'],
+            zw=s_args['zw'], elev=s_args['elev'], lat=s_args['lat'],
+            lon=s_args['lon'], doy=h_args['doy'], time=h_args['time'],
+        )

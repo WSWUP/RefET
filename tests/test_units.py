@@ -2,7 +2,7 @@ import math
 
 import pytest
 
-import src.refet.units as units
+import refet.units as units
 
 
 def test_deg2rad(d=30, r=(math.pi / 6)):
@@ -115,3 +115,25 @@ def test_convert_length(variable, unit, value, expected):
 )
 def test_convert_angle(variable, unit, value, expected):
     assert expected == units.convert(value, variable, unit)
+
+
+def test_convert_does_not_mutate_input():
+    """convert() must return a new object, not modify the caller's array"""
+    import numpy as np
+    values = np.array([68.0])
+    out = units.convert(values, 'tmean', 'F')
+    assert values[0] == 68.0
+    assert float(out[0]) == pytest.approx(20.0)
+
+
+def test_convert_integer_array():
+    """Integer arrays previously raised a casting error on in-place multiply"""
+    import numpy as np
+    out = units.convert(np.array([32, 212]), 'tmean', 'F')
+    assert float(out[0]) == pytest.approx(0.0)
+    assert float(out[1]) == pytest.approx(100.0)
+
+
+def test_convert_wm2_timestep_none():
+    with pytest.raises(ValueError):
+        units.convert(2, 'rs', 'w/m2', None)

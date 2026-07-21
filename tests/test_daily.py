@@ -2,8 +2,8 @@ import math
 
 import pytest
 
-from src.refet.daily import Daily
-import src.refet.units as units
+from refet.daily import Daily
+import refet.units as units
 
 
 # Eventually move to conftest.py or a separate file
@@ -254,8 +254,8 @@ def test_refet_daily_tdew():
 
 
 def test_refet_daily_ea_tdew_exception():
-    """Check that an exception is raised if ea and tdew are not set"""
-    with pytest.raises(Exception):
+    """Check that a ValueError is raised if ea and tdew are not set"""
+    with pytest.raises(ValueError):
         Daily(
             tmin=d_args['tmin'], tmax=d_args['tmax'],
             rs=d_args['rs'], uz=d_args['uz'], zw=s_args['zw'],
@@ -264,7 +264,7 @@ def test_refet_daily_ea_tdew_exception():
         )
 
 
-def test_refet_daily_tdew():
+def test_refet_daily_tdew_f():
     """Check that Tdew is converted to C before computing Ea"""
     etr = Daily(
         tmin=d_args['tmin'], tmax=d_args['tmax'],
@@ -274,3 +274,39 @@ def test_refet_daily_tdew():
         method='asce', input_units={'tdew': 'F'},
     ).etr()
     assert float(etr[0]) == pytest.approx(d_args['etr_asce'])
+
+def test_refet_daily_rso_type_simple_elev_ft():
+    """rso_type='simple' must use the unit-converted elevation
+
+    Regression test: the simple Rso branch previously read the raw elev
+    argument, skipping the input_units conversion.
+    """
+    etr = Daily(
+        tmin=d_args['tmin'], tmax=d_args['tmax'], ea=d_args['ea'],
+        rs=d_args['rs'], uz=d_args['uz'], zw=s_args['zw'],
+        elev=s_args['elev'] / 0.3048, lat=s_args['lat'], doy=d_args['doy'],
+        method='refet', rso_type='simple', input_units={'elev': 'ft'},
+    ).etr()
+    assert float(etr[0]) == pytest.approx(d_args['etr_rso_simple'])
+
+
+def test_refet_daily_rso_type_array_missing_rso_exception():
+    """rso_type='array' without an rso array must raise, not compute from None"""
+    with pytest.raises(ValueError):
+        Daily(
+            tmin=d_args['tmin'], tmax=d_args['tmax'], ea=d_args['ea'],
+            rs=d_args['rs'], uz=d_args['uz'], zw=s_args['zw'],
+            elev=s_args['elev'], lat=s_args['lat'], doy=d_args['doy'],
+            method='refet', rso_type='array',
+        )
+
+
+def test_refet_daily_input_units_not_shared():
+    """Default input_units must not be a shared mutable dict"""
+    kwargs = dict(
+        tmin=d_args['tmin'], tmax=d_args['tmax'], ea=d_args['ea'],
+        rs=d_args['rs'], uz=d_args['uz'], zw=s_args['zw'],
+        elev=s_args['elev'], lat=s_args['lat'], doy=d_args['doy'])
+    etr_a = Daily(**kwargs).etr()
+    etr_b = Daily(**kwargs, input_units={}).etr()
+    assert float(etr_a[0]) == pytest.approx(float(etr_b[0]))
