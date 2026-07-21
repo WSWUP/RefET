@@ -22,7 +22,7 @@ class Daily():
             method='asce',
             rso_type=None,
             rso=None,
-            input_units={},
+            input_units=None,
         ):
         """ASCE Daily Standardized Reference Evapotranspiration (ET)
 
@@ -96,7 +96,7 @@ class Daily():
         self.elev = np.array(elev, copy=True, ndmin=1)
         self.lat = np.array(lat, copy=True, ndmin=1)
         self.zw = zw
-        self.doy = doy
+        self.doy = np.array(doy, copy=True, ndmin=1)
 
         # Use Ea directly if it is set, otherwise try to compute from Tdew
         if ea is not None:
@@ -106,10 +106,11 @@ class Daily():
             self.tdew = np.array(tdew, copy=True, ndmin=1)
             self.ea = None
         else:
-            # TODO: Check if there is a better exception to raise
-            raise Exception('Either "ea" or "tdew" parameter must be set')
+            raise ValueError('Either "ea" or "tdew" parameter must be set')
 
         # Unit conversions
+        if input_units is None:
+            input_units = {}
         for v, unit in input_units.items():
             setattr(self, v, units.convert(getattr(self, v), v, unit, timestep='daily'))
 
@@ -118,13 +119,11 @@ class Daily():
             self.ea = calcs.sat_vapor_pressure(self.tdew)
 
         # Rso
-        if rso_type is None:
-            pass
-        elif rso_type.lower() not in ['simple', 'full', 'array']:
-            raise ValueError('rso_type must be None, "simple", "full", or "array')
-        elif rso_type.lower() in 'array':
-            # Check that rso is an array
-            pass
+        if rso_type is not None:
+            if rso_type.lower() not in ['simple', 'full', 'array']:
+                raise ValueError('rso_type must be None, "simple", "full", or "array"')
+            if rso_type.lower() == 'array' and rso is None:
+                raise ValueError('rso must be set when rso_type is "array"')
 
         # The input angles are converted to degrees by default in units.convert
         # They need to be converted back to radians for the calc functions
@@ -157,18 +156,18 @@ class Daily():
         # Clear sky solar radiation
         # If rso_type is not set, use the method
         # If rso_type is set, use rso_type directly
-        if rso_type is None :
+        if rso_type is None:
             if method.lower() == 'asce':
                 self.rso = calcs.rso_simple(self.ra, self.elev)
             elif method.lower() == 'refet':
                 self.rso = calcs.rso_daily(self.ra, self.ea, self.pair, self.doy, self.lat)
         elif rso_type.lower() == 'simple':
-            self.rso = calcs.rso_simple(self.ra, elev)
+            self.rso = calcs.rso_simple(self.ra, self.elev)
         elif rso_type.lower() == 'full':
             self.rso = calcs.rso_daily(self.ra, self.ea, self.pair, self.doy, self.lat)
         elif rso_type.lower() == 'array':
             # Use rso array passed to function
-            self.rso = rso
+            self.rso = np.array(rso, copy=True, ndmin=1)
 
         # Cloudiness fraction
         self.fcd = calcs.fcd_daily(self.rs, self.rso)

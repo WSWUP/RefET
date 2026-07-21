@@ -1,6 +1,4 @@
 import datetime as dt
-from future.standard_library import install_aliases
-install_aliases()
 
 from urllib.request import urlopen
 

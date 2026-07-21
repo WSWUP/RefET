@@ -21,7 +21,7 @@ class Hourly():
             ea=None,
             tdew=None,
             method='asce',
-            input_units={},
+            input_units=None,
         ):
         """ASCE Hourly Standardized Reference Evapotranspiration (ET)
 
@@ -90,7 +90,6 @@ class Hourly():
         self.time = np.array(time, copy=True, ndmin=1)
         self.time_mid = self.time + 0.5
         self.zw = zw
-        self.doy = doy
 
         # Use Ea directly if it is set, otherwise try to compute from Tdew
         if ea is not None:
@@ -100,10 +99,11 @@ class Hourly():
             self.tdew = np.array(tdew, copy=True, ndmin=1)
             self.ea = None
         else:
-            # TODO: Check if there is a better exception to raise
-            raise Exception('Either "ea" or "tdew" parameter must be set')
+            raise ValueError('Either "ea" or "tdew" parameter must be set')
 
         # Unit conversions
+        if input_units is None:
+            input_units = {}
         for v, unit in input_units.items():
             setattr(self, v, units.convert(getattr(self, v), v, unit, timestep='hourly'))
 
@@ -132,8 +132,9 @@ class Hourly():
         self.es = calcs.sat_vapor_pressure(self.tmean)
 
         # Vapor pressure deficit
-        self.vpd = self.es - self.ea
-        # self.vpd = calcs.vpd(self.es, ea)
+        # Clamped at zero to match the Daily class and ASCE-EWRI intent; a
+        # negative value can only occur when Tdew exceeds Tmean (sensor error)
+        self.vpd = calcs.vpd(self.es, self.ea)
 
         # Extraterrestrial radiation
         self.ra = calcs.ra_hourly(self.lat, self.lon, self.doy, self.time_mid, method)

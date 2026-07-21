@@ -42,6 +42,10 @@ def convert(values, variable, unit, timestep=None):
     Returns:
         ndarray
 
+    Notes:
+        The input is never modified in place; converted values are returned
+        as a new object. Integer inputs are converted to floats as needed.
+
     """
     if unit == '':
         return values
@@ -51,42 +55,42 @@ def convert(values, variable, unit, timestep=None):
         raise ValueError(f'unsupported unit conversion for {variable} {unit}')
 
     # Convert input values to expected units
-    # TODO: Split these into separate functions
+    # Plain (non in-place) arithmetic so that the caller's array is not
+    #   mutated and integer inputs are safely promoted to floats
     if variable in ['tmean', 'tmin', 'tmax', 'tdew']:
         if unit.lower() in ['f', 'fahrenheit']:
-            values -= 32
-            values *= (5.0 / 9)
+            values = (values - 32) * (5.0 / 9)
         elif unit.lower() in ['k', 'kelvin']:
-            values -= 273.15
+            values = values - 273.15
     elif variable == 'ea':
         if unit.lower() in ['pa']:
-            values /= 1000.0
+            values = values / 1000.0
     elif variable == 'rs':
         if unit.lower() in ['langleys']:
-            values *= 0.041868
+            values = values * 0.041868
         elif unit.lower() in ['w m-2', 'w/m2']:
-            if timestep.lower() == 'daily':
-                values *= 0.0864
-            elif timestep.lower() == 'hourly':
-                values *= 0.0036
-            else:
+            if timestep is None or timestep.lower() not in ['daily', 'hourly']:
                 raise ValueError(f'unsupported rs timestep parameter: {timestep}')
+            elif timestep.lower() == 'daily':
+                values = values * 0.0864
+            else:
+                values = values * 0.0036
         elif unit.lower() in RS_DAILY_UNITS:
-            values *= 0.0864
+            values = values * 0.0864
         elif unit.lower() in RS_HOURLY_UNITS:
-            values *= 0.0036
+            values = values * 0.0036
     elif variable == 'uz':
         if unit.lower() in ['mph']:
-            values *= 0.44704
+            values = values * 0.44704
     elif variable in ['zw', 'elev']:
         if unit.lower() in ['ft', 'feet']:
-            values *= 0.3048
+            values = values * 0.3048
     elif variable in ['lat', 'lon']:
         if unit.lower() in ['rad', 'radian', 'radians']:
             # This is a little backwards but convert to degrees so that
             # it can be converted to radians below.  This is done so
             # that not setting the value will default to degrees.
-            values *= (180.0 / math.pi)
+            values = values * (180.0 / math.pi)
 
     return values
 
