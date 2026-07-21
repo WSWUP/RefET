@@ -46,6 +46,11 @@ test = [
     "pytz",
     "pytest",
 ]
+docs = [
+    "sphinx",
+    "furo",
+    "myst-parser",
+]
 
 [build-system]
 requires = ["setuptools>=77.0"]

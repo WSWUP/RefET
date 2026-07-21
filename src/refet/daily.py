@@ -51,7 +51,7 @@ class Daily():
             Mean daily dew point temperature [C].
         method : {'asce' (default), 'refet'}, optional
             Specifies which calculation method to use.
-            * 'asce' -- Calculations will follow ASCE-EWRI 2005 [1]_ equations.
+            * 'asce' -- Calculations will follow ASCE-EWRI 2005 equations.
             * 'refet' -- Calculations will follow RefET software.
         rso_type : {None (default), 'full' , 'simple', 'array'}, optional
             Specifies which clear sky solar radiation (Rso) model to use.
@@ -81,9 +81,9 @@ class Daily():
 
         References
         ----------
-        .. [1] ASCE-EWRI (2005). The ASCE standardized reference
-           evapotranspiration equation. ASCE-EWRI Standardization of Reference
-           Evapotranspiration Task Committee Rep., ASCE Reston, Va.
+        ASCE-EWRI (2005). The ASCE standardized reference evapotranspiration
+        equation. ASCE-EWRI Standardization of Reference Evapotranspiration
+        Task Committee Rep., ASCE Reston, Va.
 
         """
         if method.lower() not in ['asce', 'refet']:

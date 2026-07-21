@@ -15,7 +15,7 @@ def air_pressure(elev: ArrayLike, method: str = 'asce') -> FloatArray:
         Elevation [m].
     method : {'asce' (default), 'refet'}, optional
         Calculation method:
-        * 'asce' -- Calculations will follow ASCE-EWRI 2005 [1] equations.
+        * 'asce' -- Calculations will follow ASCE-EWRI 2005 equations.
         * 'refet' -- Calculations will follow RefET software.
 
     Returns
@@ -87,7 +87,7 @@ def es_slope(tmean: ArrayLike, method: str = 'asce') -> FloatArray | float:
         Mean air temperature [C].
     method : {'asce' (default), 'refet'}, optional
         Calculation method:
-        * 'asce' -- Calculations will follow ASCE-EWRI 2005 [1] equations.
+        * 'asce' -- Calculations will follow ASCE-EWRI 2005 equations.
         * 'refet' -- Calculations will follow RefET software.
 
     Returns
@@ -238,7 +238,7 @@ def declination(doy: ArrayLike, method: str = 'asce') -> FloatArray | float:
         Day of year.
     method : {'asce' (default), 'refet'}, optional
         Calculation method:
-        * 'asce' -- Calculations will follow ASCE-EWRI 2005 [1] equations.
+        * 'asce' -- Calculations will follow ASCE-EWRI 2005 equations.
         * 'refet' -- Calculations will follow RefET software.
 
     Returns
@@ -277,7 +277,7 @@ def dr(doy: ArrayLike) -> FloatArray | float:
     Notes
     -----
     This function returns 1 / d^2, not d, for direct use in radiance to
-      TOA reflectance calculation
+    TOA reflectance calculation:
     pi * L * d^2 / (ESUN * cos(theta)) -> pi * L / (ESUN * cos(theta) * d)
 
     """
@@ -402,7 +402,7 @@ def ra_daily(lat: ArrayLike, doy: ArrayLike, method: str = 'asce') -> FloatArray
         Day of year.
     method : {'asce' (default), 'refet'}, optional
         Calculation method:
-        * 'asce' -- Calculations will follow ASCE-EWRI 2005 [1] equations.
+        * 'asce' -- Calculations will follow ASCE-EWRI 2005 equations.
         * 'refet' -- Calculations will follow RefET software.
 
     Returns
@@ -445,7 +445,7 @@ def ra_hourly(
         UTC time at midpoint of period [hours].
     method : {'asce' (default), 'refet'}, optional
         Calculation method:
-        * 'asce' -- Calculations will follow ASCE-EWRI 2005 [1] equations.
+        * 'asce' -- Calculations will follow ASCE-EWRI 2005 equations.
         * 'refet' -- Calculations will follow RefET software.
 
     Returns
@@ -552,7 +552,7 @@ def rso_hourly(
         Longitude [rad].
     method : {'asce' (default), 'refet'}, optional
         Calculation method:
-        * 'asce' -- Calculations will follow ASCE-EWRI 2005 [1] equations.
+        * 'asce' -- Calculations will follow ASCE-EWRI 2005 equations.
         * 'refet' -- Calculations will follow RefET software.
         Passed through to declination calculation (_delta()).
 
@@ -659,7 +659,7 @@ def fcd_hourly(
         Longitude [rad].
     method : {'asce' (default), 'refet'}, optional
         Calculation method:
-        * 'asce' -- Calculations will follow ASCE-EWRI 2005 [1] equations.
+        * 'asce' -- Calculations will follow ASCE-EWRI 2005 equations.
         * 'refet' -- Calculations will follow RefET software.
         Passed through to declination calculation (_delta()).
 

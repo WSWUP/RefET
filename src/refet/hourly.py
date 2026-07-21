@@ -26,7 +26,8 @@ class Hourly():
         ):
         """ASCE Hourly Standardized Reference Evapotranspiration (ET)
 
-        .. warning:: Cloudiness fraction at night is not being computed per [1]_
+        .. warning:: Cloudiness fraction at night is not being computed per
+           ASCE-EWRI (2005)
 
         Arguments
         ---------
@@ -54,7 +55,7 @@ class Hourly():
             Average hourly dew point temperature [C].
         method : {'asce' (default), 'refet'}, optional
             Specifies which calculation method to use.
-            * 'asce' -- Calculations will follow ASCE-EWRI 2005 [1]_ equations.
+            * 'asce' -- Calculations will follow ASCE-EWRI 2005 equations.
             * 'refet' -- Calculations will follow RefET software.
         input_units : dict, optional
             Input unit types.
@@ -72,9 +73,9 @@ class Hourly():
 
         References
         ----------
-        .. [1] ASCE-EWRI (2005). The ASCE standardized reference
-           evapotranspiration equation. ASCE-EWRI Standardization of Reference
-           Evapotranspiration Task Committee Rep., ASCE Reston, Va.
+        ASCE-EWRI (2005). The ASCE standardized reference evapotranspiration
+        equation. ASCE-EWRI Standardization of Reference Evapotranspiration
+        Task Committee Rep., ASCE Reston, Va.
 
         """
         if method.lower() not in ['asce', 'refet']:

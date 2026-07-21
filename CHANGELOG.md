@@ -33,6 +33,14 @@ project uses [semantic versioning](https://semver.org/).
   version classifiers, keywords.
 
 ### Added
+- `results()` method on `Daily` and `Hourly` returning the input and
+  intermediate terms (net radiation, VPD, clear sky solar, and so on) as a
+  dict of arrays.
+- Type hints on the public API and a `py.typed` marker (PEP 561), so editors
+  and type checkers see real signatures.
+- Sphinx documentation site (usage, API reference, validation, and a note on
+  the relationship between ASCE standardized reference ET and FAO-56) with a
+  GitHub Pages deploy workflow.
 - `CITATION.cff` citation metadata and this changelog.
 - PyPI publish workflow using trusted publishing, triggered by GitHub
   releases.
