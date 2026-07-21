@@ -184,6 +184,28 @@ class Daily():
         # Wind speed
         self.u2 = calcs.wind_height_adjust(self.uz, self.zw)
 
+    def results(self):
+        """Input and intermediate terms of the daily calculation
+
+        Returns
+        -------
+        dict of ndarray
+            Terms computed by the constructor, keyed by name: tmin, tmax,
+            tmean, tdew (only when given), ea, es, es_slope, vpd, rs, pair,
+            psy, ra, rso, fcd, rnl, rn, u2.
+
+        Notes
+        -----
+        The surface dependent terms (cn, cd) are set by the eto() and etr()
+        methods and are not included.
+
+        """
+        keys = [
+            'tmin', 'tmax', 'tmean', 'tdew', 'ea', 'es', 'es_slope', 'vpd',
+            'rs', 'pair', 'psy', 'ra', 'rso', 'fcd', 'rnl', 'rn', 'u2',
+        ]
+        return {k: getattr(self, k) for k in keys if getattr(self, k) is not None}
+
     def etsz(self, surface):
         """Standardized reference ET
 

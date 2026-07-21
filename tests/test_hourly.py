@@ -288,3 +288,18 @@ def test_refet_hourly_vpd_clamped():
     )
     assert float(h.vpd[0]) == 0.0
 
+
+
+def test_refet_hourly_results():
+    """results() returns the constructor's intermediate terms by name"""
+    h = Hourly(
+        tmean=h_args['tmean'], ea=h_args['ea'], rs=h_args['rs'],
+        uz=h_args['uz'], zw=s_args['zw'], elev=s_args['elev'],
+        lat=s_args['lat'], lon=s_args['lon'], doy=h_args['doy'],
+        time=h_args['time'])
+    r = h.results()
+    assert set(r.keys()) == {
+        'tmean', 'ea', 'es', 'es_slope', 'vpd',
+        'rs', 'pair', 'psy', 'ra', 'rso', 'fcd', 'rnl', 'rn', 'u2'}
+    assert float(r['u2'][0]) == pytest.approx(h_args['u2'])
+    assert r['ra'] is h.ra

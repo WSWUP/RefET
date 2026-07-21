@@ -310,3 +310,26 @@ def test_refet_daily_input_units_not_shared():
     etr_a = Daily(**kwargs).etr()
     etr_b = Daily(**kwargs, input_units={}).etr()
     assert float(etr_a[0]) == pytest.approx(float(etr_b[0]))
+
+
+def test_refet_daily_results():
+    """results() returns the constructor's intermediate terms by name"""
+    d = Daily(
+        tmin=d_args['tmin'], tmax=d_args['tmax'], ea=d_args['ea'],
+        rs=d_args['rs'], uz=d_args['uz'], zw=s_args['zw'],
+        elev=s_args['elev'], lat=s_args['lat'], doy=d_args['doy'])
+    r = d.results()
+    assert set(r.keys()) == {
+        'tmin', 'tmax', 'tmean', 'ea', 'es', 'es_slope', 'vpd',
+        'rs', 'pair', 'psy', 'ra', 'rso', 'fcd', 'rnl', 'rn', 'u2'}
+    assert float(r['u2'][0]) == pytest.approx(d_args['u2'])
+    assert r['rn'] is d.rn
+
+
+def test_refet_daily_results_tdew():
+    """results() includes tdew only when it was given"""
+    r = Daily(
+        tmin=d_args['tmin'], tmax=d_args['tmax'], tdew=d_args['tdew'],
+        rs=d_args['rs'], uz=d_args['uz'], zw=s_args['zw'],
+        elev=s_args['elev'], lat=s_args['lat'], doy=d_args['doy']).results()
+    assert 'tdew' in r
