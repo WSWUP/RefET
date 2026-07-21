@@ -11,18 +11,11 @@ import numpy as np
 import pandas as pd
 
 from refet.daily import Daily
+from refet.estimate import tdew_from_ea
 from refet.hourly import Hourly
 
 from .config import ConfigError, resolve
 from .facts import derive_facts
-
-
-def tdew_from_ea(ea):
-    """Dew point [C] from actual vapor pressure [kPa], inverting the Magnus
-    form of Eq. 7 (as in FAO-56 Eq. 3-11). Used only for display when a
-    source provides ea rather than a dew point measurement."""
-    x = np.log(np.asarray(ea, dtype=float) / 0.6108)
-    return 237.3 * x / (17.27 - x)
 
 
 def station_props(out_path):
