@@ -30,5 +30,10 @@ coverage.xml
 # MacOS
 .DS_Store
 
+# Generated example reports and cached AgriMet responses (see examples/README.md)
+examples/*_report.html
+examples/*_data.json
+examples/.cache/
+
 # Miscellaneous files
 notes.txt
